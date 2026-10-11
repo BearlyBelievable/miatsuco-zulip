@@ -19346,6 +19346,7 @@ paths:
                                     guest users are forbidden to know the subscribers.
 
                                     **Changes**: New in Zulip 11.0 (feature level 412).
+                                miatsuco_retain_topics: {}
 
                         description: |
                           Present if `subscription` is present in `fetch_event_types`.
@@ -20950,6 +20951,17 @@ paths:
                           encoded as `null` instead of `-1`. Clients can correctly handle all
                           server versions by treating both `-1` and `null` as indicating
                           unlimited message retention.
+                      realm_miatsuco_retain_topics:
+                        type: boolean
+                        description: |
+                          Present if `realm` is present in `fetch_event_types`.
+
+                          Whether the [message retention policy](/help/message-retention-policy)
+                          retains topics in channels of this organization by keeping the
+                          oldest message in each topic, regardless of its age. A channel can
+                          also enable this for itself. Specific to the MiAtSu.Co fork.
+
+                          **Changes**: New in Miatsuco 1.0 (feature level 5).
                       realm_name:
                         type: string
                         description: |
@@ -24558,6 +24570,7 @@ paths:
                                     [default channel](/help/set-default-channels-for-new-users).
 
                                     [include_default]: /api/get-streams#parameter-include_default
+                                miatsuco_retain_topics: {}
                               required:
                                 - stream_id
                                 - name
@@ -25159,6 +25172,18 @@ paths:
                           "old": 15,
                         }
                     - $ref: "#/components/schemas/GroupSettingValueUpdate"
+                miatsuco_retain_topics:
+                  description: |
+                    Whether the [message retention policy](/help/message-retention-policy)
+                    should retain topics in this channel by keeping the oldest message
+                    in each topic, regardless of its age. Topics are also retained when
+                    the organization setting is enabled. Requires permission to
+                    administer the channel. This setting requires message retention to be
+                    less than "forever". Specific to the MiAtSu.Co fork.
+
+                    **Changes**: New in Miatsuco 1.0 (feature level 5).
+                  type: boolean
+                  example: true
 
             encoding:
               is_private:
@@ -27742,6 +27767,7 @@ components:
 
                 **Changes**: New in Zulip 8.0 (feature level 199). Previously, this
                 statistic was available only in subscription objects.
+            miatsuco_retain_topics: {}
           required:
             - stream_id
             - name
@@ -27958,6 +27984,15 @@ components:
             server.
 
             **Changes**: New in Zulip 11.0 (feature level 394).
+        miatsuco_retain_topics:
+          type: boolean
+          description: |
+            Whether the [message retention policy](/help/message-retention-policy)
+            retains topics in this channel by keeping the oldest message in each
+            topic, regardless of its age. Topics are also retained when the
+            organization setting is enabled. Specific to the MiAtSu.Co fork.
+
+            **Changes**: New in Miatsuco 1.0 (feature level 5).
     BasicBot:
       allOf:
         - $ref: "#/components/schemas/BasicBotBase"
@@ -29117,6 +29152,15 @@ components:
             server.
 
             **Changes**: New in Zulip 11.0 (feature level 394).
+        miatsuco_retain_topics:
+          type: boolean
+          description: |
+            Whether the [message retention policy](/help/message-retention-policy)
+            retains topics in this channel by keeping the oldest message in each
+            topic, regardless of its age. Topics are also retained when the
+            organization setting is enabled. Specific to the MiAtSu.Co fork.
+
+            **Changes**: New in Miatsuco 1.0 (feature level 5).
     DefaultChannelGroup:
       type: object
       description: |

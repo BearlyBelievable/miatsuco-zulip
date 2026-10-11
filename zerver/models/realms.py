@@ -542,6 +542,7 @@ class Realm(models.Model):
     }
     # For old messages being automatically deleted
     message_retention_days = models.IntegerField(null=False, default=-1)
+    miatsuco_retain_topics = models.BooleanField(default=False, db_default=False)
 
     # When non-null, all but the latest this many messages in the organization
     # are inaccessible to users (but not deleted).
@@ -814,6 +815,7 @@ class Realm(models.Model):
         move_messages_between_streams_limit_seconds=int | None,
         move_messages_within_stream_limit_seconds=int | None,
         message_retention_days=int,
+        miatsuco_retain_topics=bool,
         name=str,
         name_changes_disabled=bool,
         push_notifications_enabled=bool,

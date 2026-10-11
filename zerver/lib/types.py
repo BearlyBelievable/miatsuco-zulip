@@ -191,6 +191,7 @@ class RawStreamDict(TypedDict):
     invite_only: bool
     is_web_public: bool
     message_retention_days: int | None
+    miatsuco_retain_topics: bool
     name: str
     rendered_description: str
     stream_post_policy: int
@@ -251,6 +252,7 @@ class SubscriptionStreamDict(TypedDict):
     is_muted: bool
     is_web_public: bool
     message_retention_days: int | None
+    miatsuco_retain_topics: bool
     name: str
     pin_to_top: bool
     push_notifications: bool | None
@@ -289,6 +291,7 @@ class NeverSubscribedStreamDict(TypedDict):
     is_announcement_only: bool
     is_web_public: bool
     message_retention_days: int | None
+    miatsuco_retain_topics: bool
     name: str
     rendered_description: str
     stream_id: int
@@ -328,6 +331,7 @@ class DefaultStreamDict(TypedDict):
     invite_only: bool
     is_web_public: bool
     message_retention_days: int | None
+    miatsuco_retain_topics: bool
     name: str
     rendered_description: str
     stream_id: int  # `stream_id` represents `id` of the `Stream` object in `API_FIELDS`

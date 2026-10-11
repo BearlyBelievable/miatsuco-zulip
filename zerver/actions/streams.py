@@ -480,6 +480,7 @@ def send_subscription_add_events(
                 invite_only=stream_dict["invite_only"],
                 is_web_public=stream_dict["is_web_public"],
                 message_retention_days=stream_dict["message_retention_days"],
+                miatsuco_retain_topics=stream_dict["miatsuco_retain_topics"],
                 name=stream_dict["name"],
                 rendered_description=stream_dict["rendered_description"],
                 stream_id=stream_dict["stream_id"],
@@ -1749,38 +1750,35 @@ def do_set_stream_property(stream: Stream, name: str, value: Any, acting_user: U
 
     send_event_on_commit(stream.realm, event, can_access_stream_metadata_user_ids(stream))
 
-    sender = get_system_bot(settings.NOTIFICATION_BOT, stream.realm_id)
+    if name == "topics_policy":
+        sender = get_system_bot(settings.NOTIFICATION_BOT, stream.realm_id)
 
-    empty_topic_display_name = get_topic_display_name("", stream.realm.default_language)
+        empty_topic_display_name = get_topic_display_name("", stream.realm.default_language)
 
-    TOPICS_POLICY_DISPLAY_NAME_MAP: dict[int, Any] = {
-        StreamTopicsPolicyEnum.inherit.value: _("Automatic"),
-        StreamTopicsPolicyEnum.allow_empty_topic.value: _(
-            "*{empty_topic_display_name}* topic allowed"
-        ).format(empty_topic_display_name=empty_topic_display_name),
-        StreamTopicsPolicyEnum.disable_empty_topic.value: _(
-            "No *{empty_topic_display_name}* topic"
-        ).format(empty_topic_display_name=empty_topic_display_name),
-        StreamTopicsPolicyEnum.empty_topic_only.value: _(
-            "Only *{empty_topic_display_name}* topic allowed"
-        ).format(empty_topic_display_name=empty_topic_display_name),
-    }
+        TOPICS_POLICY_DISPLAY_NAME_MAP: dict[int, Any] = {
+            StreamTopicsPolicyEnum.inherit.value: _("Automatic"),
+            StreamTopicsPolicyEnum.allow_empty_topic.value: _(
+                "*{empty_topic_display_name}* topic allowed"
+            ).format(empty_topic_display_name=empty_topic_display_name),
+            StreamTopicsPolicyEnum.disable_empty_topic.value: _(
+                "No *{empty_topic_display_name}* topic"
+            ).format(empty_topic_display_name=empty_topic_display_name),
+            StreamTopicsPolicyEnum.empty_topic_only.value: _(
+                "Only *{empty_topic_display_name}* topic allowed"
+            ).format(empty_topic_display_name=empty_topic_display_name),
+        }
 
-    NOTIFICATION_MESSAGES = {
-        "topics_policy": _(
-            '{user_name} changed the "Allow posting to the *general chat* topic?" setting from {old_topics_policy} to {new_topics_policy}.'
-        ).format(
-            user_name=silent_mention_syntax_for_user(acting_user),
-            old_topics_policy=f"**{TOPICS_POLICY_DISPLAY_NAME_MAP[old_value]}**",
-            new_topics_policy=f"**{TOPICS_POLICY_DISPLAY_NAME_MAP[value]}**",
-        ),
-    }
-    if NOTIFICATION_MESSAGES.get(name) is not None:
         with override_language(stream.realm.default_language):
             maybe_send_channel_events_notice(
                 sender,
                 stream,
-                NOTIFICATION_MESSAGES[name],
+                _(
+                    '{user_name} changed the "Allow posting to the *general chat* topic?" setting from {old_topics_policy} to {new_topics_policy}.'
+                ).format(
+                    user_name=silent_mention_syntax_for_user(acting_user),
+                    old_topics_policy=f"**{TOPICS_POLICY_DISPLAY_NAME_MAP[old_value]}**",
+                    new_topics_policy=f"**{TOPICS_POLICY_DISPLAY_NAME_MAP[value]}**",
+                ),
                 archived_channel_notice=stream.deactivated,
             )
 

@@ -4,10 +4,11 @@ title: Message retention policy
 
 import FlattenedSteps from "../../components/FlattenedSteps.astro";
 import NavigationSteps from "../../components/NavigationSteps.astro";
+import ZulipNote from "../../components/ZulipNote.astro";
 import ChannelSettingsNavbarTip from "../include/_ChannelSettingsNavbarTip.mdx";
 import OwnerOnly from "../include/_OwnerOnly.mdx";
 import SaveChanges from "../include/_SaveChanges.mdx";
-import SelectChannelViewPermissions from "../include/_SelectChannelViewPermissions.mdx";
+import SelectChannelViewGeneral from "../include/_SelectChannelViewGeneral.mdx";
 
 By default, Zulip stores messages indefinitely, allowing full-text
 search of your complete history.
@@ -55,10 +56,65 @@ retention period of a channel.
 
   1. Select a channel.
 
-  <SelectChannelViewPermissions />
+  <SelectChannelViewGeneral />
 
-  1. Under **Administrative permissions**, configure the
-     **Message retention period**.
+  1. Under **Settings**, configure the **Message retention
+     period**.
+
+  <SaveChanges />
+</FlattenedSteps>
+
+<ChannelSettingsNavbarTip />
+
+## Retain topics past the message retention period
+
+A topic exists only as long as it has messages, so the retention policy deletes
+a topic when it deletes the last message in it. You can turn on a setting that
+keeps a topic alive past the retention period.
+
+When this setting is on:
+
+* The oldest message in each topic is kept when the retention policy runs,
+  which keeps the topic itself.
+* It can be set for the whole organization or for individual channels. You can
+  leave it off for the organization and turn it on for the channels that need
+  it.
+* The setting needs a message retention period, so it can't be turned on while
+  messages are retained forever.
+
+<ZulipNote>
+  Turning the setting on does not restore messages that retention has already
+  deleted. Retention then keeps the oldest message that remains in each topic.
+</ZulipNote>
+
+### Retain topics in the organization
+
+<OwnerOnly />
+
+<FlattenedSteps>
+  <NavigationSteps target="settings/organization-settings" />
+
+  1. Under **Message retention period**, toggle **Keep topics alive by
+     preserving the oldest message**.
+
+  <SaveChanges />
+</FlattenedSteps>
+
+### Retain topics in a channel
+
+Organization administrators and [channel
+administrators](/help/configure-who-can-administer-a-channel) can change this
+setting for a channel.
+
+<FlattenedSteps>
+  <NavigationSteps target="relative/channel/all" />
+
+  1. Select a channel.
+
+  <SelectChannelViewGeneral />
+
+  1. Under **Settings**, toggle **Keep topics alive by preserving the oldest
+     message**.
 
   <SaveChanges />
 </FlattenedSteps>

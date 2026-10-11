@@ -1554,6 +1554,7 @@ h4.stream_setting_subsection_title {
 .new-stream-configuration,
 .channel-permissions,
 .group-permissions,
+.stream-settings-subsection,
 .stream_details_box {
     .input-group {
         &.message-retention-setting-group {
@@ -1616,6 +1617,7 @@ h4.stream_setting_subsection_title {
 }
 
 .advanced-configurations-container,
+.stream-settings-subsection,
 .channel-permissions {
     .stream-message-retention-days-input input[type="text"] {
         border-radius: 5px;
