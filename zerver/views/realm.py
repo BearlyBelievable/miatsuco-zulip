@@ -39,7 +39,7 @@ from zerver.lib.demo_organizations import (
 from zerver.lib.exceptions import JsonableError, OrganizationOwnerRequiredError
 from zerver.lib.i18n import get_available_language_codes
 from zerver.lib.response import json_success
-from zerver.lib.retention import parse_message_retention_days
+from zerver.lib.retention import parse_message_retention_days, require_message_retention
 from zerver.lib.streams import access_stream_by_id
 from zerver.lib.typed_endpoint import ApiParamConfig, typed_endpoint
 from zerver.lib.typed_endpoint_validators import (
@@ -185,6 +185,7 @@ def update_realm(
     message_retention_days_raw: Annotated[
         Json[int | str] | None, ApiParamConfig("message_retention_days")
     ] = None,
+    miatsuco_retain_topics: Json[bool] | None = None,
     moderation_request_channel_id: Json[int] | None = None,
     move_messages_between_streams_limit_seconds_raw: Annotated[
         Json[int | str] | None,
@@ -307,6 +308,18 @@ def update_realm(
         or miatsuco_can_edit_user_names_group is not None
     ) and not user_profile.is_realm_owner:
         raise OrganizationOwnerRequiredError
+
+    if miatsuco_retain_topics is not None and not user_profile.is_realm_owner:
+        raise OrganizationOwnerRequiredError
+
+    retain_topics = realm.miatsuco_retain_topics
+    if miatsuco_retain_topics is not None:
+        retain_topics = miatsuco_retain_topics
+    retention_days = realm.message_retention_days
+    if message_retention_days is not None:
+        retention_days = message_retention_days
+    if retain_topics:
+        require_message_retention(retention_days)
 
     if realm.demo_organization_scheduled_deletion_date is not None and invite_required is not None:
         check_demo_organization_has_set_email(realm)

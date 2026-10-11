@@ -337,6 +337,7 @@ export function dispatch_normal_event(event) {
                 move_messages_between_streams_limit_seconds: noop,
                 move_messages_within_stream_limit_seconds: message_edit.update_inline_topic_edit_ui,
                 message_retention_days: noop,
+                miatsuco_retain_topics: noop,
                 name: narrow_title.redraw_title,
                 name_changes_disabled: settings_account.update_name_change_display,
                 new_stream_announcements_stream_id: stream_ui_updates.update_announce_stream_option,

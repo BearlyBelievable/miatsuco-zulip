@@ -117,6 +117,7 @@ class Stream(models.Model):
         "realm_default": None,
     }
     message_retention_days = models.IntegerField(null=True, default=None)
+    miatsuco_retain_topics = models.BooleanField(default=False, db_default=False)
 
     # on_delete field for group value settings is set to RESTRICT
     # because we don't want to allow deleting a user group in case it
@@ -275,6 +276,7 @@ class Stream(models.Model):
         "invite_only",
         "is_web_public",
         "message_retention_days",
+        "miatsuco_retain_topics",
         "name",
         "rendered_description",
         "subscriber_count",

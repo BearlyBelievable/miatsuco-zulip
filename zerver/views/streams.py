@@ -60,7 +60,11 @@ from zerver.lib.mention import MentionBackend, silent_mention_syntax_for_user
 from zerver.lib.message import bulk_access_stream_messages_query
 from zerver.lib.response import json_success
 from zerver.lib.retention import STREAM_MESSAGE_BATCH_SIZE as RETENTION_STREAM_MESSAGE_BATCH_SIZE
-from zerver.lib.retention import parse_message_retention_days
+from zerver.lib.retention import (
+    get_stream_message_retention_days,
+    parse_message_retention_days,
+    require_message_retention,
+)
 from zerver.lib.stream_traffic import get_streams_traffic
 from zerver.lib.streams import (
     StreamDict,
@@ -306,6 +310,7 @@ def update_stream_backend(
     is_private: Json[bool] | None = None,
     is_web_public: Json[bool] | None = None,
     message_retention_days: Json[str] | Json[int] | None = None,
+    miatsuco_retain_topics: Json[bool] | None = None,
     new_name: str | None = None,
     stream_id: PathOnly[int],
     topics_policy: TopicsPolicy = None,
@@ -430,6 +435,14 @@ def update_stream_backend(
         new_message_retention_days_value = parse_message_retention_days(
             message_retention_days, Stream.MESSAGE_RETENTION_SPECIAL_VALUES_MAP
         )
+        retain_topics = stream.miatsuco_retain_topics
+        if miatsuco_retain_topics is not None:
+            retain_topics = miatsuco_retain_topics
+        retention_days = new_message_retention_days_value
+        if retention_days is None:
+            retention_days = user_profile.realm.message_retention_days
+        if retain_topics:
+            require_message_retention(retention_days)
         do_change_stream_message_retention_days(
             stream, user_profile, new_message_retention_days_value
         )
@@ -459,6 +472,14 @@ def update_stream_backend(
         if folder_id is not None:
             folder = get_channel_folder_by_id(folder_id, user_profile.realm)
         do_change_stream_folder(stream, folder, acting_user=user_profile)
+
+    if miatsuco_retain_topics:
+        require_message_retention(get_stream_message_retention_days(stream))
+
+    if miatsuco_retain_topics is not None:
+        do_set_stream_property(
+            stream, "miatsuco_retain_topics", miatsuco_retain_topics, user_profile
+        )
 
     nobody_group = system_groups_name_dict[SystemGroups.NOBODY]
     request_settings_dict = locals()

@@ -49,6 +49,9 @@ const admin_settings_label = {
     realm_miatsuco_inline_upload_preview: $t({
         defaultMessage: "Show thumbnail previews of uploaded images and videos",
     }),
+    realm_miatsuco_retain_topics: $t({
+        defaultMessage: "Keep topics alive by preserving the oldest message",
+    }),
     realm_inline_url_embed_preview: $t({defaultMessage: "Show previews of linked websites"}),
     realm_send_welcome_emails: $t({defaultMessage: "Send emails introducing Zulip to new users"}),
     realm_require_e2ee_push_notifications: $t({
@@ -173,6 +176,7 @@ export function build_page(): void {
         realm_inline_image_preview: realm.realm_inline_image_preview,
         server_inline_image_preview: realm.server_inline_image_preview,
         realm_miatsuco_inline_upload_preview: realm.realm_miatsuco_inline_upload_preview,
+        realm_miatsuco_retain_topics: realm.realm_miatsuco_retain_topics,
         realm_inline_url_embed_preview: realm.realm_inline_url_embed_preview,
         server_inline_url_embed_preview: realm.server_inline_url_embed_preview,
         realm_authentication_methods: realm.realm_authentication_methods,

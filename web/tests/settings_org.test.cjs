@@ -536,6 +536,11 @@ test("set_up", ({override, override_rewire}) => {
     );
     const $realm_message_retention_custom_input = $("#id_realm_message_retention_custom_input");
     $("#id_realm_message_retention_days").set_parent($stub_realm_message_retention_parent);
+    $("#id_realm_message_retention_days").prop("disabled", false);
+    $("#id_realm_miatsuco_retain_topics").set_closest_results(
+        ".settings-checkbox-wrapper",
+        $.create("stub retain topics wrapper"),
+    );
     $realm_message_retention_custom_input.set_parent($stub_realm_message_retention_parent);
     $stub_realm_message_retention_parent.set_find_results(
         ".message-retention-setting-custom-input",

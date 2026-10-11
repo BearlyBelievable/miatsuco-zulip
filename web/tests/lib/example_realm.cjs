@@ -107,6 +107,7 @@ exports.make_realm = (opts = {}) => {
         realm_message_content_delete_limit_seconds: null,
         realm_message_edit_history_visibility_policy: "all",
         realm_message_retention_days: 0,
+        realm_miatsuco_retain_topics: false,
         realm_move_messages_between_streams_limit_seconds: null,
         realm_move_messages_within_stream_limit_seconds: null,
         realm_name_changes_disabled: false,

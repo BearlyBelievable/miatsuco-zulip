@@ -39,9 +39,11 @@ from django.db import connection, transaction
 from django.db.models import Case, CharField, Model, Value, When
 from django.db.models.functions import Upper
 from django.utils.timezone import now as timezone_now
+from django.utils.translation import gettext as _
 from psycopg2.sql import SQL, Composable, Identifier, Literal
 
 from zerver.actions.message_flags import do_clear_mobile_push_notifications_for_ids
+from zerver.lib.exceptions import JsonableError
 from zerver.lib.logging_util import log_to_file
 from zerver.lib.message import bulk_access_messages, event_recipient_ids_for_action_on_messages
 from zerver.lib.request import RequestVariableConversionError
@@ -204,9 +206,29 @@ def move_expired_messages_to_archive_by_recipient(
     recipient: Recipient,
     message_retention_days: int,
     realm: Realm,
+    miatsuco_retain_topics: bool,
     chunk_size: int = MESSAGE_BATCH_SIZE,
 ) -> int:
     assert message_retention_days != -1
+
+    miatsuco_retain_topics_clause: Composable
+    if miatsuco_retain_topics:
+        miatsuco_retain_topics_clause = SQL(
+            """
+            AND EXISTS (
+                SELECT 1
+                FROM zerver_message AS earlier_message
+                WHERE earlier_message.realm_id = zerver_message.realm_id
+                    AND earlier_message.recipient_id = zerver_message.recipient_id
+                    AND UPPER({earlier_topic_name}) = UPPER({topic_name})
+                    AND earlier_message.id < zerver_message.id
+            )"""
+        ).format(
+            earlier_topic_name=Identifier("earlier_message", DB_TOPIC_NAME),
+            topic_name=Identifier("zerver_message", DB_TOPIC_NAME),
+        )
+    else:
+        miatsuco_retain_topics_clause = SQL("")
 
     # Uses index: zerver_message_realm_recipient_date_sent
     query = SQL(
@@ -216,7 +238,7 @@ def move_expired_messages_to_archive_by_recipient(
         FROM zerver_message
         WHERE zerver_message.realm_id = {realm_id}
             AND zerver_message.recipient_id = {recipient_id}
-            AND zerver_message.date_sent < {check_date}
+            AND zerver_message.date_sent < {check_date}{miatsuco_retain_topics_clause}
         LIMIT {chunk_size}
     ON CONFLICT (id) DO UPDATE SET archive_transaction_id = {archive_transaction_id}
     RETURNING id
@@ -231,6 +253,7 @@ def move_expired_messages_to_archive_by_recipient(
         realm_id=Literal(realm.id),
         recipient_id=Literal(recipient.id),
         check_date=Literal(check_date.isoformat()),
+        miatsuco_retain_topics_clause=miatsuco_retain_topics_clause,
         chunk_size=chunk_size,
     )
 
@@ -501,10 +524,11 @@ def archive_messages_by_recipient(
     recipient: Recipient,
     message_retention_days: int,
     realm: Realm,
+    miatsuco_retain_topics: bool,
     chunk_size: int = MESSAGE_BATCH_SIZE,
 ) -> int:
     return move_expired_messages_to_archive_by_recipient(
-        recipient, message_retention_days, realm, chunk_size
+        recipient, message_retention_days, realm, miatsuco_retain_topics, chunk_size
     )
 
 
@@ -522,7 +546,11 @@ def archive_stream_messages(
 
     logger.info("Archiving stream messages for realm %s", realm.string_id)
     retention_policy_dict: dict[int, int] = {}
+    miatsuco_retain_topics_dict: dict[int, bool] = {}
     for stream in streams:
+        miatsuco_retain_topics_dict[stream.id] = (
+            realm.miatsuco_retain_topics or stream.miatsuco_retain_topics
+        )
         #  if stream.message_retention_days is null, use the realm's policy
         if stream.message_retention_days:
             retention_policy_dict[stream.id] = stream.message_retention_days
@@ -538,6 +566,7 @@ def archive_stream_messages(
             recipient,
             retention_policy_dict[recipient.type_id],
             realm,
+            miatsuco_retain_topics_dict[recipient.type_id],
             chunk_size,
         )
 
@@ -854,6 +883,17 @@ def clean_archived_data() -> None:
         count += len(transaction_block)
 
     logger.info("Deleted %s old ArchiveTransactions.", count)
+
+
+def get_stream_message_retention_days(stream: Stream) -> int:
+    if stream.message_retention_days is None:
+        return stream.realm.message_retention_days
+    return stream.message_retention_days
+
+
+def require_message_retention(retention_days: int) -> None:
+    if retention_days == Realm.MESSAGE_RETENTION_SPECIAL_VALUES_MAP["unlimited"]:
+        raise JsonableError(_("Retaining topics requires a message retention period."))
 
 
 def parse_message_retention_days(

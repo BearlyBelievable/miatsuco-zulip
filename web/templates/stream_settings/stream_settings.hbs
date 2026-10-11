@@ -40,7 +40,7 @@
             </div>
             {{/with}}
 
-            <div class="stream-settings-subsection settings-subsection-parent">
+            <div id="channel-general-settings" class="stream-settings-subsection settings-subsection-parent">
                 <div class="subsection-header">
                     <h3 class="stream_setting_subsection_title">
                         {{t "Settings" }}
@@ -51,6 +51,11 @@
                 {{> channel_folder .
                   is_stream_edit=true
                   channel_folder_widget_name="folder_id"
+                  }}
+
+                {{> channel_message_retention .
+                  prefix="id_"
+                  is_stream_edit=true
                   }}
 
                 <div class="input-group stream-email-box">

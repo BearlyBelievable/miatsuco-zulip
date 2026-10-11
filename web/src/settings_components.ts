@@ -371,7 +371,7 @@ export function set_time_limit_setting(property_name: MessageTimeLimitSetting): 
     );
 }
 
-function get_message_retention_setting_value(
+export function get_message_retention_setting_value(
     $input_elem: JQuery<HTMLSelectElement>,
     for_api_data = true,
 ): string | number | null {

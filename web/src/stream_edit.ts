@@ -1056,6 +1056,10 @@ export function initialize(): void {
                 $subsection,
                 sub,
             );
+            if ($subsection.attr("id") === "channel-general-settings") {
+                assert(sub !== undefined);
+                stream_ui_updates.update_retain_topics_state(sub);
+            }
             if ($subsection.attr("id") === "channel-subscription-permissions") {
                 assert(sub !== undefined);
                 stream_ui_updates.update_can_create_topic_group_on_history_public_to_subscribers_change(
@@ -1123,6 +1127,9 @@ export function initialize(): void {
 
             const $subsection = $(this).closest(".settings-subsection-parent");
             settings_org.discard_stream_settings_subsection_changes($subsection, sub);
+            if ($subsection.attr("id") === "channel-general-settings") {
+                stream_ui_updates.update_retain_topics_state(sub);
+            }
             if ($subsection.attr("id") === "channel-subscription-permissions") {
                 const $edit_container = stream_settings_containers.get_edit_container(sub);
                 stream_ui_updates.update_history_public_to_subscribers_state($edit_container);

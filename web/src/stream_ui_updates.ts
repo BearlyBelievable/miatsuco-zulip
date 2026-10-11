@@ -355,6 +355,17 @@ export function enable_or_disable_permission_settings_in_edit_panel(
         .find(".channel-folder-widget-container button")
         .prop("disabled", !sub.can_change_stream_permissions_requiring_metadata_access);
 
+    $stream_settings
+        .find(".message-retention-setting-group, .miatsuco-retain-topics")
+        .find("input, select")
+        .prop("disabled", !sub.can_change_stream_permissions_requiring_metadata_access);
+    $stream_settings
+        .find(".miatsuco-retain-topics .settings-checkbox-wrapper")
+        .toggleClass(
+            "control-label-disabled",
+            !sub.can_change_stream_permissions_requiring_metadata_access,
+        );
+
     if (!sub.can_change_stream_permissions_requiring_metadata_access) {
         settings_components.disable_group_permission_setting($permission_pill_container_elements);
         return;
@@ -373,6 +384,7 @@ export function enable_or_disable_permission_settings_in_edit_panel(
     $stream_settings
         .find(".message-retention-setting-custom-input")
         .prop("disabled", disable_message_retention_setting);
+    update_retain_topics_state(sub);
 
     if (!sub.can_change_stream_permissions_requiring_content_access) {
         $("#channel_privacy_widget_container").find("button").prop("disabled", true);
@@ -530,6 +542,33 @@ export function update_add_subscriptions_elements(sub: SettingsSubscription): vo
     }
 }
 
+export function update_retain_topics_state(sub: StreamSubscription): void {
+    const $edit_container = stream_settings_containers.get_edit_container(sub);
+    const $checkbox = $edit_container.find<HTMLInputElement>("#id_miatsuco_retain_topics");
+    const $retention_dropdown = $edit_container.find<HTMLSelectElement>(
+        "#id_message_retention_days",
+    );
+    const stream_retention_days = settings_components.get_message_retention_setting_value(
+        $retention_dropdown,
+        false,
+    );
+    let retention_days;
+    if (stream_retention_days === null) {
+        retention_days = realm.realm_message_retention_days;
+    } else {
+        retention_days = stream_retention_days;
+    }
+    if (retention_days === settings_config.retain_message_forever) {
+        settings_org.set_retain_topics_checkbox_disabled($checkbox, true);
+        $checkbox.prop("checked", sub.miatsuco_retain_topics);
+        return;
+    }
+    settings_org.set_retain_topics_checkbox_disabled(
+        $checkbox,
+        util.the($retention_dropdown).disabled,
+    );
+}
+
 export function update_setting_element(sub: StreamSubscription, setting_name: string): void {
     if (!hash_parser.is_editing_stream(sub.stream_id)) {
         return;
@@ -541,6 +580,9 @@ export function update_setting_element(sub: StreamSubscription, setting_name: st
         settings_org.discard_stream_property_element_changes(util.the($elem), sub);
     } else {
         settings_org.discard_stream_settings_subsection_changes($subsection, sub);
+    }
+    if (setting_name === "message_retention_days") {
+        update_retain_topics_state(sub);
     }
 }
 

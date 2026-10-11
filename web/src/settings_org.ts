@@ -341,6 +341,29 @@ function get_dropdown_value_for_message_retention_setting(setting_value: number 
     return "custom_period";
 }
 
+export function set_retain_topics_checkbox_disabled(
+    $checkbox: JQuery<HTMLInputElement>,
+    disabled: boolean,
+): void {
+    $checkbox.prop("disabled", disabled);
+    $checkbox.closest(".settings-checkbox-wrapper").toggleClass("control-label-disabled", disabled);
+}
+
+export function update_realm_retain_topics_checkbox(): void {
+    const $checkbox = $<HTMLInputElement>("#id_realm_miatsuco_retain_topics");
+    const $retention_dropdown = $<HTMLSelectElement>("#id_realm_message_retention_days");
+    const retention_days = settings_components.get_message_retention_setting_value(
+        $retention_dropdown,
+        false,
+    );
+    if (retention_days === settings_config.retain_message_forever) {
+        set_retain_topics_checkbox_disabled($checkbox, true);
+        $checkbox.prop("checked", realm.realm_miatsuco_retain_topics);
+        return;
+    }
+    set_retain_topics_checkbox_disabled($checkbox, util.the($retention_dropdown).disabled);
+}
+
 export function set_message_retention_setting_dropdown(sub: StreamSubscription | undefined): void {
     let property_name: "message_retention_days" | "realm_message_retention_days";
     let setting_value: number | null;
@@ -369,6 +392,10 @@ export function set_message_retention_setting_dropdown(sub: StreamSubscription |
         $custom_input_elem.attr("id")!,
         dropdown_val === "custom_period",
     );
+
+    if (sub === undefined) {
+        update_realm_retain_topics_checkbox();
+    }
 }
 
 function set_org_join_restrictions_dropdown(): void {
@@ -1555,6 +1582,10 @@ export function register_save_discard_widget_handlers(
                     group_setting_value_schema.parse(realm.realm_workplace_users_group),
                 );
             }
+        }
+
+        if (this.id === "id_realm_message_retention_days") {
+            update_realm_retain_topics_checkbox();
         }
 
         const $subsection = $(this).closest(".settings-subsection-parent");

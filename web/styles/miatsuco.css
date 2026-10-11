@@ -576,3 +576,11 @@
     padding: 2px 10px;
     color: var(--color-gear-menu-lighter-text);
 }
+
+#subscription_overlay .miatsuco-retain-topics {
+    width: fit-content;
+
+    .inline {
+        display: inline;
+    }
+}
