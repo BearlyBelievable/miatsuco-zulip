@@ -155,6 +155,7 @@ exports.make_realm = (opts = {}) => {
         zulip_merge_base: "",
         zulip_plan_is_not_limited: false,
         zulip_version: "11",
+        miatsuco_version: "1.0.0-dev",
     };
     return {
         ...default_realm,

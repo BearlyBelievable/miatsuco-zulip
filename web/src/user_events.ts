@@ -183,13 +183,8 @@ export const update_person = function update(event: UserUpdate): void {
             current_user.is_moderator = user.is_moderator;
         }
 
-        // Fork feature (miatsuco): a role change can flip whether an open DM
-        // is still authorized (for example, demoting the only moderator in the
-        // conversation removes the escape hatch, or a role change moves someone
-        // in or out of direct_message_self_authorize_group). Re-validate so the
-        // send button reflects the new state immediately rather than only
-        // failing at send time. validate() no-ops unless the compose box is
-        // open on a DM, so this is cheap for the common case.
+        // A role change can change whether an open direct message is still
+        // authorized, so revalidate the compose box.
         if (compose_state.get_message_type() === "private") {
             compose_validate.validate_and_update_send_button_status();
         }

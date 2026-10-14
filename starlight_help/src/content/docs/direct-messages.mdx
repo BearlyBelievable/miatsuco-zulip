@@ -5,6 +5,7 @@ title: Direct messages
 import {Steps, TabItem, Tabs} from "@astrojs/starlight/components";
 
 import FlattenedSteps from "../../components/FlattenedSteps.astro";
+import NavigationSteps from "../../components/NavigationSteps.astro";
 import ZulipTip from "../../components/ZulipTip.astro";
 import DmFeedInstructions from "../include/_DmFeedInstructions.mdx";
 import FindDmConversationLeftSidebar from "../include/_FindDmConversationLeftSidebar.mdx";
@@ -115,6 +116,36 @@ There are a few different ways to view your DM conversations.
 You can see all your direct messages in one place.
 
 <DmFeedInstructions />
+
+## Restrict who can direct message you
+
+You can choose to take part only in direct messages where everyone else is an
+[authorizer](/help/restrict-direct-messages). For example, if moderators are the
+authorizers, a direct message between you and a moderator is allowed. A direct
+message between you, a moderator, and a regular member is blocked.
+
+With this setting on:
+
+* Anyone who is not an authorizer blocks the conversation, even when an
+  authorizer is also in it. This includes users who can [message each other
+  without an authorizer
+  present](/help/restrict-direct-messages#configure-who-can-send-direct-messages-without-an-authorizer-present).
+* The restriction applies to messages you send and messages sent to you.
+* Bots in a conversation don't count.
+
+Once you enable the setting, it shows who can currently authorize your direct
+messages.
+
+<Tabs>
+  <TabItem label="Desktop/Web">
+    <FlattenedSteps>
+      <NavigationSteps target="settings/account-and-privacy" />
+
+      1. Under **Privacy**, toggle **Restrict direct messages to only those
+         who can authorize them**.
+    </FlattenedSteps>
+  </TabItem>
+</Tabs>
 
 ## Related articles
 

@@ -1636,13 +1636,6 @@ def check_can_send_direct_message(
 
     participants = set(recipient_users) | {sender}
 
-    # Fork feature (miatsuco): a direct message is authorized if a member of
-    # direct_message_permission_group is present (the upstream rule, which the
-    # mod escape hatch relies on), OR if every participant is in the
-    # direct_message_self_authorize_group. That self-authorize path lets a
-    # configured set (for example a "group 1") exchange DMs among themselves
-    # without needing a permission-group member, while any participant outside
-    # that set still requires one.
     if realm.direct_message_permission_group_id in system_groups_name_dict:
         permission_group_member_present = check_any_user_has_permission_by_role(
             participants, realm.direct_message_permission_group_id, system_groups_name_dict
@@ -1653,16 +1646,11 @@ def check_can_send_direct_message(
             realm.direct_message_permission_group_id, participant_ids
         )
 
-    # Fork feature (miatsuco): the personal miatsuco_restrict_dms_to_authorizers
-    # setting. A participant who enables it opts out of any direct message that
-    # includes a non-authorizer: for that user, EVERY other human participant
-    # must be a member of direct_message_permission_group (an authorizer). This
-    # is stricter than merely requiring an authorizer to be present, and it
-    # overrides the self-authorize path below. It is bidirectional and applies
-    # per participant: it governs an opted-in user's outgoing DMs as well as
-    # incoming ones (a DM is a two-way conversation), and a fellow opted-in user
-    # is not an exception (a non-authorizer is still a non-authorizer). Bots are
-    # not subject to authorization, so they are ignored here.
+    # A user with miatsuco_restrict_dms_to_authorizers set blocks any direct
+    # message that includes a human who isn't an authorizer, even when an
+    # authorizer is also present. This applies whether that user is the sender
+    # or a recipient, and another opted-in non-authorizer isn't an exception.
+    # It is evaluated before, and overrides, the self-authorize path.
     permission_group_id = realm.direct_message_permission_group_id
     permission_group_is_system = permission_group_id in system_groups_name_dict
 

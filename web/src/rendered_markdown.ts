@@ -198,7 +198,6 @@ export const update_elements = ($content: JQuery): void => {
         });
     });
 
-    // MiAtSu.Co fork: turn inline video previews into real inline players.
     miatsuco_inline_video.enhance_inline_videos($content);
 
     // Makes YouTube/Vimeo/oEmbed link previews playable in place.

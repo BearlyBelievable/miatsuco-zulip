@@ -355,8 +355,6 @@ export function set_up(): void {
     add_custom_profile_fields_to_settings();
     $("#account-settings-status").hide();
 
-    // Fork feature (miatsuco): render the read-only "who can authorize DMs"
-    // pills under the miatsuco_restrict_dms_to_authorizers privacy setting.
     miatsuco_dm_authorizer_display.set_up($("#privacy_settings_box"));
 
     const setup_api_key_modal = (): void => {

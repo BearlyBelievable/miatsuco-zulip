@@ -122,6 +122,7 @@ type GearMenuContext = {
     standard_plan_name: string;
     server_needs_upgrade: boolean;
     version_display_string: string;
+    miatsuco_version: string;
     apps_page_url: string;
     can_create_multiuse_invite: boolean;
     can_invite_users_by_email: boolean;
@@ -413,6 +414,7 @@ export function get_gear_menu_content_context(): GearMenuContext {
         standard_plan_name: "Zulip Cloud Standard",
         server_needs_upgrade: realm.server_needs_upgrade,
         version_display_string: gear_menu_util.version_display_string(),
+        miatsuco_version: realm.miatsuco_version,
         apps_page_url: page_params.apps_page_url,
         can_create_multiuse_invite: settings_data.user_can_create_multiuse_invite(),
         can_invite_users_by_email: settings_data.user_can_invite_users_by_email(),

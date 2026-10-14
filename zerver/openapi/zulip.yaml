@@ -5538,6 +5538,8 @@ paths:
 
                                             This is a fork-specific (MiAtSu.Co) setting and is not part of upstream
                                             Zulip.
+
+                                            **Changes**: New in Miatsuco 1.0 (feature level 3).
                                         - $ref: "#/components/schemas/GroupSettingValue"
                                     disallow_disposable_email_addresses:
                                       type: boolean
@@ -15437,12 +15439,16 @@ paths:
                     restricts direct messages this user sends) and overrides the
                     realm's `direct_message_self_authorize_group` allowance for this
                     user. Specific to the MiAtSu.Co fork.
+
+                    **Changes**: New in Miatsuco 1.0 (feature level 3).
                 miatsuco_web_show_upload_thumbnails:
                   type: boolean
                   description: |
                     Whether the web app shows inline thumbnail previews of uploaded
                     images and videos, external links, and website previews. Specific to
                     the MiAtSu.Co fork.
+
+                    **Changes**: New in Miatsuco 1.0 (feature level 2).
                 fluid_layout_width:
                   description: |
                     Whether to use the [maximum available screen width](/help/enable-full-width-display)
@@ -18484,18 +18490,15 @@ paths:
                           See `zerver/lib/miatsuco.py` and
                           `docs/contributing/miatsuco-fork-conventions.md`.
 
-                          **Changes**: New in Miatsuco 0.1-dev.
-                      miatsuco_capabilities:
-                        type: array
-                        items:
-                          type: string
+                          **Changes**: New in Miatsuco 1.0 (feature level 1).
+                      miatsuco_feature_level:
+                        type: integer
                         description: |
-                          Named capability flags for fork-specific features this server
-                          supports. Clients should check for the specific capability they
-                          need by name, rather than inferring feature availability from
-                          `miatsuco_version` alone.
+                          The feature level of this fork's API, which increases with each change to
+                          the fork-specific parts of the API. Clients that need a specific change
+                          can compare it with the level that change is documented as new in.
 
-                          **Changes**: New in Miatsuco 0.1-dev.
+                          **Changes**: New in Miatsuco 1.0 (feature level 1).
                       alert_words:
                         type: array
                         description: |
@@ -19650,12 +19653,16 @@ paths:
                               restricts direct messages this user sends) and overrides the
                               realm's `direct_message_self_authorize_group` allowance for this
                               user. Specific to the MiAtSu.Co fork.
+
+                              **Changes**: New in Miatsuco 1.0 (feature level 3).
                           miatsuco_web_show_upload_thumbnails:
                             type: boolean
                             description: |
                               Whether the web app shows inline thumbnail previews of uploaded
                               images and videos, external links, and website previews. Specific to
                               the MiAtSu.Co fork.
+
+                              **Changes**: New in Miatsuco 1.0 (feature level 2).
                           fluid_layout_width:
                             type: boolean
                             description: |
@@ -20772,7 +20779,7 @@ paths:
                           are permitted to choose for themselves. Specific to the MiAtSu.Co
                           fork.
 
-                          **Changes**: New in Miatsuco 0.1-dev.
+                          **Changes**: New in Miatsuco 1.0 (feature level 4).
                       realm_email_address_visibility_min:
                         type: integer
                         description: |
@@ -20782,7 +20789,7 @@ paths:
                           members are permitted to choose for themselves. Specific to the
                           MiAtSu.Co fork.
 
-                          **Changes**: New in Miatsuco 0.1-dev.
+                          **Changes**: New in Miatsuco 1.0 (feature level 4).
                       realm_invite_required:
                         type: boolean
                         description: |
@@ -20844,6 +20851,8 @@ paths:
                           Whether this organization has been configured to show inline
                           previews of uploaded images and videos. Specific to the
                           MiAtSu.Co fork.
+
+                          **Changes**: New in Miatsuco 1.0 (feature level 2).
                       realm_topics_policy:
                         type: string
                         enum:
@@ -21149,6 +21158,8 @@ paths:
 
                               This is a fork-specific (MiAtSu.Co) setting and is not part of upstream
                               Zulip.
+
+                              **Changes**: New in Miatsuco 1.0 (feature level 3).
                           - $ref: "#/components/schemas/GroupSettingValue"
                       realm_default_code_block_language:
                         type: string
@@ -22123,12 +22134,16 @@ paths:
                               restricts direct messages this user sends) and overrides the
                               realm's `direct_message_self_authorize_group` allowance for this
                               user. Specific to the MiAtSu.Co fork.
+
+                              **Changes**: New in Miatsuco 1.0 (feature level 3).
                           miatsuco_web_show_upload_thumbnails:
                             type: boolean
                             description: |
                               Whether the web app shows inline thumbnail previews of uploaded
                               images and videos, external links, and website previews. Specific to
                               the MiAtSu.Co fork.
+
+                              **Changes**: New in Miatsuco 1.0 (feature level 2).
                           fluid_layout_width:
                             type: boolean
                             description: |
@@ -23102,18 +23117,15 @@ paths:
                           See `zerver/lib/miatsuco.py` and
                           `docs/contributing/miatsuco-fork-conventions.md`.
 
-                          **Changes**: New in Miatsuco 0.1-dev.
-                      miatsuco_capabilities:
-                        type: array
-                        items:
-                          type: string
+                          **Changes**: New in Miatsuco 1.0 (feature level 1).
+                      miatsuco_feature_level:
+                        type: integer
                         description: |
-                          Named capability flags for fork-specific features this server
-                          supports. Clients should check for the specific capability they
-                          need by name, rather than inferring feature availability from
-                          `miatsuco_version` alone.
+                          The feature level of this fork's API, which increases with each change to
+                          the fork-specific parts of the API. Clients that need a specific change
+                          can compare it with the level that change is documented as new in.
 
-                          **Changes**: New in Miatsuco 0.1-dev.
+                          **Changes**: New in Miatsuco 1.0 (feature level 1).
                       push_notifications_enabled:
                         type: boolean
                         description: |
@@ -23452,12 +23464,16 @@ paths:
                     restricts direct messages this user sends) and overrides the
                     realm's `direct_message_self_authorize_group` allowance for this
                     user. Specific to the MiAtSu.Co fork.
+
+                    **Changes**: New in Miatsuco 1.0 (feature level 3).
                 miatsuco_web_show_upload_thumbnails:
                   type: boolean
                   description: |
                     Whether the web app shows inline thumbnail previews of uploaded
                     images and videos, external links, and website previews. Specific to
                     the MiAtSu.Co fork.
+
+                    **Changes**: New in Miatsuco 1.0 (feature level 2).
                 fluid_layout_width:
                   description: |
                     Whether to use the [maximum available screen width](/help/enable-full-width-display)

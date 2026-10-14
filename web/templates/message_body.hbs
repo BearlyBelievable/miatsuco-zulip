@@ -18,9 +18,6 @@
                 <i class="zulip-icon zulip-icon-bot" aria-label="{{t 'Bot' }}"></i>
             {{/if}}
         {{/unless}}
-        {{! MiAtSu.Co edit: the timestamp flows inline after the
-        username and bot icon. A pending send shows the spinner
-        instead. }}
         {{#unless status_message}}
             {{#if (and (not msg/failed_request) msg/locally_echoed)}}
                 <span data-tooltip-template-id="slow-send-spinner-tooltip-template" class="fa fa-circle-o-notch slow-send-spinner"></span>
@@ -39,9 +36,7 @@
     {{/if}}
 </span>
 
-{{! MiAtSu.Co edit: this copy is for continuation rows only, since a
-sender row renders the timestamp above instead. A pending send shows
-the spinner instead. }}
+{{! Continuation rows have no sender line, so they render the timestamp here instead. }}
 {{#unless include_sender}}
     {{#if (and (not msg/failed_request) msg/locally_echoed)}}
         <span data-tooltip-template-id="slow-send-spinner-tooltip-template" class="fa fa-circle-o-notch slow-send-spinner"></span>
@@ -53,9 +48,6 @@ the spinner instead. }}
     {{/if}}
 {{/unless}}
 
-{{! MiAtSu.Co edit: me-message header, showing the timestamp and the
-edited or moved notice together. A pending send shows the spinner
-instead. }}
 {{#if status_message}}
 <span class="me_message_header">
     {{#if (and (not msg/failed_request) msg/locally_echoed)}}

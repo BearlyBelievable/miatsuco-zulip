@@ -32,6 +32,8 @@ Draft documentation for `zerver/views/realm_email_visibility.py`.
       A client that missed the live-push event for a job's completion
       or failure can use this endpoint on page load to learn the
       outcome instead.
+
+      **Changes**: New in Miatsuco 1.0 (feature level 4).
     responses:
       "200":
         description: Success.
@@ -100,6 +102,8 @@ Draft documentation for `zerver/views/realm_email_visibility.py`.
       `email_address_visibility_min`. Blocks a new change while a
       previous one is still being applied to existing users; see
       [`GET /realm/email_visibility_policy`](/api/get-email-visibility-policy-status).
+
+      **Changes**: New in Miatsuco 1.0 (feature level 4).
     requestBody:
       required: false
       content:
@@ -141,6 +145,8 @@ Draft documentation for `zerver/views/realm_email_visibility.py`.
       Given a prospective `email_address_visibility` max/min range,
       return how many existing users would be affected by it, without
       applying the change. Specific to the MiAtSu.Co fork.
+
+      **Changes**: New in Miatsuco 1.0 (feature level 4).
     parameters:
       - name: visibility_max
         in: query
@@ -202,6 +208,8 @@ Draft documentation for `zerver/views/realm_email_visibility.py`.
       Fetched once when the settings page loads; the impact of any
       prospective range change is then computed client-side from this
       distribution, without a further request.
+
+      **Changes**: New in Miatsuco 1.0 (feature level 4).
     responses:
       "200":
         description: Success.

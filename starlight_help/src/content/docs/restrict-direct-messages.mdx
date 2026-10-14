@@ -18,6 +18,9 @@ messages](/help/direct-messages):
   or someone else).
 * Who can **start** a direct message conversation.
 
+You can also let a group of users [message each other without an
+authorizer](#configure-who-can-send-direct-messages-without-an-authorizer-present).
+
 These permissions can be granted to any combination of
 [roles](/help/user-roles), [groups](/help/user-groups), and individual
 [users](/help/introduction-to-users). They are designed so that users can always
@@ -56,6 +59,28 @@ to bots and to themselves.
 
   1. Under **Direct message permissions**, configure **Who can start a direct
      message conversation**.
+
+  <SaveChanges />
+</FlattenedSteps>
+
+## Configure who can send direct messages without an authorizer present
+
+You can also let a group of users, called **self-authorizers**, message each
+other without an authorizer present. For example, everyone on a team can message
+each other freely while other direct messages still need an authorizer.
+
+A direct message without an authorizer present:
+
+* Is allowed only if every participant is in the group. If anyone outside the
+  group is included, an authorizing user is still required.
+* Still needs each member to have permission to start direct messages under
+  your organization's existing direct message settings.
+
+<FlattenedSteps>
+  <NavigationSteps target="settings/organization-permissions" />
+
+  1. Under **Direct message permissions**, configure **Who can direct message
+     others in this setting without an authorizer present**.
 
   <SaveChanges />
 </FlattenedSteps>

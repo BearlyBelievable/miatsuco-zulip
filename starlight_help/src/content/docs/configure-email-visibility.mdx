@@ -7,6 +7,8 @@ import {Steps, TabItem, Tabs} from "@astrojs/starlight/components";
 import FlattenedSteps from "../../components/FlattenedSteps.astro";
 import NavigationSteps from "../../components/NavigationSteps.astro";
 import AdminOnly from "../include/_AdminOnly.mdx";
+import OwnerOnly from "../include/_OwnerOnly.mdx";
+import SaveChanges from "../include/_SaveChanges.mdx";
 
 With privacy in mind, Zulip lets you control which
 [roles](/help/user-roles) in the organization can view your email
@@ -42,6 +44,36 @@ for new users in the organization.
   <NavigationSteps target="settings/default-user-settings" />
 
   1. Under **Privacy settings**, configure **Who can access user's email address**.
+</FlattenedSteps>
+
+## Configure a permitted range for email address visibility
+
+<OwnerOnly />
+
+Organization owners can restrict the choices members have for who can access
+their email address to a permitted range, from visible to everyone down to
+visible to nobody. Members can still pick a setting, but only within the range.
+
+When you set a range:
+
+* Before you save, a count of the members whose current setting falls outside
+  the range appears below the setting.
+* When you save, those members' visibility moves to the closest allowed option.
+* The range applies to every member, including organization owners.
+
+A new range is applied to existing members in the background. While it runs,
+the setting shows how many members are being updated, and you can't save
+another change until it finishes. When it finishes, the setting shows that the
+changes were applied. If it fails partway, the setting shows how many members
+were updated before the error, and saving a new change retries the rest.
+
+<FlattenedSteps>
+  <NavigationSteps target="settings/organization-permissions" />
+
+  1. Under **Email visibility range**, drag the two handles to set the maximum
+     and minimum visibility members may choose.
+
+  <SaveChanges />
 </FlattenedSteps>
 
 ## Related articles

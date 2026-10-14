@@ -15,7 +15,6 @@ export function postprocess_content(
         force_upload_thumbnails?: boolean;
     } = {},
 ): string {
-    // MiAtSu.Co edit: options can override the saved preference for one call.
     const show_upload_thumbnails =
         options.force_upload_thumbnails ?? user_settings.miatsuco_web_show_upload_thumbnails;
 
@@ -45,7 +44,6 @@ export function postprocess_content(
     // We want to do this processing up front, so that embeds benefit
     // from other processing below for links and images
     for (const message_embed of template.content.querySelectorAll(".message_embed")) {
-        // MiAtSu.Co edit: gated by miatsuco_web_show_upload_thumbnails.
         if (!show_upload_thumbnails) {
             const title_link =
                 message_embed.querySelector<HTMLAnchorElement>(".message_embed_title a");
@@ -65,7 +63,6 @@ export function postprocess_content(
             }
         }
 
-        // MiAtSu.Co edit: hooks out to miatsuco_message_card_embed.ts.
         const message_card_embed_payload_json =
             message_embed.getAttribute("data-message-card-embed");
         if (message_card_embed_payload_json !== null) {
@@ -163,7 +160,6 @@ export function postprocess_content(
         assert(typeof original_src === "string");
         const alt = inline_img_elt.getAttribute("alt");
 
-        // MiAtSu.Co edit: gated by miatsuco_web_show_upload_thumbnails.
         if (!show_upload_thumbnails) {
             const filename_from_url = (() => {
                 try {
@@ -248,9 +244,6 @@ export function postprocess_content(
         const message_media_image = message_media_wrapper.querySelector("img");
         const message_media_video = message_media_wrapper.querySelector("video");
 
-        // MiAtSu.Co edit: gated by miatsuco_web_show_upload_thumbnails.
-        // A wrapper reaching this point is guaranteed to be a link preview,
-        // not an uploaded file, since those are already collapsed above.
         if (
             !show_upload_thumbnails &&
             (message_media_image ?? message_media_video) &&
@@ -319,7 +312,6 @@ export function postprocess_content(
                 "message-media-preview-image",
             );
             message_media_image.classList.add("media-image-element");
-            // MiAtSu.Co edit: lazy-loads previews for bandwidth savings.
             message_media_image.setAttribute("loading", "lazy");
 
             // We can't just check whether `inline_image.src` starts with
@@ -447,7 +439,6 @@ export function postprocess_content(
 
     // After all other processing on images has been done, we look for
     // adjacent images and videos, and tuck them structurally into galleries.
-    // MiAtSu.Co edit: .message-card-embed joins the gallery grouping too.
     for (const elt of template.content.querySelectorAll(
         ".message-media-gallery-image, .message-media-preview-image, .message-media-preview-video, .message-card-embed",
     )) {

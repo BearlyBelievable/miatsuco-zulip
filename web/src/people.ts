@@ -748,10 +748,7 @@ export function user_can_direct_message(recipient_ids_string: string): boolean {
         return true;
     }
 
-    // Fork feature (miatsuco): a DM is authorized without a
-    // permission-group member if every participant (me and all human,
-    // non-self recipients) is in the self-authorize group. Mirrors the backend
-    // in check_can_send_direct_message.
+    // Mirrors check_can_send_direct_message in zerver/actions/message_send.py.
     if (is_user_in_setting_group(realm.realm_direct_message_self_authorize_group, my_user_id)) {
         let all_other_human_recipients_can_self_authorize = true;
         for (const recipient_id of recipient_ids) {

@@ -48,7 +48,6 @@ import {user_settings} from "./user_settings.ts";
 import * as util from "./util.ts";
 
 export function initialize(): void {
-    // MiAtSu.Co edit: hooks out to miatsuco_click_handlers.ts.
     miatsuco_click_handlers.initialize();
 
     // MESSAGE CLICKING

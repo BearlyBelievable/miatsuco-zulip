@@ -5,7 +5,6 @@ from urllib.parse import urlsplit
 import requests
 from pyoembed import ParserException, ProviderException, PyOembedException, oEmbed
 
-# MiAtSu.Co edit: hooks out to miatsuco_oembed_providers.py.
 from zerver.lib.url_preview import miatsuco_oembed_providers  # noqa: F401
 from zerver.lib.url_preview.miatsuco_fxembed import SOCIAL_EMBED_HOSTS, get_fxembed_data
 from zerver.lib.url_preview.types import TransientPreviewFetchError, UrlEmbedData, UrlOEmbedData
@@ -17,9 +16,8 @@ def get_oembed_data(url: str, maxwidth: int = 640, maxheight: int = 480) -> UrlE
 
     try:
         data = oEmbed(url, maxwidth=maxwidth, maxheight=maxheight)
-    # MiAtSu.Co edit:
-    # A missing provider or unparsable content-type is permanent, so
-    # only the request and data failures below get retried.
+    # A missing provider or unparsable content-type won't change on retry,
+    # so only the failures below are retried.
     except (ProviderException, ParserException):
         return None
     except (

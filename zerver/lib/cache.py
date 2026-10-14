@@ -472,8 +472,8 @@ def bulk_cached_fetch(
     )
 
 
-# MiAtSu.Co edit: bump to invalidate all cached URL previews at once,
-# the same way zerver.lib.markdown.version invalidates rendered_content.
+# Bump to invalidate every cached URL preview at once, as
+# zerver.lib.markdown.version does for rendered content.
 PREVIEW_CACHE_VERSION = 1
 
 

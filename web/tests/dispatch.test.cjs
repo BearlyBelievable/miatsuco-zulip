@@ -1355,8 +1355,6 @@ run_test("user_settings", ({override}) => {
     }
 
     {
-        // MiAtSu.Co fork: toggling the upload-thumbnail preference rerenders
-        // rendered message lists so previews collapse or expand in place.
         event = event_fixtures.user_settings__miatsuco_web_show_upload_thumbnails;
         override(user_settings, "miatsuco_web_show_upload_thumbnails", true);
         called = false;
@@ -1368,8 +1366,6 @@ run_test("user_settings", ({override}) => {
     }
 
     {
-        // MiAtSu.Co fork: toggling the personal restrict-DMs preference
-        // updates the setting value; no message rerender is needed.
         event = event_fixtures.user_settings__miatsuco_restrict_dms_to_authorizers;
         override(user_settings, "miatsuco_restrict_dms_to_authorizers", false);
         dispatch(event);
