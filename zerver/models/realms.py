@@ -373,12 +373,9 @@ class Realm(models.Model):
         "UserGroup", on_delete=models.RESTRICT, related_name="+"
     )
 
-    # Fork feature (miatsuco): UserGroup whose members may exchange direct
-    # messages with each other without a member of
-    # direct_message_permission_group being present. A direct message with no
-    # permission-group member is allowed only if every participant (sender and
-    # all recipients) is in this "peer" group. Default NOBODY preserves the
-    # upstream behavior (only the permission group authorizes a DM).
+    # Members of this group may exchange direct messages with each other
+    # without a member of direct_message_permission_group present. Every
+    # participant, sender and recipients alike, must be in this group.
     direct_message_self_authorize_group = models.ForeignKey(
         "UserGroup", on_delete=models.RESTRICT, related_name="+"
     )

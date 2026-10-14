@@ -33,5 +33,4 @@ class UrlOEmbedData(UrlEmbedData):
     html: str | None = None
     width: int | None = None
     height: int | None = None
-    # MiAtSu.Co edit: hooks out to miatsuco_message_card_embed.py.
     social_post: SocialPost | None = None

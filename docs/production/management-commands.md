@@ -150,6 +150,14 @@ There are dozens of useful management commands under
 - `./manage.py reset_authentication_attempt_count`: If a user failed authentication
   attempts too many times and further attempts are disallowed by the rate limiter,
   this can be used to reset the limit.
+- `./manage.py miatsuco_rerender_embeds`: Refetches and re-renders link
+  previews in place for messages that contain a link, for example after the
+  server's preview handling changes. Unlike bumping `markdown_version`, it
+  doesn't force every message on the server to re-render the next time it's
+  read. Pass `-r` to limit it to one organization or `--all-realms` to run
+  across all of them, `--dry-run` to only count the messages, and
+  `--min-interval` to set the minimum seconds between fetches to the same
+  provider domain.
 
 All of our management commands have internal documentation available
 via `manage.py command_name --help`.

@@ -319,9 +319,6 @@ v1_api_and_json_patterns = [
     # realm-level calls
     rest_path("realm", PATCH=update_realm),
     rest_path("realm/user_settings_defaults", PATCH=update_realm_user_settings_defaults),
-    # Specific to the MiAtSu.Co fork; not documented via the normal API
-    # docs pipeline until it is submitted upstream, see
-    # docs/contributing/miatsuco-upstream-api-drafts.md.
     rest_path(
         "realm/email_visibility_policy",
         PATCH=(update_email_visibility_policy, {"intentionally_undocumented"}),

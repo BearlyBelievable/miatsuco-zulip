@@ -423,10 +423,6 @@ export function dispatch_normal_event(event) {
                                 }
 
                                 if (key === "direct_message_permission_group") {
-                                    // Fork feature (miatsuco): keep the
-                                    // view-only "who can authorize DMs"
-                                    // disclosure in personal preferences in
-                                    // sync when the authorizer group changes.
                                     miatsuco_dm_authorizer_display.rerender_if_present();
                                 }
 

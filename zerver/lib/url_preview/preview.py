@@ -138,8 +138,6 @@ def get_link_embed_data(url: str, maxwidth: int = 640, maxheight: int = 480) -> 
             return _fetch_link_embed_data_once(url, maxwidth, maxheight)
         except TransientPreviewFetchError:
             time.sleep(EMBED_FETCH_RETRY_DELAY_SECONDS)
-    # MiAtSu.Co edit:
-    # Left uncaught so a final failure here isn't cached, matching
-    # catch_network_errors's existing behavior for a first attempt
-    # that fails outright.
+    # The last attempt isn't caught, so a failure propagates past
+    # cache_with_key (and isn't cached) to catch_network_errors.
     return _fetch_link_embed_data_once(url, maxwidth, maxheight)

@@ -665,9 +665,6 @@ class InlineInterestingLinkProcessor(markdown.treeprocessors.Treeprocessor):
             div = SubElement(root, "div")
 
         div.set("class", class_attr)
-        # MiAtSu.Co edit:
-        # Exposed as data attributes so the embed's aspect ratio can be
-        # set before its content loads, without a per-provider CSS rule.
         if width is not None:
             div.set("data-width", str(width))
         if height is not None:
@@ -716,7 +713,6 @@ class InlineInterestingLinkProcessor(markdown.treeprocessors.Treeprocessor):
             return
 
         if extracted_data.social_post is not None:
-            # MiAtSu.Co edit: hooks out to miatsuco_message_card_embed.py.
             miatsuco_message_card_embed.add_message_card_embed(
                 root, link, extracted_data.social_post, sanitize_url
             )
@@ -754,12 +750,10 @@ class InlineInterestingLinkProcessor(markdown.treeprocessors.Treeprocessor):
                 root, link, extracted_data, title=rich_title or extracted_data.title
             )
             if container is not None:
-                # MiAtSu.Co edit: consumed by postprocess_content.ts's
-                # collapsed-media platform tag, like message card embeds.
+                # Consumed by the collapsed-media platform tag in postprocess_content.ts.
                 platform = self.rich_embed_platform(link)
                 if platform is not None:
                     container.set("data-platform", platform)
-                # MiAtSu.Co edit: hooks out to miatsuco_inline_embed.ts.
                 container.set(
                     "data-inline-rich-embed",
                     orjson.dumps(
@@ -842,8 +836,8 @@ class InlineInterestingLinkProcessor(markdown.treeprocessors.Treeprocessor):
         # a row for the ImageAttachment, then its header didn't parse
         # as a valid image type which libvips handles.
         #
-        # MiAtSu.Co edit:
-        # Upload previews are gated independently of image_preview_enabled.
+        # Uploaded images follow miatsuco_upload_preview_enabled and skip the
+        # image_preview_enabled check below.
         if url.startswith("/user_uploads/") and self.zmd.zulip_db_data:
             if not self.zmd.miatsuco_upload_preview_enabled:
                 return False
@@ -1189,8 +1183,8 @@ class InlineInterestingLinkProcessor(markdown.treeprocessors.Treeprocessor):
         if info["remove"] is not None:
             info["parent"].remove(info["remove"])
 
-    # MiAtSu.Co edit: also embeds audio reached via a plain link,
-    # not just the `![...]()` syntax AudioInlineProcessor requires.
+    # Also embeds audio reached via a plain link, not only the ![...](...)
+    # syntax AudioInlineProcessor requires.
     def is_audio(self, url: str) -> bool:
         if url.startswith("/user_uploads/") and self.zmd.zulip_db_data:
             path_id = url.removeprefix("/user_uploads/")
@@ -1307,7 +1301,6 @@ class InlineInterestingLinkProcessor(markdown.treeprocessors.Treeprocessor):
                 self.handle_video_inlining(root, found_url)
                 continue
 
-            # MiAtSu.Co edit: is_audio/handle_audio_inlining, defined above.
             if self.is_audio(url):
                 self.handle_audio_inlining(root, found_url)
                 continue
@@ -1367,7 +1360,6 @@ class InlineInterestingLinkProcessor(markdown.treeprocessors.Treeprocessor):
                     youtube_anchor.set("title", title)
                 continue
             self.add_embed(root, url, extracted_data)
-            # MiAtSu.Co edit: hooks out to miatsuco_message_card_embed.py.
             if isinstance(extracted_data, UrlOEmbedData) and extracted_data.social_post is not None:
                 title = miatsuco_message_card_embed.post_title(extracted_data.social_post)
             elif self.vimeo_id(url):
@@ -2330,9 +2322,8 @@ class ImageInlineProcessor(markdown.inlinepatterns.ImageInlineProcessor):
             assert path_id in db_data.user_upload_previews.image_metadata
             metadata = db_data.user_upload_previews.image_metadata[path_id]
 
-        # MiAtSu.Co edit:
-        # Only gates the inline preview, not thumbnailing, so this returns
-        # a plain link instead of leaving the syntax unprocessed.
+        # Return a plain link, since returning None would leave the
+        # ![...](...) syntax unprocessed.
         if not self.zmd.miatsuco_upload_preview_enabled:
             link = Element("a")
             link.set("href", src)
