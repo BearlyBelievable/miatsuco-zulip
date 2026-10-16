@@ -1687,6 +1687,7 @@ export const group_setting_widget_map = new Map<string, GroupSettingPillContaine
     ["can_remove_subscribers_group", null],
     ["can_resolve_topics_group", null],
     ["can_send_message_group", null],
+    ["miatsuco_can_post_in_pinned_topic_group", null],
     ["realm_can_add_custom_emoji_group", null],
     ["realm_can_add_subscribers_group", null],
     ["realm_can_create_bots_group", null],

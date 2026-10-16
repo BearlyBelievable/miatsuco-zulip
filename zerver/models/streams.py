@@ -153,6 +153,9 @@ class Stream(models.Model):
     can_resolve_topics_group = models.ForeignKey(
         UserGroup, on_delete=models.RESTRICT, related_name="+"
     )
+    miatsuco_can_post_in_pinned_topic_group = models.ForeignKey(
+        UserGroup, on_delete=models.RESTRICT, related_name="+"
+    )
 
     # The very first message ID in the stream.  Used to help clients
     # determine whether they might need to display "show all topics" for a
@@ -221,6 +224,11 @@ class Stream(models.Model):
             allow_nobody_group=True,
             allow_everyone_group=True,
             default_group_name=SystemGroups.NOBODY,
+        ),
+        "miatsuco_can_post_in_pinned_topic_group": GroupPermissionSetting(
+            allow_nobody_group=True,
+            allow_everyone_group=True,
+            default_group_name=SystemGroups.EVERYONE,
         ),
     }
 
@@ -291,6 +299,7 @@ class Stream(models.Model):
         "can_remove_subscribers_group_id",
         "can_subscribe_group_id",
         "can_resolve_topics_group_id",
+        "miatsuco_can_post_in_pinned_topic_group_id",
         "is_recently_active",
         "topics_policy",
     ]

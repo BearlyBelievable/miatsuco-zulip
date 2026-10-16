@@ -862,6 +862,9 @@ export const all_group_setting_labels = {
         can_resolve_topics_group: $t({
             defaultMessage: "Who can resolve topics in this channel",
         }),
+        miatsuco_can_post_in_pinned_topic_group: $t({
+            defaultMessage: "Who can post in this channel's pinned topic",
+        }),
     },
     group: {
         can_add_members_group: $t({defaultMessage: "Who can add members to this group"}),
@@ -987,6 +990,7 @@ export const stream_group_permission_settings: StreamGroupSettingName[] = [
     "can_move_messages_within_channel_group",
     "can_move_messages_out_of_channel_group",
     "can_resolve_topics_group",
+    "miatsuco_can_post_in_pinned_topic_group",
     "can_delete_any_message_group",
     "can_delete_own_message_group",
     "can_administer_channel_group",

@@ -13285,6 +13285,8 @@ paths:
                   $ref: "#/components/schemas/CanSubscribeGroup"
                 can_resolve_topics_group:
                   $ref: "#/components/schemas/CanResolveTopicsGroup"
+                miatsuco_can_post_in_pinned_topic_group:
+                  $ref: "#/components/schemas/MiatsucoCanPostInPinnedTopicGroup"
                 can_create_topic_group:
                   $ref: "#/components/schemas/CanCreateTopicGroup"
                 folder_id:
@@ -13337,6 +13339,8 @@ paths:
               can_subscribe_group:
                 contentType: application/json
               can_resolve_topics_group:
+                contentType: application/json
+              miatsuco_can_post_in_pinned_topic_group:
                 contentType: application/json
               can_create_topic_group:
                 contentType: application/json
@@ -19311,6 +19315,7 @@ paths:
                                 can_send_message_group: {}
                                 can_subscribe_group: {}
                                 can_resolve_topics_group: {}
+                                miatsuco_can_post_in_pinned_topic_group: {}
                                 can_create_topic_group: {}
                                 subscriber_count: {}
                                 stream_weekly_traffic:
@@ -24552,6 +24557,7 @@ paths:
                                 can_move_messages_within_channel_group: {}
                                 can_send_message_group: {}
                                 can_resolve_topics_group: {}
+                                miatsuco_can_post_in_pinned_topic_group: {}
                                 can_subscribe_group: {}
                                 can_create_topic_group: {}
                                 subscriber_count: {}
@@ -25158,6 +25164,22 @@ paths:
                           "old": 15,
                         }
                     - $ref: "#/components/schemas/GroupSettingValueUpdate"
+                miatsuco_can_post_in_pinned_topic_group:
+                  allOf:
+                    - description: |
+                        The set of users who have permission to post in and edit messages in the pinned topic of this channel
+                        expressed as an [update to a group-setting value][update-group-setting].
+
+                        [update-group-setting]: /api/group-setting-values#updating-group-setting-values
+
+                        **Changes**: New in Miatsuco 1.0 (feature level 5).
+                      example:
+                        {
+                          "new":
+                            {"direct_members": [10], "direct_subgroups": [11]},
+                          "old": 15,
+                        }
+                    - $ref: "#/components/schemas/GroupSettingValueUpdate"
                 can_create_topic_group:
                   allOf:
                     - description: |
@@ -25225,6 +25247,8 @@ paths:
               can_subscribe_group:
                 contentType: application/json
               can_resolve_topics_group:
+                contentType: application/json
+              miatsuco_can_post_in_pinned_topic_group:
                 contentType: application/json
               can_create_topic_group:
                 contentType: application/json
@@ -25806,6 +25830,8 @@ paths:
                   $ref: "#/components/schemas/CanSubscribeGroup"
                 can_resolve_topics_group:
                   $ref: "#/components/schemas/CanResolveTopicsGroup"
+                miatsuco_can_post_in_pinned_topic_group:
+                  $ref: "#/components/schemas/MiatsucoCanPostInPinnedTopicGroup"
               required:
                 - name
                 - subscribers
@@ -25825,6 +25851,8 @@ paths:
               can_remove_subscribers_group:
                 contentType: application/json
               can_resolve_topics_group:
+                contentType: application/json
+              miatsuco_can_post_in_pinned_topic_group:
                 contentType: application/json
               can_send_message_group:
                 contentType: application/json
@@ -27760,6 +27788,7 @@ components:
             can_send_message_group: {}
             can_subscribe_group: {}
             can_resolve_topics_group: {}
+            miatsuco_can_post_in_pinned_topic_group: {}
             can_create_topic_group: {}
             subscriber_count: {}
             stream_weekly_traffic:
@@ -27971,6 +28000,8 @@ components:
           $ref: "#/components/schemas/CanSubscribeGroup"
         can_resolve_topics_group:
           $ref: "#/components/schemas/CanResolveTopicsGroup"
+        miatsuco_can_post_in_pinned_topic_group:
+          $ref: "#/components/schemas/MiatsucoCanPostInPinnedTopicGroup"
         can_create_topic_group:
           $ref: "#/components/schemas/CanCreateTopicGroup"
         subscriber_count:
@@ -29129,6 +29160,8 @@ components:
           $ref: "#/components/schemas/CanSubscribeGroup"
         can_resolve_topics_group:
           $ref: "#/components/schemas/CanResolveTopicsGroup"
+        miatsuco_can_post_in_pinned_topic_group:
+          $ref: "#/components/schemas/MiatsucoCanPostInPinnedTopicGroup"
         can_create_topic_group:
           $ref: "#/components/schemas/CanCreateTopicGroup"
         is_archived:
@@ -31398,6 +31431,17 @@ components:
             in a channel regardless of the value of this setting.
 
             **Changes**: New in Zulip 11.0 (feature level 402).
+
+            [setting-values]: /api/group-setting-values
+    MiatsucoCanPostInPinnedTopicGroup:
+      allOf:
+        - $ref: "#/components/schemas/GroupSettingValue"
+        - description: |
+            A [group-setting value][setting-values] defining the set of users
+            who have permission to send messages in the channel's pinned topic
+            and to edit messages in it.
+
+            **Changes**: New in Miatsuco 1.0 (feature level 5).
 
             [setting-values]: /api/group-setting-values
     CanCreateTopicGroup:
