@@ -50,6 +50,18 @@ from zerver.lib.message import (
     truncate_topic,
 )
 from zerver.lib.message_cache import update_message_cache
+from zerver.lib.miatsuco_pinned_topic import (
+    check_not_pinned_and_resolved,
+    check_pinned_topic_can_be_unpinned,
+    check_pinned_topic_edit,
+    get_other_pinned_topic_names,
+)
+from zerver.lib.miatsuco_pinned_topic_name import (
+    get_topic_pin_and_bare_name,
+    is_pinned_topic,
+    topic_was_pinned,
+    topic_was_unpinned,
+)
 from zerver.lib.queue import queue_event_on_commit
 from zerver.lib.stream_subscription import get_active_subscriptions_for_stream_id
 from zerver.lib.stream_topic import StreamTopicTarget
@@ -323,6 +335,57 @@ def maybe_delete_previous_resolve_topic_notification(
 
     do_delete_messages(stream.realm, [last_message], acting_user=user_profile)
     return True
+
+
+def send_pin_topic_notification(
+    user_profile: UserProfile, message_edit_request: StreamMessageEditRequest
+) -> None:
+    stream = message_edit_request.orig_stream
+    sender = get_system_bot(settings.NOTIFICATION_BOT, user_profile.realm_id)
+    user_mention = silent_mention_syntax_for_user(user_profile)
+    with override_language(stream.realm.default_language):
+        if is_pinned_topic(message_edit_request.target_topic_name):
+            notification_string = _("{user} has pinned this topic.")
+        else:
+            notification_string = _("{user} has unpinned this topic.")
+
+        internal_send_stream_message(
+            sender,
+            stream,
+            message_edit_request.target_topic_name,
+            notification_string.format(user=user_mention),
+            mark_as_read_for_acting_user=True,
+            acting_user=user_profile,
+        )
+
+
+def unpin_other_topics(
+    user_profile: UserProfile, message_edit_request: StreamMessageEditRequest
+) -> None:
+    stream = message_edit_request.orig_stream
+    assert stream.recipient_id is not None
+    other_topic_names = get_other_pinned_topic_names(
+        stream, [message_edit_request.orig_topic_name, message_edit_request.target_topic_name]
+    )
+    for other_topic_name in other_topic_names:
+        check_pinned_topic_can_be_unpinned(stream, other_topic_name)
+
+    for other_topic_name in other_topic_names:
+        other_message = (
+            messages_for_topic(stream.realm_id, stream.recipient_id, other_topic_name)
+            .order_by("id")
+            .first()
+        )
+        assert other_message is not None
+        unpin_request = build_message_edit_request(
+            message=other_message,
+            user_profile=user_profile,
+            propagate_mode="change_all",
+            topic_name=get_topic_pin_and_bare_name(other_topic_name)[1],
+        )
+        assert isinstance(unpin_request, StreamMessageEditRequest)
+        # do_update_message sends the unpin notice.
+        do_update_message(user_profile, other_message, unpin_request, False, False, None, set())
 
 
 def send_message_moved_breadcrumbs(
@@ -1346,6 +1409,10 @@ def do_update_message(
                 users_following_topic=users_following_original_topic,
             )
         )
+        if is_pinned_topic(message_edit_request.orig_topic_name) != is_pinned_topic(
+            message_edit_request.target_topic_name
+        ):
+            send_pin_topic_notification(user_profile, message_edit_request)
 
     if message_edit_request.is_nontrivial_move:
         # Notify users that the topic was moved.
@@ -1374,8 +1441,7 @@ def do_update_message(
             # The topic changed -> eligible to notify.
             or (
                 message_edit_request.is_topic_edited
-                and not message_edit_request.topic_resolved
-                and not message_edit_request.topic_unresolved
+                and not message_edit_request.is_topic_status_toggle
             )
         ):
             stream_for_new_topic = message_edit_request.target_stream
@@ -1552,6 +1618,8 @@ def build_message_edit_request(
     is_topic_case_only_rename = False
     topic_resolved = False
     topic_unresolved = False
+    topic_pinned = False
+    topic_unpinned = False
     old_topic_name = message.topic_name()
     target_topic_name = old_topic_name
 
@@ -1576,6 +1644,10 @@ def build_message_edit_request(
             # still looks resolved. This check mirrors that behavior.
             and old_topic_name.lstrip(RESOLVED_TOPIC_PREFIX) == target_topic_name
         )
+        topic_pinned = topic_was_pinned(
+            old_topic_name, target_topic_name, pre_truncation_target_topic_name
+        )
+        topic_unpinned = topic_was_unpinned(old_topic_name, target_topic_name)
 
     orig_stream_id = message.recipient.type_id
     orig_stream = get_stream_by_id_in_realm(orig_stream_id, message.realm)
@@ -1608,6 +1680,8 @@ def build_message_edit_request(
         is_nontrivial_move=is_stream_edited or (is_topic_edited and not is_topic_case_only_rename),
         topic_resolved=topic_resolved,
         topic_unresolved=topic_unresolved,
+        topic_pinned=topic_pinned,
+        topic_unpinned=topic_unpinned,
         orig_content=message.content,
         orig_topic_name=old_topic_name,
         orig_stream=orig_stream,
@@ -1624,6 +1698,9 @@ def check_stream_topic_edit_permissions(
     message_edit_request: StreamMessageEditRequest,
     edit_limit_buffer: int,
 ) -> None:
+    if message_edit_request.topic_pinned or message_edit_request.topic_unpinned:
+        return
+
     if message_edit_request.topic_resolved or message_edit_request.topic_unresolved:
         if not can_resolve_topics(
             user_profile, message_edit_request.orig_stream, message_edit_request.target_stream
@@ -1698,6 +1775,18 @@ def check_update_message(
         topic_name=topic_name,
         content=content,
     )
+
+    if isinstance(message_edit_request, StreamMessageEditRequest):
+        orig_topic_pinned = is_pinned_topic(message_edit_request.orig_topic_name)
+        target_topic_pinned = is_pinned_topic(message_edit_request.target_topic_name)
+        topic_newly_pinned = target_topic_pinned and not orig_topic_pinned
+        if message_edit_request.is_topic_edited:
+            check_not_pinned_and_resolved(message_edit_request.target_topic_name)
+
+        if (message_edit_request.is_topic_edited or message_edit_request.is_stream_edited) and (
+            orig_topic_pinned or target_topic_pinned
+        ):
+            check_pinned_topic_edit(user_profile, message_edit_request)
 
     if (
         isinstance(message_edit_request, StreamMessageEditRequest)
@@ -1786,8 +1875,7 @@ def check_update_message(
             propagate_mode == "change_all"
             and not user_profile.is_moderator
             and message_edit_request.is_message_moved
-            and not message_edit_request.topic_resolved
-            and not message_edit_request.topic_unresolved
+            and not message_edit_request.is_topic_status_toggle
         ):
             check_time_limit_for_change_all_propagate_mode(
                 message, user_profile, topic_name, stream_id
@@ -1795,8 +1883,7 @@ def check_update_message(
 
         if (
             message_edit_request.is_message_moved
-            and not message_edit_request.topic_resolved
-            and not message_edit_request.topic_unresolved
+            and not message_edit_request.is_topic_status_toggle
         ):
             check_for_can_create_topic_group_violation(
                 user_profile,
@@ -1805,6 +1892,9 @@ def check_update_message(
                 user_group_membership_details,
                 system_groups_name_dict,
             )
+
+    if isinstance(message_edit_request, StreamMessageEditRequest) and topic_newly_pinned:
+        unpin_other_topics(user_profile, message_edit_request)
 
     updated_message_result = do_update_message(
         user_profile,

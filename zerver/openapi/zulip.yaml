@@ -10504,6 +10504,16 @@ paths:
         `✔ {original_topic}` with the `propagate_mode` parameter set to
         `"change_all"`.
 
+        In the MiAtSu.Co fork, you can pin a topic by editing the topic to
+        `📌 {original_topic}` with the `propagate_mode` parameter set to
+        `"change_all"`, and unpin it by removing the prefix. Only channel
+        administrators can pin, unpin, rename, or start a pinned topic. A channel
+        has one pinned topic, and pinning another unpins the first. Messages
+        can't be moved into or out of a pinned topic, and a topic can't be both
+        pinned and resolved.
+
+        **Changes**: New in Miatsuco 1.0 (feature level 5).
+
         See [configuring message editing][config-message-editing] for detailed
         documentation on when users are allowed to edit message content, and
         [restricting moving messages][restrict-move-messages] for detailed

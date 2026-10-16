@@ -15,13 +15,15 @@ import re
 from typing import TYPE_CHECKING
 
 import orjson
+from typing_extensions import override
 
 from zerver.actions.create_user import do_create_user
 from zerver.actions.realm_settings import do_change_realm_permission_group_setting
 from zerver.lib.test_classes import ZulipTestCase
 from zerver.lib.upload import upload_message_attachment
-from zerver.models import NamedUserGroup, UserProfile
+from zerver.models import Message, NamedUserGroup, UserProfile
 from zerver.models.realms import get_realm
+from zerver.models.streams import get_stream
 
 if TYPE_CHECKING:
     from django.test.client import _MonkeyPatchedWSGIResponse as TestHttpResponse
@@ -121,3 +123,43 @@ class MiatsucoUserManagementTestMixin(ZulipTestCase):
             bot_owner=self.example_user("hamlet"),
             acting_user=None,
         )
+
+
+class MiatsucoPinnedTopicTestMixin(ZulipTestCase):
+    @override
+    def setUp(self) -> None:
+        super().setUp()
+        self.stream_name = "Denmark"
+        self.admin = self.example_user("iago")
+        self.member = self.example_user("hamlet")
+
+    def send(self, topic_name: str, sender: UserProfile | None = None) -> int:
+        return self.send_stream_message(
+            sender or self.admin, self.stream_name, topic_name=topic_name
+        )
+
+    def edit_topic(
+        self,
+        message_id: int,
+        topic_name: str,
+        propagate_mode: str = "change_all",
+    ) -> "TestHttpResponse":
+        return self.client_patch(
+            f"/json/messages/{message_id}",
+            {
+                "topic": topic_name,
+                "propagate_mode": propagate_mode,
+                "send_notification_to_old_thread": "false",
+                "send_notification_to_new_thread": "false",
+            },
+        )
+
+    def topic_names(self) -> set[str]:
+        stream = get_stream(self.stream_name, self.admin.realm)
+        assert stream.recipient_id is not None
+        return {
+            message.topic_name()
+            for message in Message.objects.filter(
+                realm_id=stream.realm_id, recipient_id=stream.recipient_id, is_channel_message=True
+            )
+        }

@@ -210,6 +210,7 @@ test("my_message_all_actions", ({override}) => {
         {
             id: 1,
             type: "stream",
+            topic: "topic",
             sender_id: me.user_id,
             is_hidden: false,
             sent_by_me: true,

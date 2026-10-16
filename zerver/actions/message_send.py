@@ -53,6 +53,7 @@ from zerver.lib.message import (
     visibility_policy_for_send_message,
 )
 from zerver.lib.message_cache import MessageDict
+from zerver.lib.miatsuco_pinned_topic import check_pinned_topic_send
 from zerver.lib.muted_users import get_muting_users
 from zerver.lib.notification_data import (
     UserMessageNotificationsData,
@@ -1881,6 +1882,8 @@ def check_message(
             user_group_membership_details=user_group_membership_details,
             system_groups_name_dict=system_groups_name_dict,
         )
+
+        check_pinned_topic_send(sender, stream, topic_name)
 
         topics_policy = get_stream_topics_policy(realm, stream)
         empty_topic_display_name = get_topic_display_name("", sender.default_language)

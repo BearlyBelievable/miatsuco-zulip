@@ -22,6 +22,7 @@ import * as hash_util from "./hash_util.ts";
 import {$t} from "./i18n.ts";
 import * as message_store from "./message_store.ts";
 import * as message_util from "./message_util.ts";
+import * as miatsuco_pinned_topic from "./miatsuco_pinned_topic.ts";
 import * as narrow_state from "./narrow_state.ts";
 import * as peer_data from "./peer_data.ts";
 import * as people from "./people.ts";
@@ -51,6 +52,9 @@ let disabled_send_tooltip_message_html = "";
 
 export const NO_PERMISSION_TO_POST_IN_CHANNEL_ERROR_MESSAGE = $t({
     defaultMessage: "You do not have permission to post in this channel.",
+});
+export const NO_PERMISSION_TO_START_PINNED_TOPIC_ERROR_MESSAGE = $t({
+    defaultMessage: "Only channel administrators can start a pinned topic.",
 });
 export const NO_PRIVATE_RECIPIENT_ERROR_MESSAGE = $t({
     defaultMessage: "Please add a valid recipient.",
@@ -909,6 +913,24 @@ function validate_permission_to_post_messages_in_stream(sub: StreamSubscription)
     return true;
 }
 
+function get_pinned_topic_error_message(
+    sub: StreamSubscription,
+    topic: string,
+): string | undefined {
+    const topic_exists = stream_topic_history
+        .get_recent_topic_names(sub.stream_id)
+        .some((name) => name.toLowerCase() === topic.toLowerCase());
+    if (
+        !topic_exists &&
+        stream_topic_history.has_history_for(sub.stream_id) &&
+        !stream_data.can_administer_channel(sub)
+    ) {
+        return NO_PERMISSION_TO_START_PINNED_TOPIC_ERROR_MESSAGE;
+    }
+
+    return undefined;
+}
+
 function validate_stream_message(scheduling_message: boolean, show_banner = true): boolean {
     const $banner_container = $("#compose_banners");
     const stream_id = compose_state.stream_id();
@@ -954,6 +976,22 @@ function validate_stream_message(scheduling_message: boolean, show_banner = true
 
     if (!validate_permission_to_post_messages_in_stream(sub)) {
         return false;
+    }
+
+    const pinned_topic_name = compose_state.topic().trim();
+    if (miatsuco_pinned_topic.is_pinned(pinned_topic_name)) {
+        const pinned_topic_error_message = get_pinned_topic_error_message(sub, pinned_topic_name);
+        if (pinned_topic_error_message !== undefined) {
+            compose_banner.show_error_message(
+                pinned_topic_error_message,
+                compose_banner.CLASSNAMES.no_post_permissions,
+                $banner_container,
+            );
+            if (is_validating_compose_box) {
+                disabled_send_tooltip_message_html = pinned_topic_error_message;
+            }
+            return false;
+        }
     }
 
     if (!stream_data.can_create_new_topics_in_stream(stream_id)) {

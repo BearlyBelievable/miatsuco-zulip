@@ -56,11 +56,19 @@
                 {{> components/icon_button icon="pencil" intent="neutral" custom_classes="on_hover_topic_edit recipient-bar-control recipient-bar-control-icon hidden-for-spectators" data-tippy-content=(t "Edit topic") aria-label=(t "Edit topic") }}
             {{/if}}
 
-            {{#if (and user_can_resolve_topic (not is_empty_string_topic))}}
+            {{#if (and user_can_resolve_topic (not is_empty_string_topic) (not topic_is_pinned))}}
                 {{#if topic_is_resolved}}
                     {{> components/icon_button icon="placeholder" intent="neutral" custom_classes="recipient-bar-control on-hover-unresolve-loading-indicator hidden-for-spectators hide" }}
                 {{else}}
                     {{> components/icon_button icon="check" intent="neutral" custom_classes="on_hover_topic_resolve recipient-bar-control recipient-bar-control-icon hidden-for-spectators" data-tippy-content=(t "Mark as resolved") aria-label=(t "Mark as resolved") }}
+                {{/if}}
+            {{/if}}
+
+            {{#if (and user_can_pin_topic (not is_archived) (not is_empty_string_topic))}}
+                {{#if topic_is_pinned}}
+                    {{> components/icon_button icon="unpin" intent="neutral" custom_classes="on_hover_topic_unpin recipient-bar-control recipient-bar-control-icon hidden-for-spectators" data-tippy-content=(t "Unpin topic") aria-label=(t "Unpin topic") }}
+                {{else if (not topic_is_resolved)}}
+                    {{> components/icon_button icon="pin" intent="neutral" custom_classes="on_hover_topic_pin recipient-bar-control recipient-bar-control-icon hidden-for-spectators" data-tippy-content=(t "Pin topic") aria-label=(t "Pin topic") }}
                 {{/if}}
             {{/if}}
 

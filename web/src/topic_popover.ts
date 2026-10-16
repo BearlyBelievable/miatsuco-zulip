@@ -11,6 +11,7 @@ import {$t_html} from "./i18n.ts";
 import * as message_delete from "./message_delete.ts";
 import * as message_edit from "./message_edit.ts";
 import * as message_summary from "./message_summary.ts";
+import * as miatsuco_pinned_topic from "./miatsuco_pinned_topic.ts";
 import * as popover_menus from "./popover_menus.ts";
 import * as popover_menus_data from "./popover_menus_data.ts";
 import * as recent_view_ui from "./recent_view_ui.ts";
@@ -233,6 +234,23 @@ export function initialize(): void {
                             message_id,
                             topic_name,
                             true,
+                            $recipient_row,
+                        );
+                    });
+
+                    popover_menus.hide_current_popover_if_visible(instance);
+                });
+
+                $popper.one("click", ".sidebar-popover-toggle-pinned", () => {
+                    message_edit.with_first_message_id(stream_id, topic_name, (message_id) => {
+                        assert(message_id !== undefined);
+                        let $recipient_row;
+                        if ($reference.hasClass("recipient-row-topic-menu")) {
+                            $recipient_row = $reference.closest(".recipient_row");
+                        }
+                        miatsuco_pinned_topic.toggle_pinned_topic(
+                            message_id,
+                            topic_name,
                             $recipient_row,
                         );
                     });

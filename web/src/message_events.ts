@@ -34,6 +34,7 @@ import {
     raw_message_schema,
 } from "./message_store.ts";
 import * as message_view from "./message_view.ts";
+import * as miatsuco_pinned_topic from "./miatsuco_pinned_topic.ts";
 import * as narrow_state from "./narrow_state.ts";
 import * as pm_list from "./pm_list.ts";
 import * as recent_senders from "./recent_senders.ts";
@@ -667,7 +668,10 @@ export function update_messages(events: UpdateMessageEvent[]): void {
                     moved_message.last_moved_timestamp = event.edit_timestamp;
                 } else if (topic_edited) {
                     assert(new_topic !== undefined);
-                    if (!topic_resolve_toggled(new_topic, orig_topic)) {
+                    if (
+                        !topic_resolve_toggled(new_topic, orig_topic) &&
+                        !miatsuco_pinned_topic.topic_pin_toggled(new_topic, orig_topic)
+                    ) {
                         moved_message.last_moved_timestamp = event.edit_timestamp;
                     }
                 }

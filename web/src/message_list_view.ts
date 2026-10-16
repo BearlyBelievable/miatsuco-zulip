@@ -29,6 +29,7 @@ import * as message_store from "./message_store.ts";
 import type {Message} from "./message_store.ts";
 import * as message_viewport from "./message_viewport.ts";
 import type {MessageViewportInfo} from "./message_viewport.ts";
+import * as miatsuco_pinned_topic from "./miatsuco_pinned_topic.ts";
 import * as muted_users from "./muted_users.ts";
 import * as narrow_state from "./narrow_state.ts";
 import {page_params} from "./page_params.ts";
@@ -112,9 +113,11 @@ export type MessageGroup = {
           topic_display_name: string;
           is_empty_string_topic: boolean;
           topic_is_resolved: boolean;
+          topic_is_pinned: boolean;
           topic_links: TopicLink[] | undefined;
           topic_url: string | undefined;
           user_can_resolve_topic: boolean;
+          user_can_pin_topic: boolean;
           visibility_policy: number | false;
           always_display_date: boolean;
       }
@@ -425,6 +428,7 @@ export function populate_group_from_message(
             is_stream,
             ...get_topic_edit_properties(message),
             user_can_resolve_topic: stream_data.can_resolve_topics(sub),
+            user_can_pin_topic: stream_data.can_administer_channel(sub),
             date_html,
             display_recipient,
             date_unchanged,
@@ -448,6 +452,7 @@ export function populate_group_from_message(
             stream_id,
             is_subscribed: sub.subscribed,
             topic_is_resolved: resolved_topic.is_resolved(topic),
+            topic_is_pinned: miatsuco_pinned_topic.is_pinned(topic),
             visibility_policy: user_topics.get_topic_visibility_policy(stream_id, topic),
             // The following field is not specific to this group, but this is the
             // easiest way we've figured out for passing the data to the template rendering.
