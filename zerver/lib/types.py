@@ -445,6 +445,14 @@ class StreamMessageEditRequest:
     orig_topic_name: str
     orig_stream: "Stream"
     propagate_mode: str
+    topic_pinned: bool = False
+    topic_unpinned: bool = False
+
+    @property
+    def is_topic_status_toggle(self) -> bool:
+        return (
+            self.topic_resolved or self.topic_unresolved or self.topic_pinned or self.topic_unpinned
+        )
 
 
 @dataclass

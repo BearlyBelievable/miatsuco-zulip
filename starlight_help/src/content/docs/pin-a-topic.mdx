@@ -1,0 +1,82 @@
+---
+title: Pin a topic
+---
+
+import {TabItem, Tabs} from "@astrojs/starlight/components";
+
+import FlattenedSteps from "../../components/FlattenedSteps.astro";
+import NavigationSteps from "../../components/NavigationSteps.astro";
+import ZulipNote from "../../components/ZulipNote.astro";
+import ZulipTip from "../../components/ZulipTip.astro";
+import TopicActions from "../include/_TopicActions.mdx";
+
+import PinIcon from "~icons/zulip-icon/pin";
+
+Pinning a topic keeps an important topic easy to find in an active channel.
+Channel administrators can pin one topic in each channel.
+
+Pinning a topic:
+
+* Puts a 📌 at the beginning of the topic name, e.g., `example topic`
+  becomes `📌 example topic`.
+* Lists the topic first in the channel's topic list in the left sidebar, with a
+  pin icon in place of the 📌.
+* Unpins the channel's current pinned topic, if there is one.
+* Triggers an automated notice from Notification Bot indicating that the
+  topic was pinned.
+
+Unpinning a topic removes the 📌 and also triggers a notice from
+Notification Bot.
+
+Pinned topics have these restrictions:
+
+* Only channel administrators can pin, unpin, rename, or start a pinned topic.
+* Messages can't be moved into or out of a pinned topic.
+* A topic can't be both pinned and resolved.
+
+<ZulipNote>
+  The mobile app shows the 📌 in a pinned topic's name, but can't pin or
+  unpin a topic.
+</ZulipNote>
+
+## Pin a topic
+
+<Tabs>
+  <TabItem label="Desktop/Web">
+    <FlattenedSteps>
+      <TopicActions />
+
+      1. Select **Pin topic**.
+    </FlattenedSteps>
+
+    <ZulipTip>
+      You can also click the **pin** (<PinIcon />) icon in the message
+      recipient bar to pin an unpinned topic, or rename the topic to start
+      with 📌 followed by a space.
+    </ZulipTip>
+  </TabItem>
+</Tabs>
+
+## Unpin a topic
+
+<Tabs>
+  <TabItem label="Desktop/Web">
+    <FlattenedSteps>
+      <TopicActions />
+
+      1. Select **Unpin topic**.
+    </FlattenedSteps>
+
+    <ZulipTip>
+      You can also click the **unpin** (<PinIcon />) icon in the message
+      recipient bar to unpin a pinned topic.
+    </ZulipTip>
+  </TabItem>
+</Tabs>
+
+## Related articles
+
+* [Resolve a topic](/help/resolve-a-topic)
+* [Rename a topic](/help/rename-a-topic)
+* [Introduction to topics](/help/introduction-to-topics)
+* [Pin a channel](/help/pin-a-channel)

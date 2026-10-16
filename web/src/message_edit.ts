@@ -48,6 +48,7 @@ import * as message_live_update from "./message_live_update.ts";
 import * as message_store from "./message_store.ts";
 import type {Message} from "./message_store.ts";
 import * as message_viewport from "./message_viewport.ts";
+import * as miatsuco_pinned_topic from "./miatsuco_pinned_topic.ts";
 import * as onboarding_steps from "./onboarding_steps.ts";
 import * as resize from "./resize.ts";
 import * as resolved_topic from "./resolved_topic.ts";
@@ -120,6 +121,10 @@ export function is_topic_editable(message: Message, edit_limit_seconds_buffer = 
     const stream = stream_data.get_sub_by_id(message.stream_id);
     assert(stream !== undefined);
     if (!stream_data.user_can_move_messages_within_channel(stream)) {
+        return false;
+    }
+
+    if (!miatsuco_pinned_topic.user_can_rename_topic(message.stream_id, message.topic)) {
         return false;
     }
 
@@ -250,6 +255,10 @@ export function is_stream_editable(message: Message, edit_limit_seconds_buffer =
     const stream = stream_data.get_sub_by_id(message.stream_id);
     assert(stream !== undefined);
     if (!stream_data.user_can_move_messages_out_of_channel(stream)) {
+        return false;
+    }
+
+    if (miatsuco_pinned_topic.is_pinned(message.topic)) {
         return false;
     }
 

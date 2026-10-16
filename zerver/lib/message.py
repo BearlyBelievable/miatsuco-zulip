@@ -20,6 +20,7 @@ from zerver.lib.exceptions import JsonableError, MissingAuthenticationError
 from zerver.lib.markdown import MessageRenderingResult
 from zerver.lib.mention import MentionData, sender_can_mention_group, silent_mention_syntax_for_user
 from zerver.lib.message_cache import MessageDict, extract_message_dict, stringify_message_dict
+from zerver.lib.miatsuco_pinned_topic_name import topic_pin_toggled
 from zerver.lib.partial import partial
 from zerver.lib.request import RequestVariableConversionError
 from zerver.lib.stream_subscription import (
@@ -347,8 +348,10 @@ def messages_for_ids(
             for item in msg_dict["edit_history"]:
                 if "prev_stream" in item:
                     last_moved_timestamp = max(last_moved_timestamp, item["timestamp"])
-                elif "prev_topic" in item and not topic_resolve_toggled(
-                    item["topic"], item["prev_topic"]
+                elif (
+                    "prev_topic" in item
+                    and not topic_resolve_toggled(item["topic"], item["prev_topic"])
+                    and not topic_pin_toggled(item["topic"], item["prev_topic"])
                 ):
                     last_moved_timestamp = max(last_moved_timestamp, item["timestamp"])
                 if "prev_content" in item:

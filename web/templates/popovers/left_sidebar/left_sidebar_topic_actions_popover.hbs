@@ -98,7 +98,7 @@
                 </a>
             </li>
             {{/if}}
-            {{#if (and can_resolve_topic (not is_empty_string_topic))}}
+            {{#if (and can_resolve_topic (not is_empty_string_topic) (not topic_is_pinned))}}
             <li role="none" class="link-item popover-menu-list-item">
                 <a role="menuitem" class="sidebar-popover-toggle-resolved popover-menu-link" tabindex="0">
                     {{# if topic_is_resolved }}
@@ -110,6 +110,23 @@
                     {{/if}}
                 </a>
             </li>
+            {{/if}}
+            {{#if (and can_pin_topic (not is_empty_string_topic) (not stream_archived))}}
+            {{#if topic_is_pinned}}
+            <li role="none" class="link-item popover-menu-list-item">
+                <a role="menuitem" class="sidebar-popover-toggle-pinned popover-menu-link" tabindex="0">
+                    <i class="popover-menu-icon zulip-icon zulip-icon-unpin" aria-hidden="true"></i>
+                    <span class="popover-menu-label">{{t "Unpin topic"}}</span>
+                </a>
+            </li>
+            {{else if (not topic_is_resolved)}}
+            <li role="none" class="link-item popover-menu-list-item">
+                <a role="menuitem" class="sidebar-popover-toggle-pinned popover-menu-link" tabindex="0">
+                    <i class="popover-menu-icon zulip-icon zulip-icon-pin" aria-hidden="true"></i>
+                    <span class="popover-menu-label">{{t "Pin topic"}}</span>
+                </a>
+            </li>
+            {{/if}}
             {{/if}}
             {{#if (and is_realm_admin (not stream_archived))}}
             <li role="none" class="link-item popover-menu-list-item">

@@ -93,6 +93,7 @@ run_test("is_topic_editable", ({override}) => {
         sent_by_me: true,
         locally_echoed: true,
         type: "stream",
+        topic: "plans",
     };
     override(realm, "realm_allow_message_editing", true);
     override(stream_data, "is_stream_archived_by_id", () => false);
@@ -150,6 +151,7 @@ run_test("is_stream_editable", ({override}) => {
         sent_by_me: true,
         locally_echoed: true,
         type: "stream",
+        topic: "plans",
     };
     override(realm, "realm_allow_message_editing", true);
     override(stream_data, "user_can_move_messages_out_of_channel", () => true);

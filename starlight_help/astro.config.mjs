@@ -444,6 +444,7 @@ export default defineConfig({
                         "introduction-to-topics",
                         "rename-a-topic",
                         "resolve-a-topic",
+                        "pin-a-topic",
                         "move-content-to-another-topic",
                         "general-chat-topic",
                         "delete-a-topic",

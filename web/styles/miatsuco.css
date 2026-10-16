@@ -584,3 +584,23 @@
         display: inline;
     }
 }
+
+.sidebar-topic-pin {
+    grid-area: starting-anchor-element;
+    place-self: center end;
+    position: relative;
+    top: 0.145em;
+    font-size: 0.857em;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.topic-list-item.muted_topic {
+    .sidebar-topic-pin {
+        opacity: var(--opacity-left-sidebar-muted);
+    }
+
+    &:hover .sidebar-topic-pin {
+        opacity: var(--opacity-left-sidebar-muted-hover);
+    }
+}

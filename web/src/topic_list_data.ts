@@ -1,5 +1,6 @@
 import assert from "minimalistic-assert";
 
+import * as miatsuco_pinned_topic from "./miatsuco_pinned_topic.ts";
 import * as narrow_state from "./narrow_state.ts";
 import * as resolved_topic from "./resolved_topic.ts";
 import * as stream_topic_history from "./stream_topic_history.ts";
@@ -16,6 +17,7 @@ export type TopicInfo = {
     stream_id: number;
     topic_name: string;
     topic_resolved_prefix: string;
+    topic_is_pinned: boolean;
     topic_display_name: string;
     is_empty_string_topic: boolean;
     unread: number;
@@ -54,7 +56,11 @@ function choose_topics(
             stream_id,
             topic_name,
         );
-        const [topic_resolved_prefix, topic_bare_name] = resolved_topic.display_parts(topic_name);
+        const [topic_pinned_prefix, topic_without_pin] =
+            miatsuco_pinned_topic.display_parts(topic_name);
+        const topic_is_pinned = topic_pinned_prefix !== "";
+        const [topic_resolved_prefix, topic_bare_name] =
+            resolved_topic.display_parts(topic_without_pin);
         // Important: Topics are lower-case in this set.
         const contains_unread_mention = topic_choice_state.topics_with_unread_mentions.has(
             topic_name.toLowerCase(),
@@ -126,6 +132,7 @@ function choose_topics(
             stream_id,
             topic_name,
             topic_resolved_prefix,
+            topic_is_pinned,
             topic_display_name: util.get_final_topic_display_name(topic_bare_name),
             is_empty_string_topic: topic_bare_name === "",
             unread: num_unread,
@@ -238,7 +245,9 @@ export function get_list_info(
     assert(sub !== undefined);
     const stream_muted = sub.is_muted;
 
-    const topic_names = get_filtered_topic_names(stream_id, filter_topics);
+    const topic_names = miatsuco_pinned_topic.pinned_first(
+        get_filtered_topic_names(stream_id, filter_topics),
+    );
 
     if (stream_muted && !zoomed) {
         const unmuted_or_followed_topics = topic_names.filter((topic) =>
@@ -247,7 +256,10 @@ export function get_list_info(
         const other_topics = topic_names.filter(
             (topic) => !user_topics.is_topic_unmuted_or_followed(stream_id, topic),
         );
-        const reordered_topics = [...unmuted_or_followed_topics, ...other_topics];
+        const reordered_topics = miatsuco_pinned_topic.pinned_first([
+            ...unmuted_or_followed_topics,
+            ...other_topics,
+        ]);
         choose_topics(stream_id, reordered_topics, zoomed, topic_choice_state);
     } else {
         choose_topics(stream_id, topic_names, zoomed, topic_choice_state);

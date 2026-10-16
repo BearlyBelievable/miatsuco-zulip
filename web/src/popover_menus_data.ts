@@ -11,6 +11,7 @@ import * as message_delete from "./message_delete.ts";
 import * as message_edit from "./message_edit.ts";
 import * as message_lists from "./message_lists.ts";
 import type {Message} from "./message_store.ts";
+import * as miatsuco_pinned_topic from "./miatsuco_pinned_topic.ts";
 import * as narrow_state from "./narrow_state.ts";
 import {page_params} from "./page_params.ts";
 import * as people from "./people.ts";
@@ -62,8 +63,10 @@ type TopicPopoverContext = {
     can_move_topic: boolean;
     can_rename_topic: boolean;
     can_resolve_topic: boolean;
+    can_pin_topic: boolean;
     is_realm_admin: boolean;
     topic_is_resolved: boolean;
+    topic_is_pinned: boolean;
     has_starred_messages: boolean;
     has_unread_messages: boolean;
     url: string;
@@ -274,11 +277,15 @@ export function get_topic_popover_content_context({
     const topic_unmuted = user_topics.is_topic_unmuted(sub.stream_id, topic_name);
     const has_starred_messages = starred_messages.get_count_in_topic(sub.stream_id, topic_name) > 0;
     const has_unread_messages = num_unread_for_topic(sub.stream_id, topic_name) > 0;
-    const can_move_topic = stream_data.user_can_move_messages_out_of_channel(sub);
+    const can_move_topic =
+        stream_data.user_can_move_messages_out_of_channel(sub) &&
+        !miatsuco_pinned_topic.is_pinned(topic_name);
     const can_rename_topic =
         stream_data.user_can_move_messages_within_channel(sub) &&
-        !stream_data.is_empty_topic_only_channel(sub.stream_id);
+        !stream_data.is_empty_topic_only_channel(sub.stream_id) &&
+        miatsuco_pinned_topic.user_can_rename_topic(sub.stream_id, topic_name);
     const can_resolve_topic = stream_data.can_resolve_topics(sub);
+    const can_pin_topic = stream_data.can_administer_channel(sub);
 
     const visibility_policy = user_topics.get_topic_visibility_policy(sub.stream_id, topic_name);
     const all_visibility_policies = user_topics.all_visibility_policies;
@@ -297,8 +304,10 @@ export function get_topic_popover_content_context({
         can_move_topic,
         can_rename_topic,
         can_resolve_topic,
+        can_pin_topic,
         is_realm_admin: current_user.is_admin,
         topic_is_resolved: resolved_topic.is_resolved(topic_name),
+        topic_is_pinned: miatsuco_pinned_topic.is_pinned(topic_name),
         has_starred_messages,
         has_unread_messages,
         url,

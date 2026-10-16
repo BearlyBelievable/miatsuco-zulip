@@ -15,6 +15,7 @@ offers.
 | personal DM restrictions | `miatsuco_restrict_dms_to_authorizers`, `miatsuco_dm_authorizer_display`                  |
 | email visibility policy  | `email_address_visibility_max`, `email_address_visibility_min`, `email_visibility_policy` |
 | retain topics            | `miatsuco_retain_topics`                                                                  |
+| pinned topic             | `miatsuco_pinned_topic`, `miatsuco_pinned_topic_name`                                     |
 
 ## Improvements
 
@@ -42,4 +43,4 @@ row here when you raise it.
 | 2     | hide upload thumbnails and personal hide previews settings     |
 | 3     | org DM restrictions and personal DM restrictions settings      |
 | 4     | email visibility policy settings and endpoints                 |
-| 5     | more permission options and retain topics settings             |
+| 5     | more permission options, retain topics, and pinned topic       |
