@@ -53,6 +53,9 @@ let disabled_send_tooltip_message_html = "";
 export const NO_PERMISSION_TO_POST_IN_CHANNEL_ERROR_MESSAGE = $t({
     defaultMessage: "You do not have permission to post in this channel.",
 });
+export const NO_PERMISSION_TO_POST_IN_PINNED_TOPIC_ERROR_MESSAGE = $t({
+    defaultMessage: "You do not have permission to post in the pinned topic.",
+});
 export const NO_PERMISSION_TO_START_PINNED_TOPIC_ERROR_MESSAGE = $t({
     defaultMessage: "Only channel administrators can start a pinned topic.",
 });
@@ -926,6 +929,10 @@ function get_pinned_topic_error_message(
         !stream_data.can_administer_channel(sub)
     ) {
         return NO_PERMISSION_TO_START_PINNED_TOPIC_ERROR_MESSAGE;
+    }
+
+    if (!stream_data.can_post_in_pinned_topic(sub)) {
+        return NO_PERMISSION_TO_POST_IN_PINNED_TOPIC_ERROR_MESSAGE;
     }
 
     return undefined;

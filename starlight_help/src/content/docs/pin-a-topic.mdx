@@ -8,6 +8,10 @@ import FlattenedSteps from "../../components/FlattenedSteps.astro";
 import NavigationSteps from "../../components/NavigationSteps.astro";
 import ZulipNote from "../../components/ZulipNote.astro";
 import ZulipTip from "../../components/ZulipTip.astro";
+import AdminOnly from "../include/_AdminOnly.mdx";
+import ChannelSettingsNavbarTip from "../include/_ChannelSettingsNavbarTip.mdx";
+import SaveChanges from "../include/_SaveChanges.mdx";
+import SelectChannelViewPermissions from "../include/_SelectChannelViewPermissions.mdx";
 import TopicActions from "../include/_TopicActions.mdx";
 
 import PinIcon from "~icons/zulip-icon/pin";
@@ -73,6 +77,30 @@ Pinned topics have these restrictions:
     </ZulipTip>
   </TabItem>
 </Tabs>
+
+## Configure who can post in a pinned topic
+
+<AdminOnly />
+
+By default, anyone who can send messages in a channel can post in its pinned
+topic. You can restrict this to a group of users. The same permission is
+needed to edit a message in the pinned topic. Pinning and unpinning a topic
+works regardless of this setting.
+
+<FlattenedSteps>
+  <NavigationSteps target="relative/channel/all" />
+
+  1. Select a channel.
+
+  <SelectChannelViewPermissions />
+
+  1. Under **Moderation permissions**, configure **Who can post in this
+     channel's pinned topic**.
+
+  <SaveChanges />
+</FlattenedSteps>
+
+<ChannelSettingsNavbarTip />
 
 ## Related articles
 

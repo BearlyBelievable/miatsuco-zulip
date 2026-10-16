@@ -20,6 +20,14 @@ export function display_parts(topic_name: string): [string, string] {
     return ["", topic_name];
 }
 
+export function user_can_post_in_topic(stream_id: number, topic_name: string): boolean {
+    const sub = stream_data.get_sub_by_id(stream_id);
+    if (sub !== undefined && is_pinned(topic_name)) {
+        return stream_data.can_post_in_pinned_topic(sub);
+    }
+    return true;
+}
+
 export function user_can_rename_topic(stream_id: number, topic_name: string): boolean {
     const sub = stream_data.get_sub_by_id(stream_id);
     if (sub !== undefined && is_pinned(topic_name)) {

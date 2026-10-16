@@ -16,6 +16,31 @@ set_realm(realm);
 const current_user = {};
 set_current_user(current_user);
 
+run_test("is_content_editable in a pinned topic", ({override}) => {
+    override(realm, "realm_allow_message_editing", true);
+    override(realm, "realm_message_content_edit_limit_seconds", null);
+    const message = {
+        sent_by_me: true,
+        submessages: [],
+        type: "stream",
+        stream_id: 7,
+        topic: "📌 plans",
+    };
+    override(stream_data, "is_stream_archived_by_id", () => false);
+    override(stream_data, "get_sub_by_id", () => ({stream_id: 7}));
+
+    let can_post = false;
+    override(stream_data, "can_post_in_pinned_topic", () => can_post);
+    assert.equal(message_edit.is_content_editable(message), false);
+
+    can_post = true;
+    assert.equal(message_edit.is_content_editable(message), true);
+
+    can_post = false;
+    message.topic = "plans";
+    assert.equal(message_edit.is_content_editable(message), true);
+});
+
 run_test("topic and stream edits in a pinned topic", ({override}) => {
     override(realm, "realm_allow_message_editing", true);
     override(stream_data, "is_stream_archived_by_id", () => false);

@@ -834,6 +834,14 @@ export function can_resolve_topics(sub: StreamSubscription): boolean {
     );
 }
 
+export function can_post_in_pinned_topic(sub: StreamSubscription): boolean {
+    return settings_data.user_has_permission_for_group_setting(
+        sub.miatsuco_can_post_in_pinned_topic_group,
+        "miatsuco_can_post_in_pinned_topic_group",
+        "stream",
+    );
+}
+
 export function can_subscribe_user(sub: StreamSubscription, user_id: number): boolean {
     if (people.is_my_user_id(user_id)) {
         return can_toggle_subscription(sub);

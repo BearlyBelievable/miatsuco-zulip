@@ -98,6 +98,9 @@ def get_web_public_subs(
         can_subscribe_group = get_group_setting_value_for_register_api(
             stream.can_subscribe_group_id, anonymous_group_membership
         )
+        miatsuco_can_post_in_pinned_topic_group = get_group_setting_value_for_register_api(
+            stream.miatsuco_can_post_in_pinned_topic_group_id, anonymous_group_membership
+        )
         creator_id = stream.creator_id
         date_created = datetime_to_timestamp(stream.date_created)
         description = stream.description
@@ -147,6 +150,7 @@ def get_web_public_subs(
             can_remove_subscribers_group=can_remove_subscribers_group,
             can_resolve_topics_group=can_resolve_topics_group,
             can_subscribe_group=can_subscribe_group,
+            miatsuco_can_post_in_pinned_topic_group=miatsuco_can_post_in_pinned_topic_group,
             color=color,
             creator_id=creator_id,
             date_created=date_created,
@@ -243,6 +247,9 @@ def build_stream_api_dict(
     can_subscribe_group = get_group_setting_value_for_register_api(
         raw_stream_dict["can_subscribe_group_id"], anonymous_group_membership
     )
+    miatsuco_can_post_in_pinned_topic_group = get_group_setting_value_for_register_api(
+        raw_stream_dict["miatsuco_can_post_in_pinned_topic_group_id"], anonymous_group_membership
+    )
 
     return APIStreamDict(
         is_archived=raw_stream_dict["deactivated"],
@@ -257,6 +264,7 @@ def build_stream_api_dict(
         can_remove_subscribers_group=can_remove_subscribers_group,
         can_subscribe_group=can_subscribe_group,
         can_resolve_topics_group=can_resolve_topics_group,
+        miatsuco_can_post_in_pinned_topic_group=miatsuco_can_post_in_pinned_topic_group,
         creator_id=raw_stream_dict["creator_id"],
         date_created=datetime_to_timestamp(raw_stream_dict["date_created"]),
         description=raw_stream_dict["description"],
@@ -297,6 +305,7 @@ def build_stream_dict_for_sub(
     can_remove_subscribers_group = stream_dict["can_remove_subscribers_group"]
     can_resolve_topics_group = stream_dict["can_resolve_topics_group"]
     can_subscribe_group = stream_dict["can_subscribe_group"]
+    miatsuco_can_post_in_pinned_topic_group = stream_dict["miatsuco_can_post_in_pinned_topic_group"]
     creator_id = stream_dict["creator_id"]
     date_created = stream_dict["date_created"]
     description = stream_dict["description"]
@@ -346,6 +355,7 @@ def build_stream_dict_for_sub(
         can_remove_subscribers_group=can_remove_subscribers_group,
         can_resolve_topics_group=can_resolve_topics_group,
         can_subscribe_group=can_subscribe_group,
+        miatsuco_can_post_in_pinned_topic_group=miatsuco_can_post_in_pinned_topic_group,
         color=color,
         creator_id=creator_id,
         date_created=date_created,
@@ -440,6 +450,9 @@ def build_stream_dict_for_never_sub(
     can_subscribe_group_value = get_group_setting_value_for_register_api(
         raw_stream_dict["can_subscribe_group_id"], anonymous_group_membership
     )
+    miatsuco_can_post_in_pinned_topic_group_value = get_group_setting_value_for_register_api(
+        raw_stream_dict["miatsuco_can_post_in_pinned_topic_group_id"], anonymous_group_membership
+    )
 
     # Backwards-compatibility addition of removed field.
     is_announcement_only = raw_stream_dict["stream_post_policy"] == Stream.STREAM_POST_POLICY_ADMINS
@@ -458,6 +471,7 @@ def build_stream_dict_for_never_sub(
         can_remove_subscribers_group=can_remove_subscribers_group_value,
         can_resolve_topics_group=can_resolve_topics_group_value,
         can_subscribe_group=can_subscribe_group_value,
+        miatsuco_can_post_in_pinned_topic_group=miatsuco_can_post_in_pinned_topic_group_value,
         creator_id=creator_id,
         date_created=date_created,
         description=description,

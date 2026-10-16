@@ -10,6 +10,7 @@ from zerver.lib.miatsuco_pinned_topic_name import (
 from zerver.lib.streams import can_administer_accessible_channel
 from zerver.lib.topic import DB_TOPIC_NAME, RESOLVED_TOPIC_PREFIX, messages_for_topic
 from zerver.lib.types import StreamMessageEditRequest
+from zerver.lib.user_groups import user_has_permission_for_group_setting
 from zerver.models import Message, Stream, UserProfile
 from zerver.models.users import is_cross_realm_bot_email
 
@@ -67,12 +68,23 @@ def check_can_start_pinned_topic(
         raise JsonableError(_("Only channel administrators can start a pinned topic."))
 
 
+def check_can_post_in_pinned_topic(user_profile: UserProfile, stream: Stream) -> None:
+    if not user_has_permission_for_group_setting(
+        stream.miatsuco_can_post_in_pinned_topic_group_id,
+        user_profile,
+        Stream.stream_permission_group_settings["miatsuco_can_post_in_pinned_topic_group"],
+        direct_member_only=False,
+    ):
+        raise JsonableError(_("You do not have permission to post in the pinned topic."))
+
+
 def check_pinned_topic_send(user_profile: UserProfile, stream: Stream, topic_name: str) -> None:
     check_not_pinned_and_resolved(topic_name)
     # The notification bot posts pin and unpin notices in the pinned topic, so
     # cross-realm bots skip the permission checks.
     if is_pinned_topic(topic_name) and not is_cross_realm_bot_email(user_profile.delivery_email):
         check_can_start_pinned_topic(user_profile, stream, topic_name)
+        check_can_post_in_pinned_topic(user_profile, stream)
 
 
 def check_pinned_topic_can_be_unpinned(stream: Stream, topic_name: str) -> None:

@@ -270,6 +270,15 @@ exports.server_supported_permission_settings = {
             default_for_system_groups: null,
             allowed_system_groups: [],
         },
+        miatsuco_can_post_in_pinned_topic_group: {
+            require_system_group: false,
+            allow_internet_group: false,
+            allow_nobody_group: true,
+            allow_everyone_group: true,
+            default_group_name: "role:everyone",
+            default_for_system_groups: null,
+            allowed_system_groups: [],
+        },
         can_set_delete_message_policy_group: {
             require_system_group: false,
             allow_internet_group: false,

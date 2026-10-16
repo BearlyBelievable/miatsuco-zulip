@@ -216,6 +216,13 @@ export function is_content_editable(message: Message, edit_limit_seconds_buffer 
         return false;
     }
 
+    if (
+        message.type === "stream" &&
+        !miatsuco_pinned_topic.user_can_post_in_topic(message.stream_id, message.topic)
+    ) {
+        return false;
+    }
+
     if (realm.realm_message_content_edit_limit_seconds === null) {
         return true;
     }

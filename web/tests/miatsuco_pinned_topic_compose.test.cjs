@@ -18,6 +18,7 @@ mock_esm("../src/group_permission_settings", {
     }),
 });
 
+const compose_banner = zrequire("compose_banner");
 const compose_state = zrequire("compose_state");
 const compose_validate = zrequire("compose_validate");
 const people = zrequire("people");
@@ -98,6 +99,46 @@ function test_ui(label, f) {
         return f(helpers);
     });
 }
+
+test_ui("test_pinned_topic_posting_permission", ({mock_template, override}) => {
+    mock_banners();
+
+    override(current_user, "user_id", 30);
+    const sub = {
+        stream_id: 103,
+        name: "stream103",
+        subscribed: true,
+        can_send_message_group: everyone.id,
+        can_create_topic_group: everyone.id,
+        can_add_subscribers_group: everyone.id,
+        miatsuco_can_post_in_pinned_topic_group: admin.id,
+    };
+    stream_data.add_sub_for_tests(sub);
+    compose_state.set_message_type("stream");
+    compose_state.set_stream_id(sub.stream_id);
+    $("#send_message_form").set_find_results(".message-textarea", $("textarea#compose-textarea"));
+
+    compose_state.topic("plans");
+    assert.ok(compose_validate.validate());
+
+    let banner_text;
+    mock_template("compose_banner/compose_banner.hbs", false, (data) => {
+        assert.equal(data.classname, compose_banner.CLASSNAMES.no_post_permissions);
+        banner_text = data.banner_text;
+        return "<banner-stub>";
+    });
+    compose_state.topic("📌 plans");
+    assert.ok(!compose_validate.validate());
+    assert.equal(
+        banner_text,
+        $t({defaultMessage: "You do not have permission to post in the pinned topic."}),
+    );
+
+    override(current_user, "user_id", 32);
+    banner_text = undefined;
+    assert.ok(compose_validate.validate());
+    assert.equal(banner_text, undefined);
+});
 
 test_ui("test_pinned_topic_start_permission", ({mock_template, override}) => {
     mock_banners();

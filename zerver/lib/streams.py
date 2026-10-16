@@ -101,6 +101,7 @@ class StreamDict(TypedDict, total=False):
     can_remove_subscribers_group: UserGroup | None
     can_resolve_topics_group: UserGroup | None
     can_subscribe_group: UserGroup | None
+    miatsuco_can_post_in_pinned_topic_group: UserGroup | None
     folder: ChannelFolder | None
 
 
@@ -382,6 +383,7 @@ def create_stream_if_needed(
     can_remove_subscribers_group: UserGroup | None = None,
     can_resolve_topics_group: UserGroup | None = None,
     can_subscribe_group: UserGroup | None = None,
+    miatsuco_can_post_in_pinned_topic_group: UserGroup | None = None,
     folder: ChannelFolder | None = None,
     acting_user: UserProfile | None = None,
     anonymous_group_membership: dict[int, UserGroupMembersData] | None = None,
@@ -516,6 +518,9 @@ def create_streams_if_needed(
             can_remove_subscribers_group=stream_dict.get("can_remove_subscribers_group", None),
             can_resolve_topics_group=stream_dict.get("can_resolve_topics_group", None),
             can_subscribe_group=stream_dict.get("can_subscribe_group", None),
+            miatsuco_can_post_in_pinned_topic_group=stream_dict.get(
+                "miatsuco_can_post_in_pinned_topic_group", None
+            ),
             folder=stream_dict.get("folder", None),
             acting_user=acting_user,
             anonymous_group_membership=anonymous_group_membership,
@@ -1728,6 +1733,9 @@ def list_to_streams(
             ]
             stream_dict["can_resolve_topics_group"] = group_settings_map["can_resolve_topics_group"]
             stream_dict["can_subscribe_group"] = group_settings_map["can_subscribe_group"]
+            stream_dict["miatsuco_can_post_in_pinned_topic_group"] = group_settings_map[
+                "miatsuco_can_post_in_pinned_topic_group"
+            ]
 
         # We already filtered out existing streams, so dup_streams
         # will normally be an empty list below, but we protect against somebody
@@ -1847,6 +1855,9 @@ def stream_to_dict(
     can_subscribe_group = get_group_setting_value_for_register_api(
         stream.can_subscribe_group_id, anonymous_group_membership
     )
+    miatsuco_can_post_in_pinned_topic_group = get_group_setting_value_for_register_api(
+        stream.miatsuco_can_post_in_pinned_topic_group_id, anonymous_group_membership
+    )
 
     stream_post_policy = get_stream_post_policy_value_based_on_group_setting(
         stream.can_send_message_group
@@ -1865,6 +1876,7 @@ def stream_to_dict(
         can_remove_subscribers_group=can_remove_subscribers_group,
         can_resolve_topics_group=can_resolve_topics_group,
         can_subscribe_group=can_subscribe_group,
+        miatsuco_can_post_in_pinned_topic_group=miatsuco_can_post_in_pinned_topic_group,
         creator_id=stream.creator_id,
         date_created=datetime_to_timestamp(stream.date_created),
         description=stream.description,
