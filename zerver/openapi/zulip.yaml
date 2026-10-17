@@ -31072,9 +31072,11 @@ components:
         - `"realm_default"`: Return to the organization-level setting.
         - `"unlimited"`: Retain messages forever.
 
-        **Changes**: Prior to Zulip 5.0 (feature level 91), retaining
-        messages forever was encoded using `"forever"` instead of
-        `"unlimited"`.
+        **Changes**: In the MiAtSu.Co fork, changed in Miatsuco 1.0 (feature
+        level 5) so that changing this setting requires permission to
+        administer the channel instead of being an organization owner. Prior
+        to Zulip 5.0 (feature level 91), retaining messages forever was
+        encoded using `"forever"` instead of `"unlimited"`.
 
         New in Zulip 3.0 (feature level 17).
       oneOf:

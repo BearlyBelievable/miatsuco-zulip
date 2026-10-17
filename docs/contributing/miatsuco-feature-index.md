@@ -17,15 +17,16 @@ offers.
 
 ## Improvements
 
-| Improvement             | Code                                                                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| inline embeds           | `miatsuco_inline_embed`, `miatsuco_inline_video`, `miatsuco_oembed_providers`                                             |
-| bulk remediation        | `bulk_remediation`, `bulk_remediation_ui`                                                                                 |
-| two-pole slider         | `two_pole_slider`, `nouislider`                                                                                           |
-| message modernization   | `miatsuco_click_handlers`                                                                                                 |
-| social cards            | `miatsuco_message_card_embed`, `miatsuco_fxembed`                                                                         |
-| rerender embeds         | `miatsuco_rerender_embeds`                                                                                                |
-| more permission options | `miatsuco_can_manage_user_activation_group`, `miatsuco_can_change_user_roles_group`, `miatsuco_can_edit_user_names_group` |
+| Improvement                  | Code                                                                                                                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| inline embeds                | `miatsuco_inline_embed`, `miatsuco_inline_video`, `miatsuco_oembed_providers`                                             |
+| bulk remediation             | `bulk_remediation`, `bulk_remediation_ui`                                                                                 |
+| two-pole slider              | `two_pole_slider`, `nouislider`                                                                                           |
+| message modernization        | `miatsuco_click_handlers`                                                                                                 |
+| social cards                 | `miatsuco_message_card_embed`, `miatsuco_fxembed`                                                                         |
+| rerender embeds              | `miatsuco_rerender_embeds`                                                                                                |
+| channel retention permission | `message_retention_days`                                                                                                  |
+| more permission options      | `miatsuco_can_manage_user_activation_group`, `miatsuco_can_change_user_roles_group`, `miatsuco_can_edit_user_names_group` |
 
 ## Feature levels
 

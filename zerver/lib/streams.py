@@ -17,7 +17,6 @@ from zerver.lib.exceptions import (
     IncompatibleParametersError,
     JsonableError,
     MissingAuthenticationError,
-    OrganizationOwnerRequiredError,
 )
 from zerver.lib.stream_subscription import (
     get_guest_user_ids_for_streams,
@@ -253,8 +252,6 @@ def check_channel_creation_permissions(
             # owners to create web-public streams, because of their sensitive nature.
             raise JsonableError(_("Insufficient permission"))
     if message_retention_days is not None:
-        if not user_profile.is_realm_owner:
-            raise OrganizationOwnerRequiredError
         user_profile.realm.ensure_not_on_limited_plan()
 
 
