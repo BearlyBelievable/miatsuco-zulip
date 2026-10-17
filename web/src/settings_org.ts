@@ -738,6 +738,9 @@ export function discard_realm_property_element_changes(elem: HTMLElement): void 
         case "realm_direct_message_initiator_group":
         case "realm_direct_message_permission_group":
         case "realm_direct_message_self_authorize_group":
+        case "realm_miatsuco_can_manage_user_activation_group":
+        case "realm_miatsuco_can_change_user_roles_group":
+        case "realm_miatsuco_can_edit_user_names_group":
         case "realm_workplace_users_group": {
             const pill_widget = settings_components.get_group_setting_widget(property_name);
             assert(pill_widget !== null);

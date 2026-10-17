@@ -650,6 +650,9 @@ class GroupSettingUpdateData(GroupSettingUpdateDataCore):
     can_set_delete_message_policy_group: int | UserGroupMembersDict | None = None
     can_set_topics_policy_group: int | UserGroupMembersDict | None = None
     can_summarize_topics_group: int | UserGroupMembersDict | None = None
+    miatsuco_can_manage_user_activation_group: int | UserGroupMembersDict | None = None
+    miatsuco_can_change_user_roles_group: int | UserGroupMembersDict | None = None
+    miatsuco_can_edit_user_names_group: int | UserGroupMembersDict | None = None
     direct_message_initiator_group: int | UserGroupMembersDict | None = None
     direct_message_permission_group: int | UserGroupMembersDict | None = None
     direct_message_self_authorize_group: int | UserGroupMembersDict | None = None

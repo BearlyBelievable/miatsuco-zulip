@@ -261,7 +261,7 @@
                         {{/if}}
                     </a>
                 </li>
-                {{#if (not is_active)}}
+                {{#if (and (not is_active) can_manage_activation)}}
                     <li role="none" class="popover-menu-list-item link-item">
                         <a role="menuitem" class="sidebar-popover-reactivate-user popover-menu-link hidden-for-spectators" tabindex="0">
                             <i class="popover-menu-icon zulip-icon zulip-icon-user-plus" aria-hidden="true"></i>

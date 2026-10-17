@@ -14,6 +14,7 @@ import {$t} from "./i18n.ts";
 import type {ListWidget as ListWidgetType} from "./list_widget.ts";
 import * as ListWidget from "./list_widget.ts";
 import * as loading from "./loading.ts";
+import * as miatsuco_user_management from "./miatsuco_user_management.ts";
 import {page_params} from "./page_params.ts";
 import * as people from "./people.ts";
 import type {User} from "./people.ts";
@@ -403,6 +404,7 @@ function human_info(person: User): {
     full_name: string;
     bot_owner_id: number | null;
     can_modify: boolean;
+    can_manage_activation: boolean;
     is_current_user: boolean;
     cannot_deactivate: boolean;
     display_email: string | null;
@@ -416,7 +418,11 @@ function human_info(person: User): {
         user_id: person.user_id,
         full_name: person.full_name,
         bot_owner_id: person.is_bot ? person.bot_owner_id : null,
-        can_modify: current_user.is_admin,
+        can_modify: miatsuco_user_management.can_manage_any(person),
+        can_manage_activation: miatsuco_user_management.can_manage_user(
+            person,
+            miatsuco_user_management.user_can_manage_user_activation,
+        ),
         is_current_user: people.is_my_user_id(person.user_id),
         cannot_deactivate:
             person.is_owner && (!current_user.is_owner || people.is_current_user_only_owner()),
@@ -600,6 +606,13 @@ export function redraw_active_users_list(): void {
     const active_user_ids = people.get_realm_active_human_user_ids_for_users_panel();
     active_section.list_widget.replace_list_data(active_user_ids);
     should_redraw_active_users_list = false;
+}
+
+export function rerender_for_permission_change(): void {
+    should_redraw_active_users_list = true;
+    should_redraw_deactivated_users_list = true;
+    redraw_active_users_list();
+    redraw_deactivated_users_list();
 }
 
 export function redraw_imported_users_list(force_update = false): void {

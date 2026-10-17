@@ -27,6 +27,7 @@ import * as keydown_util from "./keydown_util.ts";
 import * as message_lists from "./message_lists.ts";
 import {user_can_send_direct_message} from "./message_util.ts";
 import * as message_view from "./message_view.ts";
+import * as miatsuco_user_management from "./miatsuco_user_management.ts";
 import * as mouse_drag from "./mouse_drag.ts";
 import * as muted_users from "./muted_users.ts";
 import * as overlays from "./overlays.ts";
@@ -237,6 +238,7 @@ type UserCardPopoverData = {
     can_mute: boolean;
     can_unmute: boolean;
     can_manage_user: boolean;
+    can_manage_activation: boolean;
     is_system_bot?: boolean;
     bot_owner?: User;
     is_imported_stub: boolean;
@@ -332,7 +334,16 @@ function get_user_card_popover_data(
     const muting_allowed = !is_me;
     const can_mute = muting_allowed && !is_muted;
     const can_unmute = muting_allowed && is_muted;
-    const can_manage_user = current_user.is_admin && !is_me && !is_system_bot;
+    const can_administer_bot = user.is_bot && current_user.is_admin;
+    const can_manage_person = !user.is_bot && miatsuco_user_management.can_manage_any(user);
+    const can_manage_person_activation =
+        !user.is_bot &&
+        miatsuco_user_management.can_manage_user(
+            user,
+            miatsuco_user_management.user_can_manage_user_activation,
+        );
+    const can_manage_user = (can_administer_bot || can_manage_person) && !is_me && !is_system_bot;
+    const can_manage_activation = can_administer_bot || can_manage_person_activation;
 
     let date_joined;
 
@@ -391,6 +402,7 @@ function get_user_card_popover_data(
         can_mute,
         can_unmute,
         can_manage_user,
+        can_manage_activation,
         is_imported_stub: user.is_imported_stub,
         show_last_active_status: is_active && !user.is_bot && !user.is_imported_stub,
     };

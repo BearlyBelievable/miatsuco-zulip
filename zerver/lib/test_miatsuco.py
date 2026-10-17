@@ -12,9 +12,19 @@
 # can be removed so the helpers are held to real coverage through their
 # callers.
 import re
+from typing import TYPE_CHECKING
 
+import orjson
+
+from zerver.actions.create_user import do_create_user
+from zerver.actions.realm_settings import do_change_realm_permission_group_setting
 from zerver.lib.test_classes import ZulipTestCase
 from zerver.lib.upload import upload_message_attachment
+from zerver.models import NamedUserGroup, UserProfile
+from zerver.models.realms import get_realm
+
+if TYPE_CHECKING:
+    from django.test.client import _MonkeyPatchedWSGIResponse as TestHttpResponse
 
 # Shared test support for MiAtSu.Co fork-specific features.
 #
@@ -76,3 +86,38 @@ class MiatsucoMarkdownTestMixin(ZulipTestCase):
         )[0]
         path_id = re.sub(r"/user_uploads/", "", url)
         return url, path_id
+
+
+class MiatsucoUserManagementTestMixin(ZulipTestCase):
+    DENIED_ERROR = "Insufficient permission"
+    OWNER_ONLY_ERROR = "Must be an organization owner"
+
+    def set_realm_group_setting(self, setting_name: str, group_name: str) -> None:
+        realm = get_realm("zulip")
+        group = NamedUserGroup.objects.get(
+            name=group_name, realm_for_sharding=realm, is_system_group=True
+        )
+        do_change_realm_permission_group_setting(realm, setting_name, group, acting_user=None)
+
+    def api_deactivate_user(self, user: UserProfile) -> "TestHttpResponse":
+        return self.client_delete(f"/json/users/{user.id}")
+
+    def api_reactivate_user(self, user: UserProfile) -> "TestHttpResponse":
+        return self.client_post(f"/json/users/{user.id}/reactivate")
+
+    def api_patch_user(self, user: UserProfile, **data: str) -> "TestHttpResponse":
+        return self.client_patch(f"/json/users/{user.id}", data)
+
+    def api_set_user_role(self, user: UserProfile, role: int) -> "TestHttpResponse":
+        return self.api_patch_user(user, role=orjson.dumps(role).decode())
+
+    def create_bot(self) -> UserProfile:
+        return do_create_user(
+            "bot@zulip.com",
+            "password",
+            get_realm("zulip"),
+            "Some bot",
+            bot_type=UserProfile.DEFAULT_BOT,
+            bot_owner=self.example_user("hamlet"),
+            acting_user=None,
+        )

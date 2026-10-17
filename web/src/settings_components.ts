@@ -911,6 +911,9 @@ export function check_realm_settings_property_changed(elem: HTMLElement): boolea
         case "realm_direct_message_initiator_group":
         case "realm_direct_message_permission_group":
         case "realm_direct_message_self_authorize_group":
+        case "realm_miatsuco_can_manage_user_activation_group":
+        case "realm_miatsuco_can_change_user_roles_group":
+        case "realm_miatsuco_can_edit_user_names_group":
         case "realm_workplace_users_group": {
             const pill_widget = get_group_setting_widget(property_name);
             assert(pill_widget !== null);
@@ -1174,6 +1177,9 @@ export function populate_data_for_realm_settings_request(
                     "direct_message_initiator_group",
                     "direct_message_permission_group",
                     "direct_message_self_authorize_group",
+                    "miatsuco_can_manage_user_activation_group",
+                    "miatsuco_can_change_user_roles_group",
+                    "miatsuco_can_edit_user_names_group",
                     "workplace_users_group",
                 ]);
                 if (realm_group_settings.has(property_name)) {
@@ -1704,6 +1710,9 @@ export const group_setting_widget_map = new Map<string, GroupSettingPillContaine
     ["realm_direct_message_initiator_group", null],
     ["realm_direct_message_permission_group", null],
     ["realm_direct_message_self_authorize_group", null],
+    ["realm_miatsuco_can_manage_user_activation_group", null],
+    ["realm_miatsuco_can_change_user_roles_group", null],
+    ["realm_miatsuco_can_edit_user_names_group", null],
     ["realm_workplace_users_group", null],
 ]);
 

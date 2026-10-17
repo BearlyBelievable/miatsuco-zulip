@@ -11,6 +11,8 @@ import ZulipTip from "../../components/ZulipTip.astro";
 import AdminOnly from "../include/_AdminOnly.mdx";
 import ManageThisUser from "../include/_ManageThisUser.mdx";
 import ManageUserTabTip from "../include/_ManageUserTabTip.mdx";
+import OwnerOnly from "../include/_OwnerOnly.mdx";
+import SaveChanges from "../include/_SaveChanges.mdx";
 
 import UserCircleDeactivatedIcon from "~icons/zulip-icon/user-circle-deactivated";
 import UserPlusIcon from "~icons/zulip-icon/user-plus";
@@ -125,6 +127,24 @@ bots will be deactivated until the user manually
   You may want to [review and adjust](/help/manage-user-channel-subscriptions)
   the reactivated user's channel subscriptions.
 </ZulipTip>
+
+## Configure who can deactivate and reactivate users
+
+<OwnerOnly />
+
+By default, organization administrators can deactivate and reactivate other
+users. You can change who can, and the role limits that apply, as described in
+[Configure who can change user
+roles](/help/user-roles#configure-who-can-change-user-roles).
+
+<FlattenedSteps>
+  <NavigationSteps target="settings/organization-permissions" />
+
+  1. Under **Joining the organization**, configure **Who can deactivate and
+     reactivate other users**.
+
+  <SaveChanges />
+</FlattenedSteps>
 
 ## Related articles
 

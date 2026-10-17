@@ -45,6 +45,7 @@ import * as integration_url_modal from "./integration_url_modal.ts";
 import * as ListWidget from "./list_widget.ts";
 import type {ListWidget as ListWidgetType} from "./list_widget.ts";
 import * as loading from "./loading.ts";
+import * as miatsuco_user_management from "./miatsuco_user_management.ts";
 import * as modals from "./modals.ts";
 import * as peer_data from "./peer_data.ts";
 import * as people from "./people.ts";
@@ -698,9 +699,12 @@ export function show_user_profile(user_id: number, default_tab_key = "profile-ta
     // We currently have the main UI for editing your own profile in
     // settings for non-admins, so can_manage_profile is artificially
     // false for those.
-    const can_manage_profile =
-        (current_user.is_admin || (user.is_bot && people.can_admin_user(user))) &&
+    const can_manage_bot_profile =
+        user.is_bot &&
+        (current_user.is_admin || people.can_admin_user(user)) &&
         !user.is_system_bot;
+    const can_manage_person_profile = !user.is_bot && miatsuco_user_management.can_manage_any(user);
+    const can_manage_profile = can_manage_bot_profile || can_manage_person_profile;
     const args: Record<string, unknown> = {
         can_manage_profile,
         date_joined: timerender.get_localized_date_or_time_for_format(
@@ -1244,8 +1248,10 @@ export function show_edit_user_info_modal(user_id: number, $container: JQuery): 
         return;
     }
 
-    const hide_deactivate_button =
-        current_user.is_admin && !current_user.is_owner && person.is_owner;
+    const can_manage_activation = miatsuco_user_management.can_manage_user(
+        person,
+        miatsuco_user_management.user_can_manage_user_activation,
+    );
     const user_is_only_organization_owner = person.is_owner && people.is_current_user_only_owner();
     const modal_content_html = render_admin_human_form({
         user_id,
@@ -1254,7 +1260,15 @@ export function show_edit_user_info_modal(user_id: number, $container: JQuery): 
         user_role_values: settings_config.user_role_values,
         is_active,
         is_deleted: person.is_deleted,
-        hide_deactivate_button,
+        can_edit_name: miatsuco_user_management.can_manage_user(
+            person,
+            miatsuco_user_management.user_can_edit_user_names,
+        ),
+        can_change_role: miatsuco_user_management.can_manage_user(
+            person,
+            miatsuco_user_management.user_can_change_user_roles,
+        ),
+        hide_deactivate_button: !can_manage_activation,
         user_is_only_organization_owner,
         max_user_name_length: people.MAX_USER_NAME_LENGTH,
     });
@@ -1262,16 +1276,22 @@ export function show_edit_user_info_modal(user_id: number, $container: JQuery): 
     $container.append($(modal_content_html));
     // Set role dropdown and fields user pills
     $("#user-role-select").val(person.role);
-    if (!current_user.is_owner) {
-        $("#user-role-select")
-            .find(
-                `option[value="${CSS.escape(settings_config.user_role_values.owner.code.toString())}"]`,
-            )
-            .hide();
+    for (const role_value of Object.values(settings_config.user_role_values)) {
+        if (
+            !miatsuco_user_management.can_assign_role(role_value.code) &&
+            role_value.code !== person.role
+        ) {
+            $("#user-role-select")
+                .find(`option[value="${CSS.escape(role_value.code.toString())}"]`)
+                .hide();
+        }
     }
     disable_user_role_dropdown_if_needed(person);
 
     const custom_profile_field_form_selector = "#edit-user-form .custom-profile-field-form";
+    if (!current_user.is_admin) {
+        $(custom_profile_field_form_selector).hide();
+    }
     $(custom_profile_field_form_selector).empty();
     custom_profile_fields_ui.append_custom_profile_fields(
         custom_profile_field_form_selector,
@@ -1348,14 +1368,14 @@ export function show_edit_user_info_modal(user_id: number, $container: JQuery): 
             10,
         );
         const $full_name = $("#edit-user-form").find("input[name='full_name']");
-        const profile_data = get_human_profile_data(fields_user_pills);
-
         const url = "/json/users/" + encodeURIComponent(user_id);
-        const data = {
+        const data: Record<string, unknown> = {
             full_name: $full_name.val(),
             role: JSON.stringify(role),
-            profile_data: JSON.stringify(profile_data),
         };
+        if (current_user.is_admin) {
+            data["profile_data"] = JSON.stringify(get_human_profile_data(fields_user_pills));
+        }
 
         const $submit_button = $("#user-profile-modal .dialog_submit_button");
         const $cancel_button = $("#user-profile-modal .dialog_exit_button");

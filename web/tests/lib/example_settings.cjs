@@ -333,6 +333,33 @@ exports.server_supported_permission_settings = {
             default_for_system_groups: null,
             allowed_system_groups: [],
         },
+        miatsuco_can_manage_user_activation_group: {
+            require_system_group: false,
+            allow_internet_group: false,
+            allow_nobody_group: true,
+            allow_everyone_group: false,
+            default_group_name: "role:administrators",
+            default_for_system_groups: null,
+            allowed_system_groups: [],
+        },
+        miatsuco_can_change_user_roles_group: {
+            require_system_group: false,
+            allow_internet_group: false,
+            allow_nobody_group: true,
+            allow_everyone_group: false,
+            default_group_name: "role:administrators",
+            default_for_system_groups: null,
+            allowed_system_groups: [],
+        },
+        miatsuco_can_edit_user_names_group: {
+            require_system_group: false,
+            allow_internet_group: false,
+            allow_nobody_group: true,
+            allow_everyone_group: false,
+            default_group_name: "role:administrators",
+            default_for_system_groups: null,
+            allowed_system_groups: [],
+        },
     },
     group: {
         can_add_members_group: {

@@ -2987,6 +2987,17 @@ class RealmAPITest(ZulipTestCase):
     def test_can_manage_all_groups_setting_requires_owner(self) -> None:
         self.do_test_changing_groups_setting_by_owners_only("can_manage_all_groups")
 
+    def test_miatsuco_can_manage_user_activation_group_setting_requires_owner(self) -> None:
+        self.do_test_changing_groups_setting_by_owners_only(
+            "miatsuco_can_manage_user_activation_group"
+        )
+
+    def test_miatsuco_can_change_user_roles_group_setting_requires_owner(self) -> None:
+        self.do_test_changing_groups_setting_by_owners_only("miatsuco_can_change_user_roles_group")
+
+    def test_miatsuco_can_edit_user_names_group_setting_requires_owner(self) -> None:
+        self.do_test_changing_groups_setting_by_owners_only("miatsuco_can_edit_user_names_group")
+
     def test_enable_spectator_access_for_limited_plan_realms(self) -> None:
         self.login("iago")
         realm = get_realm("zulip")
