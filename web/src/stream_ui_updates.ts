@@ -366,8 +366,7 @@ export function enable_or_disable_permission_settings_in_edit_panel(
     update_history_public_to_subscribers_state($("#stream_settings"));
     update_can_create_topic_group_setting_state($("#stream_settings"));
 
-    const disable_message_retention_setting =
-        !realm.zulip_plan_is_not_limited || !current_user.is_owner;
+    const disable_message_retention_setting = !realm.zulip_plan_is_not_limited;
     $stream_settings
         .find(".stream_message_retention_setting")
         .prop("disabled", disable_message_retention_setting);

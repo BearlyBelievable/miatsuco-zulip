@@ -55,11 +55,7 @@ from zerver.decorator import (
 from zerver.lib.channel_folders import get_channel_folder_by_id
 from zerver.lib.default_streams import get_default_stream_ids_for_realm
 from zerver.lib.email_mirror_helpers import encode_email_address, get_channel_email_token
-from zerver.lib.exceptions import (
-    CannotManageDefaultChannelError,
-    JsonableError,
-    OrganizationOwnerRequiredError,
-)
+from zerver.lib.exceptions import CannotManageDefaultChannelError, JsonableError
 from zerver.lib.mention import MentionBackend, silent_mention_syntax_for_user
 from zerver.lib.message import bulk_access_stream_messages_query
 from zerver.lib.response import json_success
@@ -430,8 +426,6 @@ def update_stream_backend(
             do_remove_default_stream(stream)
 
     if message_retention_days is not None:
-        if not user_profile.is_realm_owner:
-            raise OrganizationOwnerRequiredError
         user_profile.realm.ensure_not_on_limited_plan()
         new_message_retention_days_value = parse_message_retention_days(
             message_retention_days, Stream.MESSAGE_RETENTION_SPECIAL_VALUES_MAP

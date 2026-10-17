@@ -1023,7 +1023,6 @@ function setup_page(callback: () => void): void {
             can_view_all_streams: !current_user.is_guest,
             max_stream_name_length: realm.max_stream_name_length,
             max_stream_description_length: realm.max_stream_description_length,
-            is_owner: current_user.is_owner,
             stream_privacy_policy_values: settings_config.stream_privacy_policy_values,
             stream_privacy_policy,
             stream_topics_policy_values: settings_config.get_stream_topics_policy_values(),
@@ -1035,8 +1034,6 @@ function setup_page(callback: () => void): void {
             upgrade_text_for_wide_organization_logo: realm.upgrade_text_for_wide_organization_logo,
             is_business_type_org:
                 realm.realm_org_type === settings_config.all_org_type_values.business.code,
-            disable_message_retention_setting:
-                !realm.zulip_plan_is_not_limited || !current_user.is_owner,
             group_setting_labels: settings_config.all_group_setting_labels.stream,
             realm_has_archived_channels,
             has_billing_access: settings_data.user_has_billing_access(),

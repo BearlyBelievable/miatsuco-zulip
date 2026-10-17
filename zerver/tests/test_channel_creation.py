@@ -363,9 +363,13 @@ class TestCreateStreams(ZulipTestCase):
         cordelia = self.example_user("cordelia")
 
         result = self.create_channel_via_post(
-            iago, extra_post_data={"message_retention_days": orjson.dumps(10).decode()}
+            iago,
+            name="iago_channel",
+            extra_post_data={"message_retention_days": orjson.dumps(10).decode()},
         )
-        self.assert_json_error(result, "Must be an organization owner")
+        self.assert_json_success(result)
+        stream = get_stream("iago_channel", iago.realm)
+        self.assertEqual(stream.message_retention_days, 10)
 
         result = self.create_channel_via_post(
             desdemona,
@@ -1155,56 +1159,14 @@ class TestCreateStreams(ZulipTestCase):
 
     def test_stream_message_retention_days_on_stream_creation(self) -> None:
         """
-        Only admins can create streams with message_retention_days
-        with value other than None.
+        Channels in organizations on a limited plan cannot be created with
+        a message_retention_days value other than None.
         """
         admin = self.example_user("iago")
-
-        streams_raw: list[StreamDict] = [
-            {
-                "name": "new_stream",
-                "message_retention_days": 10,
-                "is_web_public": False,
-            }
-        ]
-
+        realm = admin.realm
         request_settings_dict = dict.fromkeys(Stream.stream_permission_group_settings)
 
-        with self.assertRaisesRegex(JsonableError, "Must be an organization owner"):
-            list_to_streams(
-                streams_raw, admin, autocreate=True, request_settings_dict=request_settings_dict
-            )
-
-        streams_raw = [
-            {
-                "name": "new_stream",
-                "message_retention_days": -1,
-                "is_web_public": False,
-            }
-        ]
-        with self.assertRaisesRegex(JsonableError, "Must be an organization owner"):
-            list_to_streams(
-                streams_raw, admin, autocreate=True, request_settings_dict=request_settings_dict
-            )
-
-        streams_raw = [
-            {
-                "name": "new_stream",
-                "message_retention_days": None,
-                "is_web_public": False,
-            }
-        ]
-        result = list_to_streams(
-            streams_raw, admin, autocreate=True, request_settings_dict=request_settings_dict
-        )
-        self.assert_length(result[0], 0)
-        self.assert_length(result[1], 1)
-        self.assertEqual(result[1][0].name, "new_stream")
-        self.assertEqual(result[1][0].message_retention_days, None)
-
-        owner = self.example_user("desdemona")
-        realm = owner.realm
-        streams_raw = [
+        streams_raw: list[StreamDict] = [
             {
                 "name": "new_stream1",
                 "message_retention_days": 10,
@@ -1226,12 +1188,12 @@ class TestCreateStreams(ZulipTestCase):
             JsonableError, "Available on Zulip Cloud Standard. Upgrade to access."
         ):
             list_to_streams(
-                streams_raw, owner, autocreate=True, request_settings_dict=request_settings_dict
+                streams_raw, admin, autocreate=True, request_settings_dict=request_settings_dict
             )
 
         do_change_realm_plan_type(realm, Realm.PLAN_TYPE_SELF_HOSTED, acting_user=admin)
         result = list_to_streams(
-            streams_raw, owner, autocreate=True, request_settings_dict=request_settings_dict
+            streams_raw, admin, autocreate=True, request_settings_dict=request_settings_dict
         )
         self.assert_length(result[0], 0)
         self.assert_length(result[1], 3)

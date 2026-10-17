@@ -9,8 +9,6 @@ import OwnerOnly from "../include/_OwnerOnly.mdx";
 import SaveChanges from "../include/_SaveChanges.mdx";
 import SelectChannelViewPermissions from "../include/_SelectChannelViewPermissions.mdx";
 
-<OwnerOnly />
-
 By default, Zulip stores messages indefinitely, allowing full-text
 search of your complete history.
 
@@ -35,6 +33,8 @@ Standard hosting.
 
 ### Configure message retention policy for organization
 
+<OwnerOnly />
+
 <FlattenedSteps>
   <NavigationSteps target="settings/organization-settings" />
 
@@ -45,6 +45,10 @@ Standard hosting.
 </FlattenedSteps>
 
 ### Configure message retention policy for individual channels
+
+Organization administrators and [channel
+administrators](/help/configure-who-can-administer-a-channel) can change the
+retention period of a channel.
 
 <FlattenedSteps>
   <NavigationSteps target="relative/channel/all" />
