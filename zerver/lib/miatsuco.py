@@ -11,4 +11,4 @@ MIATSUCO_VERSION = "1.0.0-dev"
 
 # Advertised to clients as ``miatsuco_feature_level``. Increase it by one in
 # any change that adds or changes something in the fork-specific API.
-MIATSUCO_FEATURE_LEVEL = 4
+MIATSUCO_FEATURE_LEVEL = 5

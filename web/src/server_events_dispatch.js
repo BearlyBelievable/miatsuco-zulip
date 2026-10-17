@@ -79,6 +79,7 @@ import * as settings_profile_fields from "./settings_profile_fields.ts";
 import * as settings_realm_domains from "./settings_realm_domains.ts";
 import * as settings_realm_user_settings_defaults from "./settings_realm_user_settings_defaults.ts";
 import * as settings_streams from "./settings_streams.ts";
+import * as settings_users from "./settings_users.ts";
 import * as sidebar_ui from "./sidebar_ui.ts";
 import * as starred_messages from "./starred_messages.ts";
 import * as starred_messages_ui from "./starred_messages_ui.ts";
@@ -318,6 +319,10 @@ export function dispatch_normal_event(event) {
                 direct_message_initiator_group: noop,
                 direct_message_permission_group: noop,
                 direct_message_self_authorize_group: noop,
+                miatsuco_can_manage_user_activation_group:
+                    settings_users.rerender_for_permission_change,
+                miatsuco_can_change_user_roles_group: settings_users.rerender_for_permission_change,
+                miatsuco_can_edit_user_names_group: settings_users.rerender_for_permission_change,
                 email_changes_disabled: settings_account.update_email_change_display,
                 disallow_disposable_email_addresses: noop,
                 media_preview_size: message_live_update.update_thumbnails,

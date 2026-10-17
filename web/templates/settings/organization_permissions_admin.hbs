@@ -26,6 +26,11 @@
                   setting_name="realm_create_multiuse_invite_group"
                   label=group_setting_labels.create_multiuse_invite_group}}
 
+                {{> group_setting_value_pill_input
+                  setting_name="realm_miatsuco_can_manage_user_activation_group"
+                  label=group_setting_labels.miatsuco_can_manage_user_activation_group
+                  help_link="/help/deactivate-or-reactivate-a-user#configure-who-can-deactivate-and-reactivate-users"}}
+
                 <div class="input-group">
                     <label for="id_realm_org_join_restrictions" class="settings-field-label">{{t "Restrict email domains of new users" }}</label>
                     <select name="realm_org_join_restrictions" id="id_realm_org_join_restrictions" class="prop-element settings_select bootstrap-focus-style" data-setting-widget-type="string">
@@ -122,6 +127,11 @@
                 {{> group_setting_value_pill_input
                   setting_name="realm_can_create_groups"
                   label=group_setting_labels.can_create_groups}}
+
+                {{> group_setting_value_pill_input
+                  setting_name="realm_miatsuco_can_change_user_roles_group"
+                  label=group_setting_labels.miatsuco_can_change_user_roles_group
+                  help_link="/help/user-roles#configure-who-can-change-user-roles"}}
             </div>
         </div>
 
@@ -335,6 +345,11 @@
                   is_checked=(or realm_avatar_changes_disabled server_avatar_changes_disabled)
                   label=admin_settings_label.realm_avatar_changes_disabled
                   is_disabled=server_avatar_changes_disabled}}
+
+                {{> group_setting_value_pill_input
+                  setting_name="realm_miatsuco_can_edit_user_names_group"
+                  label=group_setting_labels.miatsuco_can_edit_user_names_group
+                  help_link="/help/change-a-users-name#configure-who-can-edit-user-names"}}
 
             </div>
         </div>

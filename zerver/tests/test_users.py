@@ -355,6 +355,7 @@ class PermissionTest(ZulipTestCase):
 
         # Make sure only admins can patch other user's info.
         self.login("othello")
+        req = dict(role=orjson.dumps(UserProfile.ROLE_MODERATOR).decode())
         result = self.client_patch(f"/json/users/{hamlet.id}", req)
         self.assert_json_error(result, "Insufficient permission")
 
@@ -2209,15 +2210,15 @@ class ActivateTest(ZulipTestCase):
         self.assert_json_error(result, "No such user")
 
     def test_api_with_mirrordummy_user(self) -> None:
-        self.login("iago")
-        desdemona = self.example_user("desdemona")
-        change_user_is_active(desdemona, False)
+        self.login("desdemona")
+        iago = self.example_user("iago")
+        change_user_is_active(iago, False)
 
-        desdemona.is_mirror_dummy = True
-        desdemona.save(update_fields=["is_mirror_dummy"])
+        iago.is_mirror_dummy = True
+        iago.save(update_fields=["is_mirror_dummy"])
 
         # Cannot reactivate a user which is marked as "mirror dummy" from importing
-        result = self.client_post(f"/json/users/{desdemona.id}/reactivate")
+        result = self.client_post(f"/json/users/{iago.id}/reactivate")
         self.assert_json_error(
             result, "Cannot activate a placeholder account; ask the user to sign up, instead."
         )

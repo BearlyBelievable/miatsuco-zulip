@@ -135,9 +135,11 @@ def deactivate_user_backend(
     | None = None,
     user_id: PathOnly[int],
 ) -> HttpResponse:
-    target = access_user_by_id(user_profile, user_id, allow_bots=False, for_admin=True)
+    target = access_user_by_id(user_profile, user_id, allow_bots=False, for_admin=False)
     if target.is_realm_owner and not user_profile.is_realm_owner:
         raise OrganizationOwnerRequiredError
+    if not user_profile.can_admin_user(target, "miatsuco_can_manage_user_activation_group"):
+        raise JsonableError(_("Insufficient permission"))
     if check_last_owner(target):
         raise JsonableError(_("Cannot deactivate the only organization owner"))
     if deactivation_notification_comment is not None:
@@ -214,8 +216,10 @@ def reactivate_user_backend(
     request: HttpRequest, user_profile: UserProfile, user_id: int
 ) -> HttpResponse:
     target = access_user_by_id(
-        user_profile, user_id, allow_deactivated=True, allow_bots=True, for_admin=True
+        user_profile, user_id, allow_deactivated=True, allow_bots=True, for_admin=False
     )
+    if not user_profile.can_admin_user(target, "miatsuco_can_manage_user_activation_group"):
+        raise JsonableError(_("Insufficient permission"))
     if target.is_bot:
         assert target.bot_type is not None
         check_can_create_bot(user_profile, target.bot_type)
@@ -242,7 +246,7 @@ def update_user_by_id_api(
     user_id: PathOnly[int],
 ) -> HttpResponse:
     target = access_user_by_id(
-        user_profile, user_id, allow_deactivated=True, allow_bots=True, for_admin=True
+        user_profile, user_id, allow_deactivated=True, allow_bots=True, for_admin=False
     )
     return update_user_backend(
         request,
@@ -268,7 +272,7 @@ def update_user_by_email_api(
     role: Json[RoleParamType] | None = None,
 ) -> HttpResponse:
     target = access_user_by_email(
-        user_profile, email, allow_deactivated=True, allow_bots=True, for_admin=True
+        user_profile, email, allow_deactivated=True, allow_bots=True, for_admin=False
     )
     return update_user_backend(
         request,
@@ -291,6 +295,11 @@ def update_user_backend(
     profile_data: Json[list[ProfileDataElement]] | None = None,
     role: Json[RoleParamType] | None = None,
 ) -> HttpResponse:
+    if (new_email is not None or profile_data is not None) and not user_profile.can_admin_user(
+        target
+    ):
+        raise JsonableError(_("Insufficient permission"))
+
     if new_email is not None and (
         not user_profile.can_change_user_emails or not user_profile.is_realm_admin
     ):
@@ -303,8 +312,14 @@ def update_user_backend(
         # Logic replicated in patch_bot_backend.
         if UserProfile.ROLE_REALM_OWNER in [role, target.role] and not user_profile.is_realm_owner:
             raise OrganizationOwnerRequiredError
-        elif not user_profile.is_realm_admin:
-            raise OrganizationAdministratorRequiredError
+        elif target.is_bot:
+            if not user_profile.is_realm_admin:
+                raise OrganizationAdministratorRequiredError
+        # Non-owners can only assign roles below their own.
+        elif not user_profile.can_admin_user(
+            target, "miatsuco_can_change_user_roles_group"
+        ) or not (user_profile.is_realm_owner or user_profile.role < role):
+            raise JsonableError(_("Insufficient permission"))
 
         if target.role == UserProfile.ROLE_REALM_OWNER and check_last_owner(target):
             raise JsonableError(
@@ -323,6 +338,8 @@ def update_user_backend(
     if full_name is not None and target.full_name != full_name and full_name.strip() != "":
         # We don't respect `name_changes_disabled` here because the request
         # is on behalf of the administrator.
+        if not user_profile.can_admin_user(target, "miatsuco_can_edit_user_names_group"):
+            raise JsonableError(_("Insufficient permission"))
         check_change_full_name(target, full_name, user_profile)
 
     if profile_data is not None:

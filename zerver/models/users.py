@@ -801,14 +801,23 @@ class UserProfile(AbstractBaseUser, PermissionsMixin, UserBaseSettings):
 
         return data
 
-    def can_admin_user(self, target_user: "UserProfile") -> bool:
-        """Returns whether this user has permission to modify target_user"""
+    def can_admin_user(self, target_user: "UserProfile", setting_name: str | None = None) -> bool:
+        """Returns whether this user has permission to modify target_user.
+
+        With a setting_name, the user must be in that group setting. Unless they
+        are an owner or the target is themselves, they must also hold a higher
+        role than the target, and a higher role is a lower number. Bots can only
+        be modified by their owner or a realm administrator.
+        """
         if target_user.bot_owner_id == self.id:
             return True
-        elif self.is_realm_admin and self.realm == target_user.realm:
-            return True
-        else:
+        if self.realm != target_user.realm:
             return False
+        if setting_name is None or target_user.is_bot:
+            return self.is_realm_admin
+        return self.has_permission(setting_name) and (
+            self.id == target_user.id or self.is_realm_owner or self.role < target_user.role
+        )
 
     @property
     def is_provisional_member(self) -> bool:

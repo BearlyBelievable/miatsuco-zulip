@@ -449,6 +449,16 @@ class Realm(models.Model):
         "UserGroup", on_delete=models.RESTRICT, related_name="+"
     )
 
+    miatsuco_can_manage_user_activation_group = models.ForeignKey(
+        "UserGroup", on_delete=models.RESTRICT, related_name="+"
+    )
+    miatsuco_can_change_user_roles_group = models.ForeignKey(
+        "UserGroup", on_delete=models.RESTRICT, related_name="+"
+    )
+    miatsuco_can_edit_user_names_group = models.ForeignKey(
+        "UserGroup", on_delete=models.RESTRICT, related_name="+"
+    )
+
     WILDCARD_MENTION_POLICY_TYPES = [field.value for field in WildcardMentionPolicyEnum]
 
     # Threshold in days for new users to create streams, and potentially take
@@ -959,6 +969,21 @@ class Realm(models.Model):
             allow_nobody_group=True,
             allow_everyone_group=True,
             default_group_name=SystemGroups.EVERYONE,
+        ),
+        miatsuco_can_manage_user_activation_group=GroupPermissionSetting(
+            allow_nobody_group=True,
+            allow_everyone_group=False,
+            default_group_name=SystemGroups.ADMINISTRATORS,
+        ),
+        miatsuco_can_change_user_roles_group=GroupPermissionSetting(
+            allow_nobody_group=True,
+            allow_everyone_group=False,
+            default_group_name=SystemGroups.ADMINISTRATORS,
+        ),
+        miatsuco_can_edit_user_names_group=GroupPermissionSetting(
+            allow_nobody_group=True,
+            allow_everyone_group=False,
+            default_group_name=SystemGroups.ADMINISTRATORS,
         ),
     )
 

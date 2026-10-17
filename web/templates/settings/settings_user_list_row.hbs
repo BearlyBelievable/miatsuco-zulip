@@ -71,6 +71,7 @@
                   disabled=cannot_edit
                   }}
             </span>
+            {{#if (or is_bot can_manage_activation)}}
             {{#if is_active}}
             <span class="{{#if is_bot}}deactivate-bot-tooltip{{else}}deactivate-user-tooltip{{/if}} {{#if cannot_deactivate}}tippy-zulip-tooltip{{/if}}"
               {{#if (and is_bot cannot_deactivate)}}data-tippy-content="{{t 'This bot cannot be deactivated.'}}"{{else if cannot_deactivate}}data-tippy-content="{{t 'This user cannot be deactivated.'}}"{{/if}}>
@@ -89,6 +90,7 @@
                   custom_classes="reactivate"
                   }}
             </span>
+            {{/if}}
             {{/if}}
         </span>
     </td>

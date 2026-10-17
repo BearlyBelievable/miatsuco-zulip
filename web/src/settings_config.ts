@@ -792,6 +792,15 @@ export const all_group_setting_labels = {
             defaultMessage:
                 "Who can direct message others in this setting without an authorizer present",
         }),
+        miatsuco_can_manage_user_activation_group: $t({
+            defaultMessage: "Who can deactivate and reactivate other users",
+        }),
+        miatsuco_can_change_user_roles_group: $t({
+            defaultMessage: "Who can change the roles of other users",
+        }),
+        miatsuco_can_edit_user_names_group: $t({
+            defaultMessage: "Who can edit the names of other users",
+        }),
         can_manage_all_groups: $t({defaultMessage: "Who can administer all user groups"}),
         can_manage_billing_group: $t({defaultMessage: "Who can manage plans and billing"}),
         can_create_groups: $t({defaultMessage: "Who can create user groups"}),
@@ -875,7 +884,11 @@ export const realm_group_permission_settings: {
     {
         subsection_heading: $t({defaultMessage: "Joining the organization"}),
         subsection_key: "org-join-settings",
-        settings: ["can_invite_users_group", "create_multiuse_invite_group"],
+        settings: [
+            "can_invite_users_group",
+            "create_multiuse_invite_group",
+            "miatsuco_can_manage_user_activation_group",
+        ],
     },
     {
         subsection_heading: $t({defaultMessage: "Channel permissions"}),
@@ -892,7 +905,11 @@ export const realm_group_permission_settings: {
     {
         subsection_heading: $t({defaultMessage: "Group permissions"}),
         subsection_key: "org-group-permissions",
-        settings: ["can_manage_all_groups", "can_create_groups"],
+        settings: [
+            "can_manage_all_groups",
+            "can_create_groups",
+            "miatsuco_can_change_user_roles_group",
+        ],
     },
     {
         subsection_heading: $t({defaultMessage: "Direct message permissions"}),
@@ -922,6 +939,11 @@ export const realm_group_permission_settings: {
         ],
     },
     {
+        subsection_heading: $t({defaultMessage: "User identity"}),
+        subsection_key: "org-user-identity",
+        settings: ["miatsuco_can_edit_user_names_group"],
+    },
+    {
         subsection_heading: $t({defaultMessage: "Guests"}),
         subsection_key: "org-guests-permissions",
         settings: ["can_access_all_users_group"],
@@ -949,6 +971,9 @@ export const owner_editable_realm_group_permission_settings = new Set([
     "can_manage_all_groups",
     "can_manage_billing_group",
     "create_multiuse_invite_group",
+    "miatsuco_can_manage_user_activation_group",
+    "miatsuco_can_change_user_roles_group",
+    "miatsuco_can_edit_user_names_group",
 ]);
 
 // Order of settings is important, as this list is used to

@@ -9,6 +9,7 @@ import NavigationSteps from "../../components/NavigationSteps.astro";
 import AdminOnly from "../include/_AdminOnly.mdx";
 import ManageThisUser from "../include/_ManageThisUser.mdx";
 import ManageUserTabTip from "../include/_ManageUserTabTip.mdx";
+import OwnerOnly from "../include/_OwnerOnly.mdx";
 import SaveChanges from "../include/_SaveChanges.mdx";
 
 import UserCogIcon from "~icons/zulip-icon/user-cog";
@@ -19,7 +20,7 @@ By default, users can [change their name](/help/change-your-name), though
 organization administrators can
 [restrict name changes](/help/restrict-name-and-email-changes).
 
-Organization administrators can always change any user's name.
+By default, organization administrators can change any user's name.
 
 ## Change a user's name
 
@@ -49,6 +50,23 @@ Organization administrators can always change any user's name.
     </FlattenedSteps>
   </TabItem>
 </Tabs>
+
+## Configure who can edit user names
+
+<OwnerOnly />
+
+By default, organization administrators can edit the names of other users. You
+can change who can, and the role limits that apply, as described in [Configure
+who can change user roles](/help/user-roles#configure-who-can-change-user-roles).
+
+<FlattenedSteps>
+  <NavigationSteps target="settings/organization-permissions" />
+
+  1. Under **User identity**, configure **Who can edit the names of other
+     users**.
+
+  <SaveChanges />
+</FlattenedSteps>
 
 ## Related articles
 

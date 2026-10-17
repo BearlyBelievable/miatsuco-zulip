@@ -229,6 +229,9 @@ def update_realm(
         ),
     ] = None,
     workplace_users_group: Json[GroupSettingChangeRequest] | None = None,
+    miatsuco_can_manage_user_activation_group: Json[GroupSettingChangeRequest] | None = None,
+    miatsuco_can_change_user_roles_group: Json[GroupSettingChangeRequest] | None = None,
+    miatsuco_can_edit_user_names_group: Json[GroupSettingChangeRequest] | None = None,
 ) -> HttpResponse:
     # Realm object is being refetched here to make sure that we
     # do not use stale object from cache which can happen when a
@@ -296,6 +299,13 @@ def update_realm(
         raise OrganizationOwnerRequiredError
 
     if waiting_period_threshold is not None and not user_profile.is_realm_owner:
+        raise OrganizationOwnerRequiredError
+
+    if (
+        miatsuco_can_manage_user_activation_group is not None
+        or miatsuco_can_change_user_roles_group is not None
+        or miatsuco_can_edit_user_names_group is not None
+    ) and not user_profile.is_realm_owner:
         raise OrganizationOwnerRequiredError
 
     if realm.demo_organization_scheduled_deletion_date is not None and invite_required is not None:

@@ -6,9 +6,12 @@ import {TabItem, Tabs} from "@astrojs/starlight/components";
 
 import FlattenedSteps from "../../components/FlattenedSteps.astro";
 import NavigationSteps from "../../components/NavigationSteps.astro";
+import ZulipNote from "../../components/ZulipNote.astro";
 import AdminOnly from "../include/_AdminOnly.mdx";
 import ManageThisUser from "../include/_ManageThisUser.mdx";
 import ManageUserTabTip from "../include/_ManageUserTabTip.mdx";
+import OwnerOnly from "../include/_OwnerOnly.mdx";
+import SaveChanges from "../include/_SaveChanges.mdx";
 import UserRolesIntro from "../include/_UserRolesIntro.mdx";
 import ViewUsersByRole from "../include/_ViewUsersByRole.mdx";
 
@@ -106,6 +109,36 @@ restriction that administrators cannot make themselves owners.
   <NavigationSteps target="settings/account-and-privacy" />
 
   1. Under **Account**, select a [role](#roles) from the **Roles** dropdown.
+</FlattenedSteps>
+
+## Configure who can change user roles
+
+<OwnerOnly />
+
+By default, organization administrators can change the roles of other users.
+You can instead choose a role, Nobody, or any [user group](/help/user-groups).
+The same options and limits apply to the permissions to deactivate and
+reactivate users and to edit user names.
+
+Whoever holds one of these permissions is also limited by role:
+
+* A person can act only on users whose role is lower than theirs, and can assign
+  only roles that are lower than theirs.
+* Owners are the exception. They can act on every role, and only owners can
+  grant or remove the owner role.
+
+<ZulipNote>
+  These settings apply to people. Bots stay with their owner and with
+  organization administrators.
+</ZulipNote>
+
+<FlattenedSteps>
+  <NavigationSteps target="settings/organization-permissions" />
+
+  1. Under **Group permissions**, configure **Who can change the roles of other
+     users**.
+
+  <SaveChanges />
 </FlattenedSteps>
 
 ## Related articles

@@ -5437,6 +5437,39 @@ paths:
                                             set of users who are allowed to use AI summarization.
 
                                             **Changes**: New in Zulip 10.0 (feature level 350).
+                                    miatsuco_can_manage_user_activation_group:
+                                      allOf:
+                                        - $ref: "#/components/schemas/GroupSettingValue"
+                                        - description: |
+                                            A [group-setting value](/api/group-setting-values) defining the
+                                            set of users who are allowed to deactivate and reactivate other
+                                            users. Specific to the MiAtSu.Co fork.
+                                            Users can act only on users with a lower role, and owners can also act
+                                            on other owners.
+
+                                            **Changes**: New in Miatsuco 1.0 (feature level 5).
+                                    miatsuco_can_change_user_roles_group:
+                                      allOf:
+                                        - $ref: "#/components/schemas/GroupSettingValue"
+                                        - description: |
+                                            A [group-setting value](/api/group-setting-values) defining the
+                                            set of users who are allowed to change the role of other users.
+                                            Specific to the MiAtSu.Co fork.
+                                            Users can act only on users with a lower role, and owners can also act
+                                            on other owners.
+
+                                            **Changes**: New in Miatsuco 1.0 (feature level 5).
+                                    miatsuco_can_edit_user_names_group:
+                                      allOf:
+                                        - $ref: "#/components/schemas/GroupSettingValue"
+                                        - description: |
+                                            A [group-setting value](/api/group-setting-values) defining the
+                                            set of users who are allowed to change the names of other users.
+                                            Specific to the MiAtSu.Co fork.
+                                            Users can act only on users with a lower role, and owners can also act
+                                            on other owners.
+
+                                            **Changes**: New in Miatsuco 1.0 (feature level 5).
                                     create_multiuse_invite_group:
                                       allOf:
                                         - $ref: "#/components/schemas/GroupSettingValue"
@@ -11460,6 +11493,12 @@ paths:
         [Reactivates a
         user](https://zulip.com/help/deactivate-or-reactivate-a-user)
         given their user ID.
+
+        In the MiAtSu.Co fork, the requester must be in the group set by
+        `realm_miatsuco_can_manage_user_activation_group` and have a higher role
+        than the target user. Owners can also act on other owners.
+
+        **Changes**: New in Miatsuco 1.0 (feature level 5).
       parameters:
         - $ref: "#/components/parameters/UserId"
       responses:
@@ -16660,6 +16699,16 @@ paths:
         user's account, including editing full name,
         [role](/help/user-roles), and [custom profile
         fields](/help/custom-profile-fields).
+
+        In the MiAtSu.Co fork, changing the role requires being in the group set by
+        `realm_miatsuco_can_change_user_roles_group`, and changing the name requires
+        being in the group set by `realm_miatsuco_can_edit_user_names_group`. For
+        both, the requester must have a higher role than the target user. A role
+        change can assign only roles lower than the requester's role. Owners can
+        also act on other owners. Custom profile fields and email still require an
+        administrator.
+
+        **Changes**: New in Miatsuco 1.0 (feature level 5).
       parameters:
         - $ref: "#/components/parameters/UserId"
       requestBody:
@@ -16699,6 +16748,12 @@ paths:
         before the user; clients that don't want this behavior are
         expected to prompt the user to adjust the bot's owners before
         making this API request.
+
+        In the MiAtSu.Co fork, the requester must be in the group set by
+        `realm_miatsuco_can_manage_user_activation_group` and have a higher role
+        than the target user. Owners can also act on other owners.
+
+        **Changes**: New in Miatsuco 1.0 (feature level 5).
       parameters:
         - $ref: "#/components/parameters/UserId"
         - name: actions
@@ -21610,6 +21665,45 @@ paths:
                               set of users who are allowed to use AI summarization.
 
                               **Changes**: New in Zulip 10.0 (feature level 350).
+                      realm_miatsuco_can_manage_user_activation_group:
+                        allOf:
+                          - $ref: "#/components/schemas/GroupSettingValue"
+                          - description: |
+                              Present if `realm` is present in `fetch_event_types`.
+
+                              A [group-setting value](/api/group-setting-values) defining the
+                              set of users who are allowed to deactivate and reactivate other
+                              users. Specific to the MiAtSu.Co fork.
+                              Users can act only on users with a lower role, and owners can also act
+                              on other owners.
+
+                              **Changes**: New in Miatsuco 1.0 (feature level 5).
+                      realm_miatsuco_can_change_user_roles_group:
+                        allOf:
+                          - $ref: "#/components/schemas/GroupSettingValue"
+                          - description: |
+                              Present if `realm` is present in `fetch_event_types`.
+
+                              A [group-setting value](/api/group-setting-values) defining the
+                              set of users who are allowed to change the role of other users.
+                              Specific to the MiAtSu.Co fork.
+                              Users can act only on users with a lower role, and owners can also act
+                              on other owners.
+
+                              **Changes**: New in Miatsuco 1.0 (feature level 5).
+                      realm_miatsuco_can_edit_user_names_group:
+                        allOf:
+                          - $ref: "#/components/schemas/GroupSettingValue"
+                          - description: |
+                              Present if `realm` is present in `fetch_event_types`.
+
+                              A [group-setting value](/api/group-setting-values) defining the
+                              set of users who are allowed to change the names of other users.
+                              Specific to the MiAtSu.Co fork.
+                              Users can act only on users with a lower role, and owners can also act
+                              on other owners.
+
+                              **Changes**: New in Miatsuco 1.0 (feature level 5).
                       zulip_plan_is_not_limited:
                         type: boolean
                         description: |
