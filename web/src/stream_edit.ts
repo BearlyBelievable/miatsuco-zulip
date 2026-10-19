@@ -9,7 +9,6 @@ import render_settings_reactivation_stream_modal from "../templates/confirm_dial
 import render_decorated_channel_name from "../templates/decorated_channel_name.hbs";
 import render_change_stream_info_modal from "../templates/stream_settings/change_stream_info_modal.hbs";
 import render_channel_name_conflict_error from "../templates/stream_settings/channel_name_conflict_error.hbs";
-import render_copy_email_address_modal from "../templates/stream_settings/copy_email_address_modal.hbs";
 import render_stream_description from "../templates/stream_settings/stream_description.hbs";
 import render_stream_settings from "../templates/stream_settings/stream_settings.hbs";
 
@@ -487,6 +486,7 @@ export function show_settings_for(node: HTMLElement): void {
         notification_settings,
         other_settings,
         stream_topics_policy_values: settings_config.get_stream_topics_policy_values(),
+        email_address_tags: get_email_address_tags(),
         check_default_stream: stream_data.is_default_stream_id(stream_id),
         zulip_plan_is_not_limited: realm.zulip_plan_is_not_limited,
         upgrade_text_for_wide_organization_logo: realm.upgrade_text_for_wide_organization_logo,
@@ -515,6 +515,7 @@ export function show_settings_for(node: HTMLElement): void {
     show_subscription_settings(sub);
     settings_org.set_message_retention_setting_dropdown(sub);
     set_up_channel_privacy_dropdown_widget(undefined, sub);
+    set_up_stream_email_address(sub);
     setup_group_setting_widgets(slim_sub);
     stream_ui_updates.enable_or_disable_permission_settings_in_edit_panel(sub);
     stream_ui_updates.update_can_subscribe_group_label($edit_container);
@@ -589,36 +590,37 @@ export function get_stream_email_address(flags: string[], address: string): stri
     return clean_address.replace("@", flag_string + "@");
 }
 
-function show_stream_email_address_modal(address: string, sub: StreamSubscription): void {
-    const copy_email_address_modal_html = render_copy_email_address_modal({
-        email_address: address,
-        tags: [
-            {
-                name: "show-sender",
-                description: $t({
-                    defaultMessage: "The sender's email address",
-                }),
-            },
-            {
-                name: "include-footer",
-                description: $t({defaultMessage: "Email footers (e.g., signature)"}),
-            },
-            {
-                name: "include-quotes",
-                description: $t({defaultMessage: "Quoted original email (in replies)"}),
-            },
-            {
-                name: "prefer-html",
-                description: $t({
-                    defaultMessage: "Use html encoding (not recommended)",
-                }),
-            },
-        ],
-    });
+function get_email_address_tags(): {name: string; description: string}[] {
+    return [
+        {
+            name: "show-sender",
+            description: $t({
+                defaultMessage: "The sender's email address",
+            }),
+        },
+        {
+            name: "include-footer",
+            description: $t({defaultMessage: "Email footers (e.g., signature)"}),
+        },
+        {
+            name: "include-quotes",
+            description: $t({defaultMessage: "Quoted original email (in replies)"}),
+        },
+        {
+            name: "prefer-html",
+            description: $t({
+                defaultMessage: "Use html encoding (not recommended)",
+            }),
+        },
+    ];
+}
+
+function set_up_stream_email_address(sub: StreamSubscription): void {
+    let address: string;
 
     function get_checked_tags(): string[] {
         const flags: string[] = [];
-        const $checked_checkboxes = $(".copy-email-modal").find("input:checked");
+        const $checked_checkboxes = $(".channel-email-address").find("input:checked");
         $($checked_checkboxes).each(function () {
             flags.push($(this).attr("id")!);
         });
@@ -629,15 +631,15 @@ function show_stream_email_address_modal(address: string, sub: StreamSubscriptio
         // Since channel email addresses encode a sender, we can only
         // continuously update the email address when we have a current
         // sender.
-        $("#copy_email_address_modal .tag-checkbox").on("change", () => {
+        $(".channel-email-address .tag-checkbox").on("change", () => {
             const flags = get_checked_tags();
             address = get_stream_email_address(flags, address);
-            $(".email-address").text(address);
+            $(".channel-email-address .email-address").text(address);
         });
     }
 
     let sender_dropdown_widget: DropdownWidget;
-    function generate_email_modal_post_render(): void {
+    function set_up_sender_dropdown(): void {
         function update_option_label(sender: User | CurrentUser | Bot): string {
             if (sender.user_id === people.EMAIL_GATEWAY_BOT.user_id) {
                 return "Email Gateway bot";
@@ -669,9 +671,9 @@ function show_stream_email_address_modal(address: string, sub: StreamSubscriptio
             // Since channel email addresses encode a sender, we can
             // only continuously update the email address when we have
             // a current sender.
-            $("#copy_email_address_modal .tag-checkbox").off("change");
-            $(".stream-email").children().css("visibility", "hidden");
-            $("#copy_email_address_modal .dialog_submit_button").trigger("focus");
+            $(".channel-email-address .tag-checkbox").off("change");
+            $(".channel-email-address-result").addClass("hide");
+            $(".generate-channel-email-address").trigger("focus");
 
             event.stopPropagation();
             event.preventDefault();
@@ -681,7 +683,7 @@ function show_stream_email_address_modal(address: string, sub: StreamSubscriptio
             widget_name: "sender_channel_email_address",
             get_options,
             item_click_callback,
-            $events_container: $("#copy_email_address_modal"),
+            $events_container: $(".channel-email-address"),
             default_id: people.EMAIL_GATEWAY_BOT.user_id,
             unique_id_type: "number",
             hide_search_box: true,
@@ -690,47 +692,38 @@ function show_stream_email_address_modal(address: string, sub: StreamSubscriptio
     }
 
     function generate_email_address(): void {
-        const close_on_success = false;
-        dialog_widget.submit_api_request(
-            channel.get,
-            "/json/streams/" + sub.stream_id + "/email_address",
-            {sender_id: sender_dropdown_widget.value()},
-            {
-                success_continuation(response_data) {
-                    const email = z.object({email: z.string()}).parse(response_data).email;
-                    const flags = get_checked_tags();
-                    address = get_stream_email_address(flags, email);
-                    $(".email-address").text(address);
-                    $(".stream-email").children().css("visibility", "visible");
-                    enable_tag_checkbox_change_handler();
-                },
+        void channel.get({
+            url: "/json/streams/" + sub.stream_id + "/email_address",
+            data: {sender_id: sender_dropdown_widget.value()},
+            success(response_data) {
+                const email = z.object({email: z.string()}).parse(response_data).email;
+                const flags = get_checked_tags();
+                address = get_stream_email_address(flags, email);
+                $(".channel-email-address .email-address").text(address);
+                $(".channel-email-address-result").removeClass("hide");
+                enable_tag_checkbox_change_handler();
             },
-            close_on_success,
-        );
+            error(xhr) {
+                ui_report.error(
+                    $t_html({defaultMessage: "Failed"}),
+                    xhr,
+                    $(".channel-general-settings-status"),
+                );
+            },
+        });
     }
 
-    dialog_widget.launch({
-        modal_title_html: $t_html({defaultMessage: "Generate channel email address"}),
-        modal_content_html: copy_email_address_modal_html,
-        id: "copy_email_address_modal",
-        modal_submit_button_text: $t({defaultMessage: "Generate email address"}),
-        modal_exit_button_text: $t({defaultMessage: "Close"}),
-        help_link: "/help/message-a-channel-by-email#configuration-options",
-        post_render: generate_email_modal_post_render,
-        on_click: generate_email_address,
-        close_on_submit: false,
-        always_visible_scrollbar: true,
-    });
+    set_up_sender_dropdown();
     $("#show-sender").prop("checked", true);
+    $(".generate-channel-email-address").on("click", generate_email_address);
+}
 
-    const email_address_clipboard = new ClipboardJS(
-        "#copy_email_address_modal .copy-email-address",
-        {
-            text() {
-                return $(".email-address").text();
-            },
+export function initialize(): void {
+    const email_address_clipboard = new ClipboardJS("#stream_settings .copy-email-address", {
+        text(trigger) {
+            return $(trigger).closest(".stream-email").find(".email-address").text();
         },
-    );
+    });
     email_address_clipboard.on("success", (e) => {
         assert(e.trigger instanceof HTMLElement);
         show_copied_confirmation(e.trigger, {
@@ -738,10 +731,6 @@ function show_stream_email_address_modal(address: string, sub: StreamSubscriptio
         });
     });
 
-    enable_tag_checkbox_change_handler();
-}
-
-export function initialize(): void {
     $("#main_div").on("click", ".stream_sub_unsub_button", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -824,34 +813,6 @@ export function initialize(): void {
             assert(sub !== undefined);
             stream_settings_components.sub_or_unsub(sub);
             $("#stream_settings .stream-permissions-warning-banner").empty();
-        },
-    );
-
-    $("#channels_overlay_container").on(
-        "click",
-        ".copy_email_button",
-        function (this: HTMLElement, e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const stream_id = get_stream_id(this);
-
-            channel.get({
-                url: "/json/streams/" + stream_id + "/email_address",
-                success(data) {
-                    const address = z.object({email: z.string()}).parse(data).email;
-                    const sub = sub_store.get(stream_id);
-                    assert(sub !== undefined);
-                    show_stream_email_address_modal(address, sub);
-                },
-                error(xhr) {
-                    ui_report.error(
-                        $t_html({defaultMessage: "Failed"}),
-                        xhr,
-                        $(".channel-general-settings-status"),
-                    );
-                },
-            });
         },
     );
 

@@ -40,6 +40,24 @@
     font-size: 1.1765em; /* 16px at 13.6px/em */
 }
 
+.channel-email-address {
+    .inline {
+        display: inline;
+    }
+
+    .question-which-parts {
+        padding-bottom: 10px;
+    }
+
+    .stream-email-header {
+        font-size: 1.125em; /* 18px at 16px/em */
+    }
+
+    .channel-email-address-result {
+        padding-top: 10px;
+    }
+}
+
 .sub_setting_checkbox {
     display: flex;
 
