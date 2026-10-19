@@ -782,22 +782,6 @@
     width: 12.875em; /* 206px at 16px/em */
 }
 
-#copy_email_address_modal {
-    width: 800px;
-
-    .inline {
-        display: inline;
-    }
-
-    .question-which-parts {
-        padding-bottom: 10px;
-    }
-
-    .stream-email-header {
-        font-size: 1.125em; /* 18px at 16px/em */
-    }
-}
-
 .modal_select {
     width: var(--modal-input-width);
     padding: 4px 25px 4px 6px;

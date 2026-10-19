@@ -58,19 +58,15 @@
                   is_stream_edit=true
                   }}
 
-                <div class="input-group stream-email-box">
-                    <label for="copy_stream_email_button" class="settings-field-label">
+            </div>
+
+            <div class="subsection-parent stream-email-box">
+                <div class="input-group">
+                    <label class="settings-field-label">
                         {{t "Email address" }}
                         {{> ../help_link_widget link="/help/message-a-channel-by-email" }}
                     </label>
-                    {{> ../components/action_button
-                      label=(t "Generate email address")
-                      variant="subtle"
-                      intent="neutral"
-                      type="button"
-                      custom_classes="copy_email_button"
-                      id="copy_stream_email_button"
-                      }}
+                    {{> channel_email_address tags=email_address_tags}}
                 </div>
             </div>
         </div>

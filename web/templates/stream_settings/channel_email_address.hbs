@@ -1,4 +1,4 @@
-<div class="copy-email-modal">
+<div class="channel-email-address">
     {{> ../dropdown_widget_with_label
       widget_name="sender_channel_email_address"
       label=(t 'Who should be the sender of the Zulip messages for this email address?')}}
@@ -18,13 +18,22 @@
         </div>
     {{/each}}
     <hr />
-    <p class="stream-email-header">
-        {{t "Channel email address:"}}
-    </p>
-    <div class="stream-email">
-        <div class="email-address">{{email_address}}</div>
-        <span class="copy-button tippy-zulip-tooltip copy-email-address" data-tippy-content="{{t 'Copy email address' }}" data-clipboard-text="{{email_address}}">
-            <i class="zulip-icon zulip-icon-copy"></i>
-        </span>
+    {{> ../components/action_button
+      label=(t "Generate email address")
+      variant="subtle"
+      intent="neutral"
+      type="button"
+      custom_classes="generate-channel-email-address"
+      }}
+    <div class="channel-email-address-result hide">
+        <p class="stream-email-header">
+            {{t "Channel email address:"}}
+        </p>
+        <div class="stream-email">
+            <div class="email-address"></div>
+            <span class="copy-button tippy-zulip-tooltip copy-email-address" data-tippy-content="{{t 'Copy email address' }}">
+                <i class="zulip-icon zulip-icon-copy"></i>
+            </span>
+        </div>
     </div>
 </div>
