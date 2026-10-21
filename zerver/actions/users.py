@@ -30,7 +30,10 @@ from zerver.lib.cache import bot_dict_fields, flush_user_profile
 from zerver.lib.create_user import create_user_profile
 from zerver.lib.event_types import BotServicesOutgoing
 from zerver.lib.invites import revoke_invites_generated_by_user
-from zerver.lib.miatsuco_channel_email import delete_user_channel_email_addresses
+from zerver.lib.miatsuco_channel_email import (
+    delete_admin_channel_email_addresses,
+    delete_user_channel_email_addresses,
+)
 from zerver.lib.remote_server import maybe_enqueue_audit_log_upload
 from zerver.lib.send_email import FromAddress, clear_scheduled_emails, send_email
 from zerver.lib.sessions import delete_user_sessions
@@ -631,6 +634,11 @@ def do_change_user_role(
 
     user_profile.role = value
     user_profile.save(update_fields=["role"])
+    if (
+        old_value in (UserProfile.ROLE_REALM_OWNER, UserProfile.ROLE_REALM_ADMINISTRATOR)
+        and not user_profile.is_realm_admin
+    ):
+        delete_admin_channel_email_addresses(user_profile)
     RealmAuditLog.objects.create(
         realm=user_profile.realm,
         modified_user=user_profile,

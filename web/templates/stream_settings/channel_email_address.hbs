@@ -1,39 +1,41 @@
-<div class="channel-email-address">
-    {{> ../dropdown_widget_with_label
-      widget_name="sender_channel_email_address"
-      label=(t 'Who should be the sender of the Zulip messages for this email address?')}}
-    <p class="question-which-parts">
-        {{t "Which parts of the emails should be included in the Zulip messages?"}}
-    </p>
-    {{#each tags}}
-        {{#if (eq this.name "prefer-html") }}
-        <hr />
-        {{/if}}
-        <div class="input-group" id="{{this.name}}-input-group">
-            <label class="checkbox">
-                <input class="tag-checkbox" id="{{ this.name }}" type="checkbox"/>
-                <span class="rendered-checkbox"></span>
-            </label>
-            <label class="inline" for="{{this.name}}">{{this.description}}</label>
-        </div>
-    {{/each}}
-    <hr />
-    {{> ../components/action_button
-      label=(t "Generate email address")
-      variant="subtle"
-      intent="neutral"
-      type="button"
-      custom_classes="generate-channel-email-address"
-      }}
-    <div class="channel-email-address-result hide">
-        <p class="stream-email-header">
-            {{t "Channel email address:"}}
-        </p>
+<div class="channel-email-address miatsuco-email-address-row" data-email-address-id="{{id}}" data-base-email="{{email}}">
+    <div class="miatsuco-email-address-header">
+        <span class="miatsuco-email-address-sender">{{sender_name}}</span>
+        {{> ../components/action_button
+          label=(t "Revoke")
+          variant="subtle"
+          intent="danger"
+          custom_classes="miatsuco-revoke-email-address"
+          }}
+    </div>
+    {{#if has_options}}
+        <details class="miatsuco-email-address-options">
+            <summary>{{t "Configuration options" }}</summary>
+            <div class="miatsuco-email-address-option-list">
+                <p class="question-which-parts">
+                    {{t "Which parts of the emails should be included in the Zulip messages?"}}
+                </p>
+                {{#each tags}}
+                    <div class="input-group">
+                        <label class="checkbox">
+                            <input class="tag-checkbox" id="{{this.id}}" data-option="{{this.name}}" type="checkbox" {{#if this.checked}}checked{{/if}}/>
+                            <span class="rendered-checkbox"></span>
+                        </label>
+                        <label class="inline" for="{{this.id}}">{{this.description}}</label>
+                    </div>
+                {{/each}}
+            </div>
+        </details>
+    {{/if}}
+    {{#if address}}
         <div class="stream-email">
-            <div class="email-address"></div>
+            <div class="email-address">{{address}}</div>
             <span class="copy-button tippy-zulip-tooltip copy-email-address" data-tippy-content="{{t 'Copy email address' }}">
                 <i class="zulip-icon zulip-icon-copy"></i>
             </span>
         </div>
+    {{/if}}
+    <div class="miatsuco-email-address-meta">
+        {{t "Created by {creator_name} on {created_date}." }}
     </div>
 </div>

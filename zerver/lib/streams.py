@@ -1887,6 +1887,7 @@ def stream_to_dict(
         invite_only=stream.invite_only,
         is_web_public=stream.is_web_public,
         message_retention_days=stream.message_retention_days,
+        miatsuco_allow_email_posting=stream.miatsuco_allow_email_posting,
         miatsuco_allow_user_email_posting=stream.miatsuco_allow_user_email_posting,
         miatsuco_retain_topics=stream.miatsuco_retain_topics,
         name=stream.name,

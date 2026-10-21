@@ -616,6 +616,9 @@ def check_stream_update(
         assert extra_keys == set()
         if value is not None:
             assert isinstance(value, int)
+    elif prop == "miatsuco_allow_email_posting":
+        assert extra_keys == set()
+        assert isinstance(value, bool)
     elif prop == "miatsuco_allow_user_email_posting":
         assert extra_keys == set()
         assert isinstance(value, bool)

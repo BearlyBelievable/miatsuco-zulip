@@ -58,7 +58,10 @@ from zerver.lib.email_mirror_helpers import encode_email_address, get_channel_em
 from zerver.lib.exceptions import CannotManageDefaultChannelError, JsonableError
 from zerver.lib.mention import MentionBackend, silent_mention_syntax_for_user
 from zerver.lib.message import bulk_access_stream_messages_query
-from zerver.lib.miatsuco_channel_email import check_channel_user_email_allowed
+from zerver.lib.miatsuco_channel_email import (
+    check_channel_email_allowed,
+    check_channel_user_email_allowed,
+)
 from zerver.lib.response import json_success
 from zerver.lib.retention import STREAM_MESSAGE_BATCH_SIZE as RETENTION_STREAM_MESSAGE_BATCH_SIZE
 from zerver.lib.retention import (
@@ -312,6 +315,7 @@ def update_stream_backend(
     is_private: Json[bool] | None = None,
     is_web_public: Json[bool] | None = None,
     message_retention_days: Json[str] | Json[int] | None = None,
+    miatsuco_allow_email_posting: Json[bool] | None = None,
     miatsuco_allow_user_email_posting: Json[bool] | None = None,
     miatsuco_retain_topics: Json[bool] | None = None,
     new_name: str | None = None,
@@ -475,6 +479,11 @@ def update_stream_backend(
         if folder_id is not None:
             folder = get_channel_folder_by_id(folder_id, user_profile.realm)
         do_change_stream_folder(stream, folder, acting_user=user_profile)
+
+    if miatsuco_allow_email_posting is not None:
+        do_set_stream_property(
+            stream, "miatsuco_allow_email_posting", miatsuco_allow_email_posting, user_profile
+        )
 
     if miatsuco_allow_user_email_posting is not None:
         do_set_stream_property(
@@ -1452,6 +1461,8 @@ def get_stream_email_address(
     is_personal = sender.id == user_profile.id and not user_profile.is_bot
     if is_personal:
         check_channel_user_email_allowed(stream)
+    else:
+        check_channel_email_allowed(user_profile, stream)
 
     email_token = get_channel_email_token(stream, creator=user_profile, sender=sender)
     stream_email = encode_email_address(stream.name, email_token, show_sender=not is_personal)

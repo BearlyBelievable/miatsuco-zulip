@@ -117,6 +117,7 @@ class Stream(models.Model):
         "realm_default": None,
     }
     message_retention_days = models.IntegerField(null=True, default=None)
+    miatsuco_allow_email_posting = models.BooleanField(default=False, db_default=False)
     miatsuco_allow_user_email_posting = models.BooleanField(default=False, db_default=False)
     miatsuco_retain_topics = models.BooleanField(default=False, db_default=False)
 
@@ -285,6 +286,7 @@ class Stream(models.Model):
         "invite_only",
         "is_web_public",
         "message_retention_days",
+        "miatsuco_allow_email_posting",
         "miatsuco_allow_user_email_posting",
         "miatsuco_retain_topics",
         "name",

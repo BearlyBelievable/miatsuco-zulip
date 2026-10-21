@@ -1,7 +1,6 @@
 import ClipboardJS from "clipboard";
 import $ from "jquery";
 import assert from "minimalistic-assert";
-import type * as tippy from "tippy.js";
 import * as z from "zod/mini";
 
 import render_settings_deactivation_stream_modal from "../templates/confirm_dialog/confirm_deactivate_stream.hbs";
@@ -13,7 +12,6 @@ import render_stream_description from "../templates/stream_settings/stream_descr
 import render_stream_settings from "../templates/stream_settings/stream_settings.hbs";
 
 import * as blueslip from "./blueslip.ts";
-import type {Bot} from "./bot_data.ts";
 import * as browser_history from "./browser_history.ts";
 import * as channel from "./channel.ts";
 import * as channel_folders_ui from "./channel_folders_ui.ts";
@@ -26,8 +24,6 @@ import {$t, $t_html} from "./i18n.ts";
 import * as keydown_util from "./keydown_util.ts";
 import * as miatsuco_channel_email_addresses from "./miatsuco_channel_email_addresses.ts";
 import * as narrow_state from "./narrow_state.ts";
-import type {User} from "./people.ts";
-import * as people from "./people.ts";
 import * as popovers from "./popovers.ts";
 import {postprocess_content} from "./postprocess_content.ts";
 import * as scroll_util from "./scroll_util.ts";
@@ -36,7 +32,6 @@ import * as settings_config from "./settings_config.ts";
 import * as settings_data from "./settings_data.ts";
 import * as settings_notifications from "./settings_notifications.ts";
 import * as settings_org from "./settings_org.ts";
-import type {CurrentUser} from "./state_data.ts";
 import {current_user, realm} from "./state_data.ts";
 import * as stream_data from "./stream_data.ts";
 import * as stream_edit_subscribers from "./stream_edit_subscribers.ts";
@@ -487,7 +482,6 @@ export function show_settings_for(node: HTMLElement): void {
         notification_settings,
         other_settings,
         stream_topics_policy_values: settings_config.get_stream_topics_policy_values(),
-        email_address_tags: get_email_address_tags(),
         check_default_stream: stream_data.is_default_stream_id(stream_id),
         zulip_plan_is_not_limited: realm.zulip_plan_is_not_limited,
         upgrade_text_for_wide_organization_logo: realm.upgrade_text_for_wide_organization_logo,
@@ -516,7 +510,6 @@ export function show_settings_for(node: HTMLElement): void {
     show_subscription_settings(sub);
     settings_org.set_message_retention_setting_dropdown(sub);
     set_up_channel_privacy_dropdown_widget(undefined, sub);
-    set_up_stream_email_address(sub);
     setup_group_setting_widgets(slim_sub);
     stream_ui_updates.enable_or_disable_permission_settings_in_edit_panel(sub);
     stream_ui_updates.update_can_subscribe_group_label($edit_container);
@@ -591,138 +584,7 @@ export function get_stream_email_address(flags: string[], address: string): stri
     return clean_address.replace("@", flag_string + "@");
 }
 
-function get_email_address_tags(): {name: string; description: string}[] {
-    return [
-        {
-            name: "show-sender",
-            description: $t({
-                defaultMessage: "The sender's email address",
-            }),
-        },
-        {
-            name: "include-footer",
-            description: $t({defaultMessage: "Email footers (e.g., signature)"}),
-        },
-        {
-            name: "include-quotes",
-            description: $t({defaultMessage: "Quoted original email (in replies)"}),
-        },
-        {
-            name: "prefer-html",
-            description: $t({
-                defaultMessage: "Use html encoding (not recommended)",
-            }),
-        },
-    ];
-}
-
-function set_up_stream_email_address(sub: StreamSubscription): void {
-    let address: string;
-
-    function get_checked_tags(): string[] {
-        const flags: string[] = [];
-        const $checked_checkboxes = $(".channel-email-address").find("input:checked");
-        $($checked_checkboxes).each(function () {
-            flags.push($(this).attr("id")!);
-        });
-        return flags;
-    }
-
-    function enable_tag_checkbox_change_handler(): void {
-        // Since channel email addresses encode a sender, we can only
-        // continuously update the email address when we have a current
-        // sender.
-        $(".channel-email-address .tag-checkbox").on("change", () => {
-            const flags = get_checked_tags();
-            address = get_stream_email_address(flags, address);
-            $(".channel-email-address .email-address").text(address);
-        });
-    }
-
-    let sender_dropdown_widget: DropdownWidget;
-    function set_up_sender_dropdown(): void {
-        function update_option_label(sender: User | CurrentUser | Bot): string {
-            if (sender.user_id === people.EMAIL_GATEWAY_BOT.user_id) {
-                return "Email Gateway bot";
-            }
-            return sender.full_name;
-        }
-
-        function get_options(): {
-            name: string;
-            unique_id: number;
-        }[] {
-            const senders = [
-                people.EMAIL_GATEWAY_BOT,
-                ...stream_data
-                    .get_current_user_and_their_bots_with_post_messages_permission(sub)
-                    .filter((sender) => sender.user_id !== current_user.user_id),
-            ];
-            return senders.map((sender) => ({
-                name: update_option_label(sender),
-                unique_id: sender.user_id,
-            }));
-        }
-
-        function item_click_callback(event: JQuery.ClickEvent, dropdown: tippy.Instance): void {
-            sender_dropdown_widget.render();
-            $(sender_dropdown_widget.widget_selector).trigger("input");
-            dropdown.hide();
-
-            // Since channel email addresses encode a sender, we can
-            // only continuously update the email address when we have
-            // a current sender.
-            $(".channel-email-address .tag-checkbox").off("change");
-            $(".channel-email-address-result").addClass("hide");
-            $(".generate-channel-email-address").trigger("focus");
-
-            event.stopPropagation();
-            event.preventDefault();
-        }
-
-        sender_dropdown_widget = new dropdown_widget.DropdownWidget({
-            widget_name: "sender_channel_email_address",
-            get_options,
-            item_click_callback,
-            $events_container: $(".channel-email-address"),
-            default_id: people.EMAIL_GATEWAY_BOT.user_id,
-            unique_id_type: "number",
-            hide_search_box: true,
-        });
-        sender_dropdown_widget.setup();
-    }
-
-    function generate_email_address(): void {
-        void channel.get({
-            url: "/json/streams/" + sub.stream_id + "/email_address",
-            data: {sender_id: sender_dropdown_widget.value()},
-            success(response_data) {
-                const email = z.object({email: z.string()}).parse(response_data).email;
-                const flags = get_checked_tags();
-                address = get_stream_email_address(flags, email);
-                $(".channel-email-address .email-address").text(address);
-                $(".channel-email-address-result").removeClass("hide");
-                enable_tag_checkbox_change_handler();
-                miatsuco_channel_email_addresses.refresh(sub);
-            },
-            error(xhr) {
-                ui_report.error(
-                    $t_html({defaultMessage: "Failed"}),
-                    xhr,
-                    $(".channel-general-settings-status"),
-                );
-            },
-        });
-    }
-
-    set_up_sender_dropdown();
-    $("#show-sender").prop("checked", true);
-    $(".generate-channel-email-address").on("click", generate_email_address);
-}
-
 export function initialize(): void {
-    miatsuco_channel_email_addresses.initialize();
-
     const email_address_clipboard = new ClipboardJS("#stream_settings .copy-email-address", {
         text(trigger) {
             return $(trigger).closest(".stream-email").find(".email-address").text();
@@ -733,6 +595,17 @@ export function initialize(): void {
         show_copied_confirmation(e.trigger, {
             show_check_icon: true,
         });
+    });
+
+    $("#channels_overlay_container").on("change", ".channel-email-address .tag-checkbox", (e) => {
+        const $address = $(e.currentTarget).closest(".channel-email-address");
+        const flags: string[] = [];
+        $address.find("input:checked").each(function () {
+            flags.push($(this).attr("data-option")!);
+        });
+        $address
+            .find(".email-address")
+            .text(get_stream_email_address(flags, $address.attr("data-base-email")!));
     });
 
     miatsuco_channel_email_addresses.initialize();

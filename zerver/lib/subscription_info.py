@@ -111,6 +111,7 @@ def get_web_public_subs(
         invite_only = stream.invite_only
         is_web_public = stream.is_web_public
         message_retention_days = stream.message_retention_days
+        miatsuco_allow_email_posting = stream.miatsuco_allow_email_posting
         miatsuco_allow_user_email_posting = stream.miatsuco_allow_user_email_posting
         miatsuco_retain_topics = stream.miatsuco_retain_topics
         name = stream.name
@@ -168,6 +169,7 @@ def get_web_public_subs(
             is_muted=is_muted,
             is_web_public=is_web_public,
             message_retention_days=message_retention_days,
+            miatsuco_allow_email_posting=miatsuco_allow_email_posting,
             miatsuco_allow_user_email_posting=miatsuco_allow_user_email_posting,
             miatsuco_retain_topics=miatsuco_retain_topics,
             name=name,
@@ -276,6 +278,7 @@ def build_stream_api_dict(
         invite_only=raw_stream_dict["invite_only"],
         is_web_public=raw_stream_dict["is_web_public"],
         message_retention_days=raw_stream_dict["message_retention_days"],
+        miatsuco_allow_email_posting=raw_stream_dict["miatsuco_allow_email_posting"],
         miatsuco_allow_user_email_posting=raw_stream_dict["miatsuco_allow_user_email_posting"],
         miatsuco_retain_topics=raw_stream_dict["miatsuco_retain_topics"],
         name=raw_stream_dict["name"],
@@ -318,6 +321,7 @@ def build_stream_dict_for_sub(
     invite_only = stream_dict["invite_only"]
     is_web_public = stream_dict["is_web_public"]
     message_retention_days = stream_dict["message_retention_days"]
+    miatsuco_allow_email_posting = stream_dict["miatsuco_allow_email_posting"]
     miatsuco_allow_user_email_posting = stream_dict["miatsuco_allow_user_email_posting"]
     miatsuco_retain_topics = stream_dict["miatsuco_retain_topics"]
     name = stream_dict["name"]
@@ -376,6 +380,7 @@ def build_stream_dict_for_sub(
         is_muted=is_muted,
         is_web_public=is_web_public,
         message_retention_days=message_retention_days,
+        miatsuco_allow_email_posting=miatsuco_allow_email_posting,
         miatsuco_allow_user_email_posting=miatsuco_allow_user_email_posting,
         miatsuco_retain_topics=miatsuco_retain_topics,
         name=name,
@@ -407,6 +412,7 @@ def build_stream_dict_for_never_sub(
     invite_only = raw_stream_dict["invite_only"]
     is_web_public = raw_stream_dict["is_web_public"]
     message_retention_days = raw_stream_dict["message_retention_days"]
+    miatsuco_allow_email_posting = raw_stream_dict["miatsuco_allow_email_posting"]
     miatsuco_allow_user_email_posting = raw_stream_dict["miatsuco_allow_user_email_posting"]
     miatsuco_retain_topics = raw_stream_dict["miatsuco_retain_topics"]
     name = raw_stream_dict["name"]
@@ -489,6 +495,7 @@ def build_stream_dict_for_never_sub(
         is_announcement_only=is_announcement_only,
         is_web_public=is_web_public,
         message_retention_days=message_retention_days,
+        miatsuco_allow_email_posting=miatsuco_allow_email_posting,
         miatsuco_allow_user_email_posting=miatsuco_allow_user_email_posting,
         miatsuco_retain_topics=miatsuco_retain_topics,
         name=name,

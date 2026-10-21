@@ -1344,6 +1344,45 @@ export function save_discard_realm_settings_widget_status_handler($subsection: J
     change_save_button_state($save_button_controls, button_state);
 }
 
+export function update_email_posting_disable_warnings(
+    $subsection: JQuery,
+    sub: StreamSubscription,
+    properties_elements: HTMLElement[],
+): void {
+    const $banner = $subsection.find(".stream-general-settings-warning-banner");
+    $banner.empty();
+    for (const elem of properties_elements) {
+        const property_name = extract_property_name($(elem));
+        if (
+            (property_name === "miatsuco_allow_user_email_posting" ||
+                property_name === "miatsuco_allow_email_posting") &&
+            sub[property_name] &&
+            !get_input_element_value(elem, "boolean")
+        ) {
+            const banner_text =
+                property_name === "miatsuco_allow_user_email_posting"
+                    ? $t({
+                          defaultMessage:
+                              "Saving this change revokes every personal email address for this channel.",
+                      })
+                    : $t({
+                          defaultMessage:
+                              "Saving this change revokes every bot email address for this channel.",
+                      });
+            $banner.append(
+                $(
+                    render_compose_banner({
+                        banner_type: compose_banner.WARNING,
+                        banner_text,
+                        classname: "miatsuco_email_disable_warning",
+                        hide_close_button: true,
+                    }),
+                ),
+            );
+        }
+    }
+}
+
 export function save_discard_stream_settings_widget_status_handler(
     $subsection: JQuery,
     sub: StreamSubscription | undefined,
@@ -1361,6 +1400,10 @@ export function save_discard_stream_settings_widget_status_handler(
     const $save_button_controls = $subsection.find(".subsection-header .save-button-controls");
     const button_state = show_change_process_button ? "unsaved" : "discarded";
     change_save_button_state($save_button_controls, button_state);
+
+    if (sub !== undefined) {
+        update_email_posting_disable_warnings($subsection, sub, properties_elements);
+    }
 
     // If the stream isn't currently private but being changed to private,
     // and the user changing this setting isn't subscribed, we show a

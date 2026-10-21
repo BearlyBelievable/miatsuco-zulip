@@ -23,7 +23,10 @@ from zerver.lib.cache import (
 from zerver.lib.exceptions import JsonableError
 from zerver.lib.mention import silent_mention_syntax_for_user, silent_mention_syntax_for_user_group
 from zerver.lib.message import get_last_message_id
-from zerver.lib.miatsuco_channel_email import delete_personal_channel_email_addresses
+from zerver.lib.miatsuco_channel_email import (
+    delete_bot_channel_email_addresses,
+    delete_personal_channel_email_addresses,
+)
 from zerver.lib.queue import queue_event_on_commit
 from zerver.lib.stream_color import pick_colors
 from zerver.lib.stream_subscription import (
@@ -484,6 +487,7 @@ def send_subscription_add_events(
                 invite_only=stream_dict["invite_only"],
                 is_web_public=stream_dict["is_web_public"],
                 message_retention_days=stream_dict["message_retention_days"],
+                miatsuco_allow_email_posting=stream_dict["miatsuco_allow_email_posting"],
                 miatsuco_allow_user_email_posting=stream_dict["miatsuco_allow_user_email_posting"],
                 miatsuco_retain_topics=stream_dict["miatsuco_retain_topics"],
                 name=stream_dict["name"],
@@ -1743,6 +1747,8 @@ def do_set_stream_property(stream: Stream, name: str, value: Any, acting_user: U
 
     if name == "miatsuco_allow_user_email_posting" and not value:
         delete_personal_channel_email_addresses(stream)
+    if name == "miatsuco_allow_email_posting" and not value:
+        delete_bot_channel_email_addresses(stream)
 
     event = dict(
         op="update",

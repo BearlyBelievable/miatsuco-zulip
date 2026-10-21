@@ -778,10 +778,6 @@
     opacity: 0.7;
 }
 
-#sender_channel_email_address_widget {
-    width: 12.875em; /* 206px at 16px/em */
-}
-
 .modal_select {
     width: var(--modal-input-width);
     padding: 4px 25px 4px 6px;

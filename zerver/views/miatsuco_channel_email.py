@@ -9,7 +9,18 @@ from zerver.lib.response import json_success
 from zerver.lib.streams import access_stream_by_id
 from zerver.lib.timestamp import datetime_to_timestamp
 from zerver.lib.typed_endpoint import PathOnly, typed_endpoint
-from zerver.models import ChannelEmailAddress, UserProfile
+from zerver.models import ChannelEmailAddress, Stream, UserProfile
+
+
+def get_listed_email(
+    stream: Stream, channel_email_address: ChannelEmailAddress, user_profile: UserProfile
+) -> str | None:
+    is_personal = is_personal_channel_email_address(channel_email_address)
+    if is_personal and channel_email_address.creator_id != user_profile.id:
+        return None
+    return encode_email_address(
+        stream.name, channel_email_address.email_token, show_sender=not is_personal
+    )
 
 
 @typed_endpoint
@@ -30,13 +41,7 @@ def get_channel_email_addresses(
             "email_addresses": [
                 {
                     "id": channel_email_address.id,
-                    "email": encode_email_address(
-                        stream.name,
-                        channel_email_address.email_token,
-                        show_sender=not is_personal_channel_email_address(channel_email_address),
-                    )
-                    if channel_email_address.creator_id == user_profile.id
-                    else None,
+                    "email": get_listed_email(stream, channel_email_address, user_profile),
                     "creator_id": channel_email_address.creator_id,
                     "sender_id": channel_email_address.sender_id,
                     "is_personal": is_personal_channel_email_address(channel_email_address),
