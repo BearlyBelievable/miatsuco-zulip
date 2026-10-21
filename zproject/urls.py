@@ -87,6 +87,10 @@ from zerver.views.message_flags import (
 from zerver.views.message_report import report_message_backend
 from zerver.views.message_send import render_message_backend, send_message_backend, zcommand_backend
 from zerver.views.message_summary import get_messages_summary
+from zerver.views.miatsuco_channel_email import (
+    delete_channel_email_address,
+    get_channel_email_addresses,
+)
 from zerver.views.muted_users import mute_user, unmute_user
 from zerver.views.navigation_views import (
     add_navigation_view,
@@ -581,6 +585,14 @@ v1_api_and_json_patterns = [
         DELETE=deactivate_stream_backend,
     ),
     rest_path("streams/<int:stream_id>/email_address", GET=get_stream_email_address),
+    rest_path(
+        "streams/<int:stream_id>/email_addresses",
+        GET=(get_channel_email_addresses, {"intentionally_undocumented"}),
+    ),
+    rest_path(
+        "streams/<int:stream_id>/email_addresses/<int:email_address_id>",
+        DELETE=(delete_channel_email_address, {"intentionally_undocumented"}),
+    ),
     # Delete topic in stream
     rest_path("streams/<int:stream_id>/delete_topic", POST=delete_in_topic),
     rest_path("default_streams", POST=add_default_stream, DELETE=remove_default_stream),

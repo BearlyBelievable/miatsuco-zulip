@@ -1,0 +1,30 @@
+{{#if has_addresses}}
+    {{#each email_addresses}}
+        <div class="miatsuco-email-address-row" data-email-address-id="{{id}}">
+            <div class="miatsuco-email-address-header">
+                <span class="miatsuco-email-address-sender">{{sender_name}}</span>
+                {{> ../components/action_button
+                  label=(t "Revoke")
+                  variant="subtle"
+                  intent="danger"
+                  custom_classes="miatsuco-revoke-email-address"
+                  }}
+            </div>
+            {{#if address}}
+                <div class="stream-email">
+                    <div class="email-address">{{address}}</div>
+                    <span class="copy-button tippy-zulip-tooltip copy-email-address" data-tippy-content="{{t 'Copy email address' }}">
+                        <i class="zulip-icon zulip-icon-copy"></i>
+                    </span>
+                </div>
+            {{/if}}
+            <div class="miatsuco-email-address-meta">
+                {{t "Created by {creator_name} on {created_date}." }}
+            </div>
+        </div>
+    {{/each}}
+{{else}}
+    <p class="miatsuco-email-addresses-empty">
+        {{t "No email addresses have been generated for this channel."}}
+    </p>
+{{/if}}
