@@ -12,6 +12,7 @@ from zerver.actions.streams import (
     do_change_stream_group_based_setting,
     do_change_stream_permission,
     do_deactivate_stream,
+    do_set_stream_property,
 )
 from zerver.lib.email_mirror_helpers import encode_email_address, get_channel_email_token
 from zerver.lib.subscription_info import gather_subscriptions, gather_subscriptions_helper
@@ -458,6 +459,8 @@ class GetStreamsTest(ZulipTestCase):
         realm = get_realm("zulip")
         email_gateway_bot = get_system_bot(settings.EMAIL_GATEWAY_BOT, realm.id)
         denmark_stream = get_stream("Denmark", realm)
+        self.set_user_role(hamlet, UserProfile.ROLE_REALM_ADMINISTRATOR)
+        do_set_stream_property(denmark_stream, "miatsuco_allow_email_posting", True, iago)
         result = self.client_get(f"/json/streams/{denmark_stream.id}/email_address")
         json = self.assert_json_success(result)
         email_token = get_channel_email_token(
@@ -491,14 +494,9 @@ class GetStreamsTest(ZulipTestCase):
 
         self.subscribe(polonius, "Denmark")
         result = self.client_get(f"/json/streams/{denmark_stream.id}/email_address")
-        json = self.assert_json_success(result)
-        email_token = get_channel_email_token(
-            denmark_stream, creator=polonius, sender=email_gateway_bot
+        self.assert_json_error(
+            result, "Only channel administrators can use a channel email address."
         )
-        polonius_denmark_email = encode_email_address(
-            denmark_stream.name, email_token, show_sender=True
-        )
-        self.assertEqual(json["email"], polonius_denmark_email)
 
         do_change_stream_permission(
             denmark_stream,

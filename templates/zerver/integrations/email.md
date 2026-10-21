@@ -18,7 +18,7 @@ setup is complete.
    use an existing one.
 
 1. [Generate an email
-   address](/help/message-a-channel-by-email#message-a-channel-by-email_1) for
+   address](/help/message-a-channel-by-email#generate-or-revoke-a-bot-address) for
    the channel you created.
 
 1. Add the email address for the channel to the mailing list.

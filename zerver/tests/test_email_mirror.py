@@ -20,8 +20,14 @@ from django.core.mail.backends.locmem import EmailBackend
 from django.test import override_settings
 from django.utils.timezone import now as timezone_now
 
+from zerver.actions.create_user import do_reactivate_user
 from zerver.actions.realm_settings import do_deactivate_realm
-from zerver.actions.streams import do_change_stream_group_based_setting, do_deactivate_stream
+from zerver.actions.streams import (
+    do_change_stream_group_based_setting,
+    do_deactivate_stream,
+    do_set_stream_property,
+)
+from zerver.actions.user_groups import check_add_user_group
 from zerver.actions.users import do_deactivate_user
 from zerver.lib.email_mirror import (
     RateLimitedRealmMirror,
@@ -56,7 +62,7 @@ from zerver.lib.test_miatsuco import (
     MiatsucoChannelEmailAddressTestMixin,
     MiatsucoChannelEmailTestMixin,
 )
-from zerver.models import Attachment, Recipient, Stream, UserProfile
+from zerver.models import Attachment, ChannelEmailAddress, Recipient, Stream, UserProfile
 from zerver.models.constants import MAX_TOPIC_NAME_LENGTH
 from zerver.models.groups import NamedUserGroup, SystemGroups
 from zerver.models.messages import Message
@@ -684,6 +690,7 @@ class TestChannelEmailMessagesPermissions(MiatsucoChannelEmailTestMixin):
         hamlet = self.example_user("hamlet")
         realm = get_realm("zulip")
         channel = get_stream("Denmark", realm)
+        self.set_user_role(hamlet, UserProfile.ROLE_REALM_ADMINISTRATOR)
         self.login("hamlet")
 
         # Sender is the current user itself.
@@ -718,7 +725,7 @@ class TestChannelEmailMessagesPermissions(MiatsucoChannelEmailTestMixin):
         realm = get_realm("zulip")
         channel = get_stream("Denmark", realm)
 
-        self.set_user_role(hamlet, UserProfile.ROLE_MODERATOR)
+        self.set_user_role(hamlet, UserProfile.ROLE_REALM_ADMINISTRATOR)
         moderators_group = NamedUserGroup.objects.get(
             name=SystemGroups.MODERATORS, realm_for_sharding=realm, is_system_group=True
         )
@@ -796,6 +803,12 @@ class TestChannelEmailMessagesPermissions(MiatsucoChannelEmailTestMixin):
         )
         do_change_stream_group_based_setting(
             channel, "can_send_message_group", admins_group, acting_user=hamlet
+        )
+        channel_admins_group = check_add_user_group(
+            realm, "channel admins", [hamlet], acting_user=hamlet
+        )
+        do_change_stream_group_based_setting(
+            channel, "can_administer_channel_group", channel_admins_group, acting_user=hamlet
         )
 
         # Sender is the current user itself.
@@ -2483,6 +2496,9 @@ class TestEmailMirrorServer(MiatsucoChannelEmailTestMixin):
         stream = await sync_to_async(lambda: ensure_stream(realm, stream_name, acting_user=None))()
         await sync_to_async(self.enable_channel_email_posting)()
         hamlet = await sync_to_async(lambda: self.example_user("hamlet"))()
+        await sync_to_async(
+            lambda: self.set_user_role(hamlet, UserProfile.ROLE_REALM_ADMINISTRATOR)
+        )()
         email_gateway_bot = await sync_to_async(
             lambda: get_system_bot(settings.EMAIL_GATEWAY_BOT, realm.id)
         )()
@@ -2574,15 +2590,29 @@ class TestEmailMirrorServer(MiatsucoChannelEmailTestMixin):
 
 
 class TestChannelEmailAddressDelivery(MiatsucoChannelEmailAddressTestMixin):
-    def test_delivery_requires_the_setting(self) -> None:
+    def test_delivery_requires_the_settings(self) -> None:
+        bot = self.encoded(self.create_row(self.iago, self.gateway_bot))
         personal = self.encoded(self.create_row(self.hamlet, self.hamlet))
+        orphan = ChannelEmailAddress.objects.create(
+            realm=self.realm, channel=self.channel, creator=None, sender=self.gateway_bot
+        )
+        self.assertEqual(
+            self.deliver(bot),
+            self.delivery_log("Posting by email is not enabled for this channel."),
+        )
         self.assertEqual(
             self.deliver(personal),
             self.delivery_log("Messaging this channel by email is not enabled."),
         )
+        self.assertEqual(
+            self.deliver(self.encoded(orphan)),
+            self.delivery_log("Posting by email is not enabled for this channel."),
+        )
 
         self.enable()
-        self.assertEqual(self.deliver(personal), self.delivery_log(None))
+        for address in [self.encoded(orphan), bot, personal]:
+            self.assertEqual(self.deliver(address), self.delivery_log(None))
+        self.assertEqual(self.get_last_message().sender_id, self.hamlet.id)
 
     def test_personal_delivery_ignores_the_address_options(self) -> None:
         self.enable()
@@ -2602,10 +2632,54 @@ class TestChannelEmailAddressDelivery(MiatsucoChannelEmailAddressTestMixin):
             self.assertNotIn("**From:**", content)
             self.assertNotIn("quoted text", content)
 
-        gateway_address = self.encoded(self.create_row(self.iago, self.gateway_bot)).replace(
-            "@", ".show-sender.include-quotes@"
-        )
-        self.assertEqual(self.deliver(gateway_address, body=body), self.delivery_log(None))
+        bot_address = self.bot_address(self.iago).replace("@", ".show-sender.include-quotes@")
+        self.assertEqual(self.deliver(bot_address, body=body), self.delivery_log(None))
         content = self.get_last_message().content
         self.assertIn("**From:**", content)
         self.assertIn("quoted text", content)
+
+    def test_addresses_are_revoked_when_no_longer_valid(self) -> None:
+        self.enable()
+        self.set_user_role(self.cordelia, UserProfile.ROLE_REALM_ADMINISTRATOR)
+        hamlet_personal = self.personal_address(self.hamlet)
+        iago_personal = self.personal_address(self.iago)
+        iago_bot = self.bot_address(self.iago)
+        cordelia_bot = self.bot_address(self.cordelia)
+        orphan = ChannelEmailAddress.objects.create(
+            realm=self.realm, channel=self.channel, creator=None, sender=self.gateway_bot
+        )
+
+        self.set_user_role(self.iago, UserProfile.ROLE_MEMBER)
+        self.assert_revoked(iago_bot)
+        self.assertEqual(self.deliver(iago_personal), self.delivery_log(None))
+
+        do_deactivate_user(self.iago, acting_user=None)
+        self.assert_revoked(iago_personal)
+        self.assertEqual(self.deliver(hamlet_personal), self.delivery_log(None))
+        do_reactivate_user(self.iago, acting_user=None)
+        self.assert_revoked(iago_personal)
+
+        do_set_stream_property(
+            self.channel, "miatsuco_allow_user_email_posting", False, self.cordelia
+        )
+        self.assert_revoked(hamlet_personal)
+        self.assertEqual(self.deliver(cordelia_bot), self.delivery_log(None))
+        do_set_stream_property(self.channel, "miatsuco_allow_email_posting", False, self.cordelia)
+        self.assert_revoked(cordelia_bot)
+        self.assertFalse(ChannelEmailAddress.objects.filter(channel=self.channel).exists())
+        self.assertFalse(ChannelEmailAddress.objects.filter(id=orphan.id).exists())
+
+        self.enable()
+        self.assert_revoked(hamlet_personal)
+
+    def test_bot_addresses_need_a_creator_who_administers_the_channel(self) -> None:
+        self.enable()
+        self.make_channel_administrator(self.hamlet)
+        address = self.bot_address(self.hamlet)
+        self.assertEqual(self.deliver(address), self.delivery_log(None))
+
+        self.make_channel_administrator(self.cordelia)
+        self.assertEqual(
+            self.deliver(address),
+            self.delivery_log("Only channel administrators can use a channel email address."),
+        )

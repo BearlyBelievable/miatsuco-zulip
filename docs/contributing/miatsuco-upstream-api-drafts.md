@@ -247,6 +247,8 @@ Restore alongside `api_docs/include/rest-endpoints.md`'s sidebar entries and
 `zerver/openapi/curl_param_value_generators.py`'s owner-auth example
 generator for the `PATCH` endpoint.
 
+## Channel email addresses
+
 Draft documentation for `zerver/views/miatsuco_channel_email.py`.
 
 ```yaml
@@ -259,7 +261,8 @@ Draft documentation for `zerver/views/miatsuco_channel_email.py`.
       Get the email addresses generated for a channel. Users receive the
       addresses they generated, including their personal address.
       Organization administrators also receive the addresses that other
-      users generated, but the `email` of another user's address is `null`.
+      users generated, but the `email` of another user's personal address is
+      `null`.
 
       Works whether or not the channel currently allows messaging by email.
       Specific to the MiAtSu.Co fork.
@@ -297,8 +300,8 @@ Draft documentation for `zerver/views/miatsuco_channel_email.py`.
                             nullable: true
                             description: |
                               The email address, or `null` for another user's
-                              address. Addresses that post as a bot include the
-                              `show-sender` option.
+                              personal address. Addresses that post as a bot
+                              include the `show-sender` option.
                           creator_id:
                             type: integer
                             nullable: true

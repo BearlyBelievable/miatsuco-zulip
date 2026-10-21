@@ -64,28 +64,30 @@
                       setting_name="miatsuco_allow_user_email_posting"
                       is_checked=sub.miatsuco_allow_user_email_posting
                       label=(t "Allow users to message this channel by email")
-                      help_link="/help/message-a-channel-by-email#allow-users-to-message-a-channel-by-email"
+                      help_link="/help/message-a-channel-by-email#allow-email-addresses"
                       }}
                 </div>
 
-            </div>
-
-            <div class="subsection-parent stream-email-box">
-                <div class="input-group">
-                    <label class="settings-field-label">
-                        {{t "Email address" }}
-                        {{> ../help_link_widget link="/help/message-a-channel-by-email" }}
-                    </label>
-                    {{> channel_email_address tags=email_address_tags}}
+                <div class="miatsuco-allow-email-posting">
+                    {{> ../settings/settings_checkbox
+                      prefix="id_"
+                      setting_name="miatsuco_allow_email_posting"
+                      is_checked=sub.miatsuco_allow_email_posting
+                      label=(t "Allow administrators to generate bot email addresses")
+                      help_link="/help/message-a-channel-by-email#allow-email-addresses"
+                      }}
                 </div>
-            </div>
 
-            <div class="subsection-parent miatsuco-email-addresses-box">
-                <div class="input-group">
+                <div class="input-group stream-general-settings-warning-banner"></div>
+
+                <div class="input-group miatsuco-email-addresses-box">
                     <label class="settings-field-label">
                         {{t "Channel email addresses" }}
-                        {{> ../help_link_widget link="/help/message-a-channel-by-email#view-and-revoke-email-addresses" }}
+                        {{> ../help_link_widget link="/help/message-a-channel-by-email#generate-or-revoke-a-bot-address" }}
                     </label>
+                    <p class="miatsuco-email-addresses-hint">
+                        {{t "Send an email to one of these generated email addresses to post in this channel, using the email subject as the topic." }}
+                    </p>
                     <div class="miatsuco-email-addresses-list"></div>
                 </div>
             </div>
@@ -120,7 +122,7 @@
                 <div class="input-group">
                     <label class="settings-field-label">
                         {{t "Message this channel by email" }}
-                        {{> ../help_link_widget link="/help/message-a-channel-by-email#personal-email-addresses" }}
+                        {{> ../help_link_widget link="/help/message-a-channel-by-email#generate-a-personal-email-address" }}
                     </label>
                     <p class="miatsuco-email-addresses-hint">
                         {{t "Send an email to your generated email address to post in this channel as you, using the email subject as the topic." }}

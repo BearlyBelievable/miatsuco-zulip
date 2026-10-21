@@ -578,7 +578,8 @@
 }
 
 #subscription_overlay .miatsuco-retain-topics,
-#subscription_overlay .miatsuco-allow-user-email-posting {
+#subscription_overlay .miatsuco-allow-user-email-posting,
+#subscription_overlay .miatsuco-allow-email-posting {
     width: fit-content;
 
     .inline {
@@ -601,12 +602,6 @@
     display: inline-block;
 }
 
-.miatsuco-email-addresses-hint {
-    margin: 0 0 0.75em;
-    font-size: 0.9em;
-    opacity: 0.8;
-}
-
 .sidebar-topic-pin {
     grid-area: starting-anchor-element;
     place-self: center end;
@@ -627,6 +622,12 @@
     }
 }
 
+.miatsuco-email-addresses-hint {
+    margin: 0 0 0.75em;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
 .miatsuco-email-addresses-empty {
     margin: 0;
     font-size: 0.9em;
@@ -641,6 +642,16 @@
     padding: 0.75em;
     border: 1px solid var(--color-border-modal-bar);
     border-radius: 0.25em;
+
+    &.miatsuco-email-address-slot {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75em;
+
+        .miatsuco-email-address-meta {
+            margin-right: auto;
+        }
+    }
 
     .miatsuco-email-address-header {
         display: flex;
@@ -658,4 +669,40 @@
         font-size: 0.85em;
         opacity: 0.7;
     }
+
+    .miatsuco-email-address-options summary {
+        cursor: pointer;
+        font-size: 0.85em;
+    }
+
+    .miatsuco-email-address-option-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25em 1.5em;
+        margin-top: 0.5em;
+    }
+
+    .question-which-parts {
+        flex: 0 0 100%;
+        margin: 0;
+        padding-bottom: 0;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+
+    .input-group {
+        display: flex;
+        align-items: center;
+        margin: 0;
+
+        .inline {
+            display: inline;
+        }
+    }
+}
+
+.miatsuco-email-addresses-group-title {
+    margin: 1em 0 0.5em;
+    font-size: 0.85em;
+    font-weight: 600;
 }

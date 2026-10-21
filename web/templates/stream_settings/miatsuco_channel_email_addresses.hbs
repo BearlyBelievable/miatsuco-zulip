@@ -1,28 +1,33 @@
 {{#if has_addresses}}
-    {{#each email_addresses}}
-        <div class="miatsuco-email-address-row" data-email-address-id="{{id}}">
-            <div class="miatsuco-email-address-header">
-                <span class="miatsuco-email-address-sender">{{sender_name}}</span>
-                {{> ../components/action_button
-                  label=(t "Revoke")
-                  variant="subtle"
-                  intent="danger"
-                  custom_classes="miatsuco-revoke-email-address"
-                  }}
-            </div>
-            {{#if address}}
-                <div class="stream-email">
-                    <div class="email-address">{{address}}</div>
-                    <span class="copy-button tippy-zulip-tooltip copy-email-address" data-tippy-content="{{t 'Copy email address' }}">
-                        <i class="zulip-icon zulip-icon-copy"></i>
-                    </span>
+    {{#if has_bot_addresses}}
+        <div class="miatsuco-email-addresses-group-title">{{t "Email Gateway and bot addresses" }}</div>
+        {{#each slots}}
+            {{#if is_empty}}
+                <div class="miatsuco-email-address-row miatsuco-email-address-slot" data-sender-id="{{sender_id}}">
+                    <span class="miatsuco-email-address-sender">{{sender_name}}</span>
+                    <span class="miatsuco-email-address-meta">{{t "No address yet" }}</span>
+                    {{> ../components/action_button
+                      label=(t "Generate email address")
+                      variant="subtle"
+                      intent="neutral"
+                      type="button"
+                      custom_classes="miatsuco-generate-email-address"
+                      }}
                 </div>
+            {{else}}
+                {{> channel_email_address .}}
             {{/if}}
-            <div class="miatsuco-email-address-meta">
-                {{t "Created by {creator_name} on {created_date}." }}
-            </div>
-        </div>
-    {{/each}}
+        {{/each}}
+        {{#each others}}
+            {{> channel_email_address .}}
+        {{/each}}
+    {{/if}}
+    {{#if has_personal_addresses}}
+        <div class="miatsuco-email-addresses-group-title">{{t "Personal addresses" }}</div>
+        {{#each personal}}
+            {{> channel_email_address .}}
+        {{/each}}
+    {{/if}}
 {{else}}
     <p class="miatsuco-email-addresses-empty">
         {{t "No email addresses have been generated for this channel."}}

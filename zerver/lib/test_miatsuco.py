@@ -20,7 +20,8 @@ from typing_extensions import override
 
 from zerver.actions.create_user import do_create_user
 from zerver.actions.realm_settings import do_change_realm_permission_group_setting
-from zerver.actions.streams import do_set_stream_property
+from zerver.actions.streams import do_change_stream_group_based_setting, do_set_stream_property
+from zerver.actions.user_groups import check_add_user_group
 from zerver.lib.email_mirror import process_message
 from zerver.lib.email_mirror_helpers import encode_email_address, get_channel_email_token
 from zerver.lib.test_classes import ZulipTestCase
@@ -177,7 +178,9 @@ class MiatsucoChannelEmailTestMixin(ZulipTestCase):
         self.enable_channel_email_posting()
 
     def enable_channel_email_posting(self) -> None:
-        Stream.objects.all().update(miatsuco_allow_user_email_posting=True)
+        Stream.objects.all().update(
+            miatsuco_allow_email_posting=True, miatsuco_allow_user_email_posting=True
+        )
 
 
 LOGGER_NAME = "zerver.lib.email_mirror"
@@ -195,8 +198,18 @@ class MiatsucoChannelEmailAddressTestMixin(ZulipTestCase):
         self.cordelia = self.example_user("cordelia")
         self.gateway_bot = get_system_bot("emailgateway@zulip.com", self.realm.id)
 
-    def enable(self) -> None:
+    def enable(self, *, bot: bool = True) -> None:
         do_set_stream_property(self.channel, "miatsuco_allow_user_email_posting", True, self.iago)
+        if bot:
+            do_set_stream_property(self.channel, "miatsuco_allow_email_posting", True, self.iago)
+
+    def make_channel_administrator(self, user: UserProfile) -> None:
+        group = check_add_user_group(
+            self.realm, f"channel admins {user.id}", [user], acting_user=self.iago
+        )
+        do_change_stream_group_based_setting(
+            self.channel, "can_administer_channel_group", group, acting_user=self.iago
+        )
 
     def create_row(
         self, creator: UserProfile, sender: UserProfile, channel_name: str = "Denmark"
@@ -210,6 +223,10 @@ class MiatsucoChannelEmailAddressTestMixin(ZulipTestCase):
 
     def encoded(self, row: ChannelEmailAddress, *, show_sender: bool = False) -> str:
         return encode_email_address(self.channel.name, row.email_token, show_sender=show_sender)
+
+    def bot_address(self, creator: UserProfile) -> str:
+        token = get_channel_email_token(self.channel, creator=creator, sender=self.gateway_bot)
+        return encode_email_address(self.channel.name, token)
 
     def personal_address(self, user: UserProfile) -> str:
         token = get_channel_email_token(self.channel, creator=user, sender=user)
@@ -239,6 +256,9 @@ class MiatsucoChannelEmailAddressTestMixin(ZulipTestCase):
         with self.assertLogs(LOGGER_NAME, level="INFO") as logs:
             process_message(email_message)
         return logs.output
+
+    def assert_revoked(self, address: str) -> None:
+        self.assertTrue(any("Bad stream token" in line for line in self.deliver(address)))
 
     def delivery_log(self, error: str | None) -> list[str]:
         prefix = f"INFO:{LOGGER_NAME}:"

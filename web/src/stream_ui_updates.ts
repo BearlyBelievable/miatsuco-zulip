@@ -261,17 +261,18 @@ export function update_channel_email_section(sub: StreamSubscription): void {
     if (!hash_parser.is_editing_stream(sub.stream_id)) {
         return;
     }
-    const $settings = $(
-        `.subscription_settings[data-stream-id='${CSS.escape(sub.stream_id.toString())}']`,
-    );
-    if (stream_data.can_post_messages_in_stream(sub)) {
-        $settings.find(".stream-email-box").show();
+    const $settings = stream_settings_containers.get_edit_container(sub);
+    if (stream_data.can_administer_channel(sub)) {
+        $settings.find(".miatsuco-allow-email-posting, .miatsuco-allow-user-email-posting").show();
     } else {
-        $settings.find(".stream-email-box").hide();
+        $settings.find(".miatsuco-allow-email-posting, .miatsuco-allow-user-email-posting").hide();
     }
-    $settings
-        .find(".miatsuco-allow-user-email-posting")
-        .toggle(stream_data.can_administer_channel(sub));
+    settings_components.save_discard_stream_settings_widget_status_handler(
+        $settings
+            .find(".stream-general-settings-warning-banner")
+            .closest(".settings-subsection-parent"),
+        sub,
+    );
     miatsuco_channel_email_addresses.refresh(sub);
 }
 

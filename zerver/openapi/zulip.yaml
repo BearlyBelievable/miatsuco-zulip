@@ -19361,6 +19361,7 @@ paths:
                                     guest users are forbidden to know the subscribers.
 
                                     **Changes**: New in Zulip 11.0 (feature level 412).
+                                miatsuco_allow_email_posting: {}
                                 miatsuco_allow_user_email_posting: {}
                                 miatsuco_retain_topics: {}
 
@@ -24587,6 +24588,7 @@ paths:
                                     [default channel](/help/set-default-channels-for-new-users).
 
                                     [include_default]: /api/get-streams#parameter-include_default
+                                miatsuco_allow_email_posting: {}
                                 miatsuco_allow_user_email_posting: {}
                                 miatsuco_retain_topics: {}
                               required:
@@ -25206,6 +25208,16 @@ paths:
                           "old": 15,
                         }
                     - $ref: "#/components/schemas/GroupSettingValueUpdate"
+                miatsuco_allow_email_posting:
+                  description: |
+                    Whether [messaging the channel by email](/help/message-a-channel-by-email)
+                    is enabled for this channel. Channel email addresses can be generated
+                    and used only when this is enabled. Requires permission to administer
+                    the channel. Specific to the MiAtSu.Co fork.
+
+                    **Changes**: New in Miatsuco 1.0 (feature level 5).
+                  type: boolean
+                  example: true
                 miatsuco_allow_user_email_posting:
                   description: |
                     Whether any user who can post messages in this channel can generate a
@@ -27827,6 +27839,7 @@ components:
 
                 **Changes**: New in Zulip 8.0 (feature level 199). Previously, this
                 statistic was available only in subscription objects.
+            miatsuco_allow_email_posting: {}
             miatsuco_allow_user_email_posting: {}
             miatsuco_retain_topics: {}
           required:
@@ -28047,6 +28060,14 @@ components:
             server.
 
             **Changes**: New in Zulip 11.0 (feature level 394).
+        miatsuco_allow_email_posting:
+          type: boolean
+          description: |
+            Whether [messaging the channel by email](/help/message-a-channel-by-email)
+            is enabled for this channel. Channel email addresses can be generated
+            and used only when this is enabled. Specific to the MiAtSu.Co fork.
+
+            **Changes**: New in Miatsuco 1.0 (feature level 5).
         miatsuco_allow_user_email_posting:
           type: boolean
           description: |
@@ -29226,6 +29247,14 @@ components:
             server.
 
             **Changes**: New in Zulip 11.0 (feature level 394).
+        miatsuco_allow_email_posting:
+          type: boolean
+          description: |
+            Whether [messaging the channel by email](/help/message-a-channel-by-email)
+            is enabled for this channel. Channel email addresses can be generated
+            and used only when this is enabled. Specific to the MiAtSu.Co fork.
+
+            **Changes**: New in Miatsuco 1.0 (feature level 5).
         miatsuco_allow_user_email_posting:
           type: boolean
           description: |

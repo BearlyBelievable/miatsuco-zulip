@@ -19,6 +19,7 @@ from typing_extensions import override
 
 from confirmation.models import Confirmation, generate_realm_creation_url
 from zerver.actions.create_user import do_create_user
+from zerver.actions.streams import do_set_stream_property
 from zerver.actions.user_settings import do_change_user_setting
 from zerver.lib.management import ZulipBaseCommand, skip_unless_locked
 from zerver.lib.test_classes import ZulipTestCase
@@ -435,11 +436,21 @@ class TestRealmReactivationEmail(ZulipTestCase):
 class TestSendToEmailMirror(ZulipTestCase):
     COMMAND_NAME = "send_to_email_mirror"
 
+    def allow_email_posting(self, stream_name: str) -> None:
+        realm = get_realm("zulip")
+        do_set_stream_property(
+            get_stream(stream_name, realm),
+            "miatsuco_allow_email_posting",
+            True,
+            self.example_user("iago"),
+        )
+
     def test_sending_a_fixture(self) -> None:
         fixture_path = "zerver/tests/fixtures/email/1.txt"
         user_profile = self.example_user("hamlet")
         self.login_user(user_profile)
         self.subscribe(user_profile, "Denmark")
+        self.allow_email_posting("Denmark")
 
         with self.assertLogs("zerver.lib.email_mirror", level="INFO") as info_log:
             call_command(self.COMMAND_NAME, f"--fixture={fixture_path}")
@@ -457,6 +468,7 @@ class TestSendToEmailMirror(ZulipTestCase):
         user_profile = self.example_user("hamlet")
         self.login_user(user_profile)
         self.subscribe(user_profile, "Denmark")
+        self.allow_email_posting("Denmark")
 
         with self.assertLogs("zerver.lib.email_mirror", level="INFO") as info_log:
             call_command(self.COMMAND_NAME, f"--fixture={fixture_path}")
@@ -474,6 +486,7 @@ class TestSendToEmailMirror(ZulipTestCase):
         user_profile = self.example_user("hamlet")
         self.login_user(user_profile)
         self.subscribe(user_profile, "Denmark2")
+        self.allow_email_posting("Denmark2")
 
         with self.assertLogs("zerver.lib.email_mirror", level="INFO") as info_log:
             call_command(self.COMMAND_NAME, f"--fixture={fixture_path}", "--stream=Denmark2")

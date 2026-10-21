@@ -19,6 +19,7 @@ from zerver.actions.reactions import do_add_reaction
 from zerver.actions.realm_domains import do_add_realm_domain
 from zerver.actions.realm_linkifiers import do_add_linkifier
 from zerver.actions.realm_playgrounds import check_add_realm_playground
+from zerver.actions.streams import do_set_stream_property
 from zerver.lib.bot_storage import set_bot_storage
 from zerver.lib.events import do_events_register
 from zerver.lib.initial_password import initial_password
@@ -28,6 +29,7 @@ from zerver.lib.upload import upload_message_attachment
 from zerver.models import Client, Message, NamedUserGroup, UserPresence
 from zerver.models.channel_folders import ChannelFolder
 from zerver.models.realms import get_realm
+from zerver.models.streams import get_stream
 from zerver.models.users import UserProfile, get_user
 from zerver.openapi.openapi import Parameter
 
@@ -176,6 +178,17 @@ def update_stream() -> dict[str, object]:
 @openapi_param_value_generator(["/streams/{stream_id}:delete"])
 def create_temp_stream_and_get_id() -> dict[str, object]:
     stream = helpers.subscribe(helpers.example_user("iago"), "temp_stream 2")
+    return {
+        "stream_id": stream.id,
+    }
+
+
+@openapi_param_value_generator(["/streams/{stream_id}/email_address:get"])
+def enable_channel_email_posting() -> dict[str, object]:
+    stream = get_stream("Denmark", get_realm("zulip"))
+    do_set_stream_property(
+        stream, "miatsuco_allow_email_posting", True, helpers.example_user("iago")
+    )
     return {
         "stream_id": stream.id,
     }

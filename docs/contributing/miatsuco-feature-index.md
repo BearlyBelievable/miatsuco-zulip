@@ -7,16 +7,16 @@ offers.
 
 ## Features
 
-| Feature                  | Code                                                                                      |
-| ------------------------ | ----------------------------------------------------------------------------------------- |
-| hide upload thumbnails   | `miatsuco_inline_upload_preview`                                                          |
-| personal hide previews   | `miatsuco_web_show_upload_thumbnails`, `miatsuco_collapsed_media`                         |
-| org DM restrictions      | `direct_message_self_authorize_group`                                                     |
-| personal DM restrictions | `miatsuco_restrict_dms_to_authorizers`, `miatsuco_dm_authorizer_display`                  |
-| email visibility policy  | `email_address_visibility_max`, `email_address_visibility_min`, `email_visibility_policy` |
-| retain topics            | `miatsuco_retain_topics`                                                                  |
-| pinned topic             | `miatsuco_pinned_topic`, `miatsuco_pinned_topic_name`                                     |
-| channel email posting    | `miatsuco_allow_user_email_posting`, `miatsuco_channel_email`                             |
+| Feature                  | Code                                                                                          |
+| ------------------------ | --------------------------------------------------------------------------------------------- |
+| hide upload thumbnails   | `miatsuco_inline_upload_preview`                                                              |
+| personal hide previews   | `miatsuco_web_show_upload_thumbnails`, `miatsuco_collapsed_media`                             |
+| org DM restrictions      | `direct_message_self_authorize_group`                                                         |
+| personal DM restrictions | `miatsuco_restrict_dms_to_authorizers`, `miatsuco_dm_authorizer_display`                      |
+| email visibility policy  | `email_address_visibility_max`, `email_address_visibility_min`, `email_visibility_policy`     |
+| retain topics            | `miatsuco_retain_topics`                                                                      |
+| pinned topic             | `miatsuco_pinned_topic`, `miatsuco_pinned_topic_name`                                         |
+| channel email posting    | `miatsuco_allow_email_posting`, `miatsuco_allow_user_email_posting`, `miatsuco_channel_email` |
 
 ## Improvements
 
