@@ -9,6 +9,7 @@ import render_stream_settings_tip from "../templates/stream_settings/stream_sett
 import * as channel_folders from "./channel_folders.ts";
 import * as hash_parser from "./hash_parser.ts";
 import {$t} from "./i18n.ts";
+import * as miatsuco_channel_email_addresses from "./miatsuco_channel_email_addresses.ts";
 import * as overlays from "./overlays.ts";
 import * as settings_banner from "./settings_banner.ts";
 import * as settings_components from "./settings_components.ts";
@@ -268,6 +269,7 @@ export function update_channel_email_section(sub: StreamSubscription): void {
     } else {
         $settings.find(".stream-email-box").hide();
     }
+    miatsuco_channel_email_addresses.refresh(sub);
 }
 
 export function update_default_stream_option_state($container: JQuery): void {

@@ -16,6 +16,7 @@ offers.
 | email visibility policy  | `email_address_visibility_max`, `email_address_visibility_min`, `email_visibility_policy` |
 | retain topics            | `miatsuco_retain_topics`                                                                  |
 | pinned topic             | `miatsuco_pinned_topic`, `miatsuco_pinned_topic_name`                                     |
+| channel email posting    | `miatsuco_channel_email`                                                                  |
 
 ## Improvements
 
@@ -37,10 +38,10 @@ works like upstream's feature level, so the [Zulip API
 changelog](https://zulip.com/api/changelog) explains how clients use it. Add a
 row here when you raise it.
 
-| Level | Change                                                         |
-| ----- | -------------------------------------------------------------- |
-| 1     | `miatsuco_version` and `miatsuco_feature_level` are advertised |
-| 2     | hide upload thumbnails and personal hide previews settings     |
-| 3     | org DM restrictions and personal DM restrictions settings      |
-| 4     | email visibility policy settings and endpoints                 |
-| 5     | more permission options, retain topics, and pinned topic       |
+| Level | Change                                                                          |
+| ----- | ------------------------------------------------------------------------------- |
+| 1     | `miatsuco_version` and `miatsuco_feature_level` are advertised                  |
+| 2     | hide upload thumbnails and personal hide previews settings                      |
+| 3     | org DM restrictions and personal DM restrictions settings                       |
+| 4     | email visibility policy settings and endpoints                                  |
+| 5     | more permission options, retain topics, pinned topic, and channel email posting |

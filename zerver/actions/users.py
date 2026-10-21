@@ -30,6 +30,7 @@ from zerver.lib.cache import bot_dict_fields, flush_user_profile
 from zerver.lib.create_user import create_user_profile
 from zerver.lib.event_types import BotServicesOutgoing
 from zerver.lib.invites import revoke_invites_generated_by_user
+from zerver.lib.miatsuco_channel_email import delete_user_channel_email_addresses
 from zerver.lib.remote_server import maybe_enqueue_audit_log_upload
 from zerver.lib.send_email import FromAddress, clear_scheduled_emails, send_email
 from zerver.lib.sessions import delete_user_sessions
@@ -504,6 +505,7 @@ def do_deactivate_user(
         change_user_is_active(user_profile, False)
 
         clear_scheduled_emails([user_profile.id])
+        delete_user_channel_email_addresses(user_profile)
         if deactivate_user_actions is not None:
             if deactivate_user_actions.delete_profile:
                 # The full name of spam user is changed to Deleted user.

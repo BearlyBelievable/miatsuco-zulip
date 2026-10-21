@@ -246,3 +246,108 @@ Draft documentation for `zerver/views/realm_email_visibility.py`.
 Restore alongside `api_docs/include/rest-endpoints.md`'s sidebar entries and
 `zerver/openapi/curl_param_value_generators.py`'s owner-auth example
 generator for the `PATCH` endpoint.
+
+Draft documentation for `zerver/views/miatsuco_channel_email.py`.
+
+```yaml
+/streams/{stream_id}/email_addresses:
+  get:
+    operationId: get-channel-email-addresses
+    summary: Get a channel's email addresses
+    tags: ["channels"]
+    description: |
+      Get the email addresses generated for a channel. Users receive the
+      addresses they generated. Organization administrators also receive the
+      addresses that other users generated, but the `email` of another
+      user's address is `null`. Specific to the MiAtSu.Co fork.
+
+      **Changes**: New in Miatsuco 1.0 (feature level 5).
+    parameters:
+      - $ref: "#/components/parameters/ChannelIdInPath"
+    responses:
+      "200":
+        description: Success.
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/JsonSuccessBase"
+                - additionalProperties: false
+                  properties:
+                    result: {}
+                    msg: {}
+                    ignored_parameters_unsupported: {}
+                    email_addresses:
+                      type: array
+                      description: |
+                        The channel's email addresses.
+                      items:
+                        type: object
+                        additionalProperties: false
+                        properties:
+                          id:
+                            type: integer
+                            description: |
+                              The ID of the email address.
+                          email:
+                            type: string
+                            nullable: true
+                            description: |
+                              The email address, or `null` for another user's
+                              address.
+                          creator_id:
+                            type: integer
+                            nullable: true
+                            description: |
+                              The ID of the user who generated the address.
+                          sender_id:
+                            type: integer
+                            description: |
+                              The ID of the user or bot that messages sent to
+                              the address appear to come from.
+                          date_created:
+                            type: integer
+                            description: |
+                              The UNIX timestamp for when the address was
+                              generated.
+                  example:
+                    {
+                      "result": "success",
+                      "msg": "",
+                      "email_addresses":
+                        [
+                          {
+                            "id": 7,
+                            "email": "general.1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d.show-sender@example.com",
+                            "creator_id": 10,
+                            "sender_id": 12,
+                            "date_created": 1792272142,
+                          },
+                        ],
+                    }
+/streams/{stream_id}/email_addresses/{email_address_id}:
+  delete:
+    operationId: delete-channel-email-address
+    summary: Revoke a channel email address
+    tags: ["channels"]
+    description: |
+      Revoke one of a channel's email addresses, so that messages sent to
+      it are no longer delivered. Users can revoke addresses they generated,
+      and organization administrators can revoke any address. Specific to
+      the MiAtSu.Co fork.
+
+      **Changes**: New in Miatsuco 1.0 (feature level 5).
+    parameters:
+      - $ref: "#/components/parameters/ChannelIdInPath"
+      - name: email_address_id
+        in: path
+        schema:
+          type: integer
+        example: 7
+        required: true
+        description: |
+          The ID of the email address to revoke.
+    responses:
+      "200":
+        $ref: "#/components/responses/SimpleSuccess"
+```

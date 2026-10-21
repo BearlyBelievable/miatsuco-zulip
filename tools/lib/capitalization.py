@@ -19,6 +19,7 @@ IGNORED_PHRASES = [
     r"Cookie Bot",
     r"DevAuthBackend",
     r"DSN",
+    r"Email Gateway",
     r"Esc",
     r"GCM",
     r"GitHub",

@@ -58,7 +58,26 @@ become the Zulip message.
 Note that it may take up to one minute for the message to show
 up in Zulip.
 
-## Configuration options
+## View and revoke email addresses
+
+<FlattenedSteps>
+  <NavigationSteps target="relative/channel/all" />
+
+  1. Select a channel.
+
+  <SelectChannelViewGeneral />
+
+  1. Under **Channel email addresses**, view the addresses generated for the
+     channel.
+  1. To revoke an address, click **Revoke** next to it.
+</FlattenedSteps>
+
+<ChannelSettingsNavbarTip />
+
+You see the addresses you generated. Organization administrators see every
+address generated for the channel and can revoke any of them, but only the
+person who generated an address can see the address itself. A user's addresses
+are also revoked when their account is deactivated.
 
 You can configure **who should be the sender of the Zulip messages** for the
 generated email address, with the following options:

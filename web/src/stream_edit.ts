@@ -24,6 +24,7 @@ import type {DropdownWidget} from "./dropdown_widget.ts";
 import * as dropdown_widget from "./dropdown_widget.ts";
 import {$t, $t_html} from "./i18n.ts";
 import * as keydown_util from "./keydown_util.ts";
+import * as miatsuco_channel_email_addresses from "./miatsuco_channel_email_addresses.ts";
 import * as narrow_state from "./narrow_state.ts";
 import type {User} from "./people.ts";
 import * as people from "./people.ts";
@@ -702,6 +703,7 @@ function set_up_stream_email_address(sub: StreamSubscription): void {
                 $(".channel-email-address .email-address").text(address);
                 $(".channel-email-address-result").removeClass("hide");
                 enable_tag_checkbox_change_handler();
+                miatsuco_channel_email_addresses.refresh(sub);
             },
             error(xhr) {
                 ui_report.error(
@@ -730,6 +732,8 @@ export function initialize(): void {
             show_check_icon: true,
         });
     });
+
+    miatsuco_channel_email_addresses.initialize();
 
     $("#main_div").on("click", ".stream_sub_unsub_button", (e) => {
         e.preventDefault();

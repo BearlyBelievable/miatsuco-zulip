@@ -604,3 +604,36 @@
         opacity: var(--opacity-left-sidebar-muted-hover);
     }
 }
+
+.miatsuco-email-addresses-empty {
+    margin: 0;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.miatsuco-email-address-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    margin-bottom: 0.75em;
+    padding: 0.75em;
+    border: 1px solid var(--color-border-modal-bar);
+    border-radius: 0.25em;
+
+    .miatsuco-email-address-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75em;
+    }
+
+    .miatsuco-email-address-sender {
+        font-weight: 600;
+    }
+
+    .miatsuco-email-address-meta {
+        font-size: 0.85em;
+        opacity: 0.7;
+    }
+}
