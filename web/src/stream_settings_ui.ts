@@ -245,6 +245,9 @@ export function update_stream_permission_group_setting(
     stream_data.update_stream_permission_group_setting(setting_name, sub, new_value);
     stream_ui_updates.update_setting_element(sub, setting_name);
     stream_edit_subscribers.rerender_subscribers_list(sub);
+    if (setting_name === "can_send_message_group") {
+        stream_ui_updates.update_channel_email_section(sub);
+    }
 }
 
 export function update_is_default_stream(): void {

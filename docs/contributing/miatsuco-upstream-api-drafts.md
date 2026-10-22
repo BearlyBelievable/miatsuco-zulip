@@ -257,9 +257,12 @@ Draft documentation for `zerver/views/miatsuco_channel_email.py`.
     tags: ["channels"]
     description: |
       Get the email addresses generated for a channel. Users receive the
-      addresses they generated. Organization administrators also receive the
-      addresses that other users generated, but the `email` of another
-      user's address is `null`. Specific to the MiAtSu.Co fork.
+      addresses they generated, including their personal address.
+      Organization administrators also receive the addresses that other
+      users generated, but the `email` of another user's address is `null`.
+
+      Works whether or not the channel currently allows messaging by email.
+      Specific to the MiAtSu.Co fork.
 
       **Changes**: New in Miatsuco 1.0 (feature level 5).
     parameters:
@@ -294,7 +297,8 @@ Draft documentation for `zerver/views/miatsuco_channel_email.py`.
                             nullable: true
                             description: |
                               The email address, or `null` for another user's
-                              address.
+                              address. Addresses that post as a bot include the
+                              `show-sender` option.
                           creator_id:
                             type: integer
                             nullable: true
@@ -305,6 +309,11 @@ Draft documentation for `zerver/views/miatsuco_channel_email.py`.
                             description: |
                               The ID of the user or bot that messages sent to
                               the address appear to come from.
+                          is_personal:
+                            type: boolean
+                            description: |
+                              Whether this is a personal address, which posts
+                              as the user who generated it.
                           date_created:
                             type: integer
                             description: |
@@ -318,9 +327,10 @@ Draft documentation for `zerver/views/miatsuco_channel_email.py`.
                         [
                           {
                             "id": 7,
-                            "email": "general.1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d.show-sender@example.com",
+                            "email": "general.1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d@example.com",
                             "creator_id": 10,
                             "sender_id": 12,
+                            "is_personal": false,
                             "date_created": 1792272142,
                           },
                         ],

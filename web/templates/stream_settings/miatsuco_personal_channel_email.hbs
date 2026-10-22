@@ -1,0 +1,27 @@
+{{#if has_address}}
+    <div class="miatsuco-personal-email" data-email-address-id="{{address_id}}">
+        <div class="stream-email">
+            <div class="email-address">{{address}}</div>
+            <span class="copy-button tippy-zulip-tooltip copy-email-address" data-tippy-content="{{t 'Copy email address' }}">
+                <i class="zulip-icon zulip-icon-copy"></i>
+            </span>
+        </div>
+        {{> ../components/action_button
+          label=(t "Revoke")
+          variant="subtle"
+          intent="danger"
+          custom_classes="miatsuco-revoke-email-address"
+          }}
+    </div>
+{{else}}
+    <span class="miatsuco-generate-personal-email-wrapper {{#unless can_generate}}tippy-zulip-tooltip{{/unless}}" {{#unless can_generate}}data-tippy-content="{{#if is_enabled}}{{t 'You do not have permission to post in this channel.' }}{{else}}{{t 'Messaging this channel by email is not enabled.' }}{{/if}}"{{/unless}}>
+        {{> ../components/action_button
+          label=(t "Generate email address")
+          variant="subtle"
+          intent="neutral"
+          type="button"
+          disabled=(not can_generate)
+          custom_classes="miatsuco-generate-email-address"
+          }}
+    </span>
+{{/if}}

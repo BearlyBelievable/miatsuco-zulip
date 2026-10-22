@@ -192,6 +192,7 @@ class RawStreamDict(TypedDict):
     invite_only: bool
     is_web_public: bool
     message_retention_days: int | None
+    miatsuco_allow_user_email_posting: bool
     miatsuco_retain_topics: bool
     name: str
     rendered_description: str
@@ -254,6 +255,7 @@ class SubscriptionStreamDict(TypedDict):
     is_muted: bool
     is_web_public: bool
     message_retention_days: int | None
+    miatsuco_allow_user_email_posting: bool
     miatsuco_retain_topics: bool
     name: str
     pin_to_top: bool
@@ -294,6 +296,7 @@ class NeverSubscribedStreamDict(TypedDict):
     is_announcement_only: bool
     is_web_public: bool
     message_retention_days: int | None
+    miatsuco_allow_user_email_posting: bool
     miatsuco_retain_topics: bool
     name: str
     rendered_description: str
@@ -335,6 +338,7 @@ class DefaultStreamDict(TypedDict):
     invite_only: bool
     is_web_public: bool
     message_retention_days: int | None
+    miatsuco_allow_user_email_posting: bool
     miatsuco_retain_topics: bool
     name: str
     rendered_description: str

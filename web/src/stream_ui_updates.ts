@@ -269,6 +269,9 @@ export function update_channel_email_section(sub: StreamSubscription): void {
     } else {
         $settings.find(".stream-email-box").hide();
     }
+    $settings
+        .find(".miatsuco-allow-user-email-posting")
+        .toggle(stream_data.can_administer_channel(sub));
     miatsuco_channel_email_addresses.refresh(sub);
 }
 

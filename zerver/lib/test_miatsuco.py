@@ -12,6 +12,7 @@
 # can be removed so the helpers are held to real coverage through their
 # callers.
 import re
+from email.message import EmailMessage
 from typing import TYPE_CHECKING
 
 import orjson
@@ -19,11 +20,15 @@ from typing_extensions import override
 
 from zerver.actions.create_user import do_create_user
 from zerver.actions.realm_settings import do_change_realm_permission_group_setting
+from zerver.actions.streams import do_set_stream_property
+from zerver.lib.email_mirror import process_message
+from zerver.lib.email_mirror_helpers import encode_email_address, get_channel_email_token
 from zerver.lib.test_classes import ZulipTestCase
 from zerver.lib.upload import upload_message_attachment
-from zerver.models import Message, NamedUserGroup, UserProfile
+from zerver.models import ChannelEmailAddress, Message, NamedUserGroup, Stream, UserProfile
 from zerver.models.realms import get_realm
 from zerver.models.streams import get_stream
+from zerver.models.users import get_system_bot
 
 if TYPE_CHECKING:
     from django.test.client import _MonkeyPatchedWSGIResponse as TestHttpResponse
@@ -163,3 +168,81 @@ class MiatsucoPinnedTopicTestMixin(ZulipTestCase):
                 realm_id=stream.realm_id, recipient_id=stream.recipient_id, is_channel_message=True
             )
         }
+
+
+class MiatsucoChannelEmailTestMixin(ZulipTestCase):
+    @override
+    def setUp(self) -> None:
+        super().setUp()
+        self.enable_channel_email_posting()
+
+    def enable_channel_email_posting(self) -> None:
+        Stream.objects.all().update(miatsuco_allow_user_email_posting=True)
+
+
+LOGGER_NAME = "zerver.lib.email_mirror"
+
+
+class MiatsucoChannelEmailAddressTestMixin(ZulipTestCase):
+    @override
+    def setUp(self) -> None:
+        super().setUp()
+        self.realm = get_realm("zulip")
+        self.channel = get_stream("Denmark", self.realm)
+        self.url = f"/json/streams/{self.channel.id}"
+        self.iago = self.example_user("iago")
+        self.hamlet = self.example_user("hamlet")
+        self.cordelia = self.example_user("cordelia")
+        self.gateway_bot = get_system_bot("emailgateway@zulip.com", self.realm.id)
+
+    def enable(self) -> None:
+        do_set_stream_property(self.channel, "miatsuco_allow_user_email_posting", True, self.iago)
+
+    def create_row(
+        self, creator: UserProfile, sender: UserProfile, channel_name: str = "Denmark"
+    ) -> ChannelEmailAddress:
+        return ChannelEmailAddress.objects.create(
+            realm=self.realm,
+            channel=get_stream(channel_name, self.realm),
+            creator=creator,
+            sender=sender,
+        )
+
+    def encoded(self, row: ChannelEmailAddress, *, show_sender: bool = False) -> str:
+        return encode_email_address(self.channel.name, row.email_token, show_sender=show_sender)
+
+    def personal_address(self, user: UserProfile) -> str:
+        token = get_channel_email_token(self.channel, creator=user, sender=user)
+        return encode_email_address(self.channel.name, token)
+
+    def generate(self, user: UserProfile, **params: int) -> "TestHttpResponse":
+        self.login_user(user)
+        return self.client_get(f"{self.url}/email_address", params)
+
+    def revoke(self, user: UserProfile, row: ChannelEmailAddress) -> "TestHttpResponse":
+        self.login_user(user)
+        return self.client_delete(f"{self.url}/email_addresses/{row.id}")
+
+    def list_addresses(self, user: UserProfile) -> list[dict[str, object]]:
+        self.login_user(user)
+        result = self.client_get(f"{self.url}/email_addresses")
+        return self.assert_json_success(result)["email_addresses"]
+
+    def deliver(
+        self, address: str, *, email_subject: str = "test subject", body: str = "message body"
+    ) -> list[str]:
+        email_message = EmailMessage()
+        email_message.set_content(body)
+        email_message["Subject"] = email_subject
+        email_message["From"] = "sender@example.com"
+        email_message["To"] = address
+        with self.assertLogs(LOGGER_NAME, level="INFO") as logs:
+            process_message(email_message)
+        return logs.output
+
+    def delivery_log(self, error: str | None) -> list[str]:
+        prefix = f"INFO:{LOGGER_NAME}:"
+        target = f"{self.channel.name} ({self.realm.string_id})"
+        if error is None:
+            return [f"{prefix}Successfully processed email to {target}"]
+        return [f"{prefix}Failed to process email to {target}: {error}"]

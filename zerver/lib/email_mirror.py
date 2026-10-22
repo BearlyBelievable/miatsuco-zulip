@@ -29,6 +29,10 @@ from zerver.lib.exceptions import JsonableError, RateLimitedError
 from zerver.lib.markdown import get_markdown_link_for_url
 from zerver.lib.markdown.from_html import convert_html_to_markdown
 from zerver.lib.message import normalize_body, truncate_content, truncate_topic
+from zerver.lib.miatsuco_channel_email import (
+    check_channel_user_email_allowed,
+    is_personal_channel_email_address,
+)
 from zerver.lib.rate_limiter import RateLimitedObject
 from zerver.lib.send_email import FromAddress
 from zerver.lib.streams import access_stream_for_send_message
@@ -441,11 +445,16 @@ def check_access_for_channel_email_address(channel_email_address: ChannelEmailAd
     # Raises JsonableError on permission denied
     access_stream_for_send_message(user_for_access_check, channel, forwarder_user_profile=None)
 
+    if is_personal_channel_email_address(channel_email_address):
+        check_channel_user_email_allowed(channel)
+
 
 def process_stream_message(to: str, message: EmailMessage) -> None:
     subject_header = message.get("Subject", "")
 
     channel_email_address, options = decode_stream_email_address(to)
+    if is_personal_channel_email_address(channel_email_address):
+        options = {"include_quotes": False}
     channel = channel_email_address.channel
     sender = channel_email_address.sender
     realm = channel_email_address.realm

@@ -577,12 +577,34 @@
     color: var(--color-gear-menu-lighter-text);
 }
 
-#subscription_overlay .miatsuco-retain-topics {
+#subscription_overlay .miatsuco-retain-topics,
+#subscription_overlay .miatsuco-allow-user-email-posting {
     width: fit-content;
 
     .inline {
         display: inline;
     }
+}
+
+.miatsuco-personal-email {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5em;
+
+    .stream-email {
+        align-self: stretch;
+    }
+}
+
+.miatsuco-generate-personal-email-wrapper {
+    display: inline-block;
+}
+
+.miatsuco-email-addresses-hint {
+    margin: 0 0 0.75em;
+    font-size: 0.9em;
+    opacity: 0.8;
 }
 
 .sidebar-topic-pin {

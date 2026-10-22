@@ -19361,6 +19361,7 @@ paths:
                                     guest users are forbidden to know the subscribers.
 
                                     **Changes**: New in Zulip 11.0 (feature level 412).
+                                miatsuco_allow_user_email_posting: {}
                                 miatsuco_retain_topics: {}
 
                         description: |
@@ -24586,6 +24587,7 @@ paths:
                                     [default channel](/help/set-default-channels-for-new-users).
 
                                     [include_default]: /api/get-streams#parameter-include_default
+                                miatsuco_allow_user_email_posting: {}
                                 miatsuco_retain_topics: {}
                               required:
                                 - stream_id
@@ -25204,6 +25206,16 @@ paths:
                           "old": 15,
                         }
                     - $ref: "#/components/schemas/GroupSettingValueUpdate"
+                miatsuco_allow_user_email_posting:
+                  description: |
+                    Whether any user who can post messages in this channel can generate a
+                    personal email address for it, which posts messages as that user. Requires
+                    permission to administer the channel to change. Specific to the MiAtSu.Co
+                    fork.
+
+                    **Changes**: New in Miatsuco 1.0 (feature level 5).
+                  type: boolean
+                  example: true
                 miatsuco_retain_topics:
                   description: |
                     Whether the [message retention policy](/help/message-retention-policy)
@@ -25298,7 +25310,16 @@ paths:
         Note that only users with permission to post messages in the channel
         can access the channel's email address.
 
-        **Changes**: Prior to Zulip 12.0 (feature level 448), users without
+        In the MiAtSu.Co fork, an email address that posts as the user
+        (`sender_id` equal to the user's ID) requires the channel to have
+        `miatsuco_allow_user_email_posting` enabled. Any other email address
+        requires `miatsuco_allow_email_posting` enabled, and only
+        organization administrators and channel administrators can access
+        it. A user has one such address for each sender, so requesting
+        one that already exists returns it.
+
+        **Changes**: In the MiAtSu.Co fork, new in Miatsuco 1.0 (feature
+        level 5). Prior to Zulip 12.0 (feature level 448), users without
         permission to post messages in the channel could access the channel's email
         if they had metadata access.
 
@@ -27806,6 +27827,7 @@ components:
 
                 **Changes**: New in Zulip 8.0 (feature level 199). Previously, this
                 statistic was available only in subscription objects.
+            miatsuco_allow_user_email_posting: {}
             miatsuco_retain_topics: {}
           required:
             - stream_id
@@ -28025,6 +28047,15 @@ components:
             server.
 
             **Changes**: New in Zulip 11.0 (feature level 394).
+        miatsuco_allow_user_email_posting:
+          type: boolean
+          description: |
+            Whether any user who can post messages in this channel can generate a
+            personal email address for it, which posts messages as that user. Requires
+            permission to administer the channel to change. Specific to the MiAtSu.Co
+            fork.
+
+            **Changes**: New in Miatsuco 1.0 (feature level 5).
         miatsuco_retain_topics:
           type: boolean
           description: |
@@ -29195,6 +29226,15 @@ components:
             server.
 
             **Changes**: New in Zulip 11.0 (feature level 394).
+        miatsuco_allow_user_email_posting:
+          type: boolean
+          description: |
+            Whether any user who can post messages in this channel can generate a
+            personal email address for it, which posts messages as that user. Requires
+            permission to administer the channel to change. Specific to the MiAtSu.Co
+            fork.
+
+            **Changes**: New in Miatsuco 1.0 (feature level 5).
         miatsuco_retain_topics:
           type: boolean
           description: |
