@@ -60,6 +60,7 @@ export const stream_schema = z.object({
     is_recently_active: z.boolean(),
     is_web_public: z.boolean(),
     message_retention_days: z.nullable(z.number()),
+    miatsuco_allow_user_email_posting: z.boolean(),
     miatsuco_retain_topics: z.boolean(),
     name: z.string(),
     rendered_description: z.string(),

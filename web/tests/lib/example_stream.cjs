@@ -37,6 +37,7 @@ exports.make_stream = (opts = {}) => {
         is_web_public: false,
         message_retention_days: null,
         miatsuco_retain_topics: false,
+        miatsuco_allow_user_email_posting: false,
         name,
         newly_subscribed: false,
         pin_to_top: false,

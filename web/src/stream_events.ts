@@ -236,6 +236,11 @@ export function update_property<P extends keyof UpdatableStreamProperties>(
             channel_folders_ui.update_channel_folder_channels_list(stream_id, value);
             recent_view_ui.complete_rerender();
         },
+        miatsuco_allow_user_email_posting(value) {
+            sub.miatsuco_allow_user_email_posting = value;
+            stream_ui_updates.update_setting_element(sub, "miatsuco_allow_user_email_posting");
+            stream_ui_updates.update_channel_email_section(sub);
+        },
         miatsuco_retain_topics(value) {
             sub.miatsuco_retain_topics = value;
             stream_ui_updates.update_setting_element(sub, "miatsuco_retain_topics");

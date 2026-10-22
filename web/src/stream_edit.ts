@@ -644,8 +644,6 @@ function set_up_stream_email_address(sub: StreamSubscription): void {
         function update_option_label(sender: User | CurrentUser | Bot): string {
             if (sender.user_id === people.EMAIL_GATEWAY_BOT.user_id) {
                 return "Email Gateway bot";
-            } else if (sender.user_id === current_user.user_id) {
-                return $t({defaultMessage: "You"});
             }
             return sender.full_name;
         }
@@ -656,7 +654,9 @@ function set_up_stream_email_address(sub: StreamSubscription): void {
         }[] {
             const senders = [
                 people.EMAIL_GATEWAY_BOT,
-                ...stream_data.get_current_user_and_their_bots_with_post_messages_permission(sub),
+                ...stream_data
+                    .get_current_user_and_their_bots_with_post_messages_permission(sub)
+                    .filter((sender) => sender.user_id !== current_user.user_id),
             ];
             return senders.map((sender) => ({
                 name: update_option_label(sender),
@@ -721,6 +721,8 @@ function set_up_stream_email_address(sub: StreamSubscription): void {
 }
 
 export function initialize(): void {
+    miatsuco_channel_email_addresses.initialize();
+
     const email_address_clipboard = new ClipboardJS("#stream_settings .copy-email-address", {
         text(trigger) {
             return $(trigger).closest(".stream-email").find(".email-address").text();

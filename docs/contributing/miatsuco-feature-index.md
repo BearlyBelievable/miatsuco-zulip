@@ -16,7 +16,7 @@ offers.
 | email visibility policy  | `email_address_visibility_max`, `email_address_visibility_min`, `email_visibility_policy` |
 | retain topics            | `miatsuco_retain_topics`                                                                  |
 | pinned topic             | `miatsuco_pinned_topic`, `miatsuco_pinned_topic_name`                                     |
-| channel email posting    | `miatsuco_channel_email`                                                                  |
+| channel email posting    | `miatsuco_allow_user_email_posting`, `miatsuco_channel_email`                             |
 
 ## Improvements
 
