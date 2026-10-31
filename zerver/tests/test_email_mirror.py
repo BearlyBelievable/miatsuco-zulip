@@ -1439,7 +1439,7 @@ class TestMissedMessageEmailMessages(ZulipTestCase):
         incoming_valid_message["To"] = mm_address
         incoming_valid_message["Reply-to"] = user_profile.delivery_email
 
-        with self.assert_database_query_count(18):
+        with self.assert_database_query_count(19):
             process_message(incoming_valid_message)
 
         # confirm that Hamlet got the message
@@ -2613,6 +2613,41 @@ class TestChannelEmailAddressDelivery(MiatsucoChannelEmailAddressTestMixin):
         for address in [self.encoded(orphan), bot, personal]:
             self.assertEqual(self.deliver(address), self.delivery_log(None))
         self.assertEqual(self.get_last_message().sender_id, self.hamlet.id)
+
+    def test_delivery_follows_the_pin_of_an_existing_topic(self) -> None:
+        self.enable()
+        pinned_topic_name = "📌 Applications"
+        self.send_stream_message(self.iago, "Denmark", topic_name=pinned_topic_name)
+        bot = self.bot_address(self.iago)
+        personal = self.personal_address(self.hamlet)
+
+        for address in [bot, personal]:
+            self.assertEqual(
+                self.deliver(address, email_subject="Applications"), self.delivery_log(None)
+            )
+            self.assertEqual(self.get_last_message().topic_name(), pinned_topic_name)
+
+        self.assertEqual(self.deliver(bot, email_subject="Other"), self.delivery_log(None))
+        self.assertEqual(self.get_last_message().topic_name(), "Other")
+
+        last_message_id = self.get_last_message().id
+        admins_group = NamedUserGroup.objects.get(
+            name=SystemGroups.ADMINISTRATORS, realm_for_sharding=self.realm, is_system_group=True
+        )
+        do_change_stream_group_based_setting(
+            self.channel,
+            "miatsuco_can_post_in_pinned_topic_group",
+            admins_group,
+            acting_user=self.iago,
+        )
+        with self.assertLogs(level="ERROR") as mock_log:
+            self.assertEqual(
+                self.deliver(personal, email_subject="Applications"), self.delivery_log(None)
+            )
+        self.assertIn("You do not have permission to post in the pinned topic.", mock_log.output[0])
+        self.assertEqual(self.get_last_message().id, last_message_id)
+        self.assertEqual(self.deliver(bot, email_subject="Applications"), self.delivery_log(None))
+        self.assertEqual(self.get_last_message().topic_name(), pinned_topic_name)
 
     def test_personal_delivery_ignores_the_address_options(self) -> None:
         self.enable()

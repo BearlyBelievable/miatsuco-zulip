@@ -53,7 +53,7 @@ from zerver.lib.message import (
     visibility_policy_for_send_message,
 )
 from zerver.lib.message_cache import MessageDict
-from zerver.lib.miatsuco_pinned_topic import check_pinned_topic_send
+from zerver.lib.miatsuco_pinned_topic import check_pinned_topic_send, resolve_topic_name
 from zerver.lib.muted_users import get_muting_users
 from zerver.lib.notification_data import (
     UserMessageNotificationsData,
@@ -1875,6 +1875,7 @@ def check_message(
             # else can sneak past the access check.
             assert sender.bot_type == sender.OUTGOING_WEBHOOK_BOT
 
+        topic_name = resolve_topic_name(stream, topic_name)
         check_for_can_create_topic_group_violation(
             user_profile=sender,
             stream=stream,

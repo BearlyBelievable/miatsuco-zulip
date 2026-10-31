@@ -985,9 +985,12 @@ function validate_stream_message(scheduling_message: boolean, show_banner = true
         return false;
     }
 
-    const pinned_topic_name = compose_state.topic().trim();
-    if (miatsuco_pinned_topic.is_pinned(pinned_topic_name)) {
-        const pinned_topic_error_message = get_pinned_topic_error_message(sub, pinned_topic_name);
+    const topic_name = miatsuco_pinned_topic.resolve_topic_name(
+        sub.stream_id,
+        compose_state.topic().trim(),
+    );
+    if (miatsuco_pinned_topic.is_pinned(topic_name)) {
+        const pinned_topic_error_message = get_pinned_topic_error_message(sub, topic_name);
         if (pinned_topic_error_message !== undefined) {
             compose_banner.show_error_message(
                 pinned_topic_error_message,

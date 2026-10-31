@@ -2,6 +2,7 @@ from django.db.models import QuerySet
 from django.utils.translation import gettext as _
 
 from zerver.lib.exceptions import JsonableError
+from zerver.lib.message import truncate_topic
 from zerver.lib.miatsuco_pinned_topic_name import (
     PINNED_TOPIC_PREFIX,
     get_topic_pin_and_bare_name,
@@ -44,17 +45,37 @@ def check_pinned_topic_edit(
     target_topic_name = message_edit_request.target_topic_name
 
     if message_edit_request.is_stream_edited:
-        raise JsonableError(_("Messages can't be moved into or out of a pinned topic."))
+        raise JsonableError(_("Pinned topics can't be moved to another channel."))
 
     check_can_manage_pinned_topics(user_profile, message_edit_request.orig_stream)
     if message_edit_request.propagate_mode != "change_all":
-        raise JsonableError(_("Messages can't be moved into or out of a pinned topic."))
+        raise JsonableError(
+            _("Pinning, unpinning, or renaming a pinned topic must apply to the whole topic.")
+        )
 
-    if (
-        orig_topic_name.lower() != target_topic_name.lower()
-        and get_messages_in_topic(message_edit_request.orig_stream, target_topic_name).exists()
-    ):
-        raise JsonableError(_("Messages can't be moved into or out of a pinned topic."))
+    if orig_topic_name.lower() == target_topic_name.lower():
+        return
+
+    if get_messages_in_topic(message_edit_request.orig_stream, target_topic_name).exists():
+        raise JsonableError(
+            _("The topic {topic_name} already exists.").format(topic_name=target_topic_name)
+        )
+
+
+def check_pin_collision(
+    message_edit_request: StreamMessageEditRequest,
+) -> None:
+    target_topic_name = message_edit_request.target_topic_name
+    bare_name = get_topic_pin_and_bare_name(target_topic_name)[1]
+    for topic_name in (bare_name, truncate_topic(PINNED_TOPIC_PREFIX + bare_name)):
+        if (
+            topic_name.lower()
+            not in (target_topic_name.lower(), message_edit_request.orig_topic_name.lower())
+            and get_messages_in_topic(message_edit_request.target_stream, topic_name).exists()
+        ):
+            raise JsonableError(
+                _("The topic {topic_name} already exists.").format(topic_name=topic_name)
+            )
 
 
 def check_can_start_pinned_topic(
@@ -87,15 +108,19 @@ def check_pinned_topic_send(user_profile: UserProfile, stream: Stream, topic_nam
         check_can_post_in_pinned_topic(user_profile, stream)
 
 
-def check_pinned_topic_can_be_unpinned(stream: Stream, topic_name: str) -> None:
-    unpinned_topic_name = get_topic_pin_and_bare_name(topic_name)[1]
-    if get_messages_in_topic(stream, unpinned_topic_name).exists():
-        raise JsonableError(
-            _(
-                "The channel's pinned topic can't be unpinned because the topic"
-                " {topic_name} already exists."
-            ).format(topic_name=unpinned_topic_name)
-        )
+def resolve_topic_name(stream: Stream, topic_name: str) -> str:
+    if get_messages_in_topic(stream, topic_name).exists():
+        return topic_name
+
+    bare_name = get_topic_pin_and_bare_name(topic_name)[1]
+    for existing_topic_name in (bare_name, truncate_topic(PINNED_TOPIC_PREFIX + bare_name)):
+        if (
+            existing_topic_name != topic_name
+            and get_messages_in_topic(stream, existing_topic_name).exists()
+        ):
+            return existing_topic_name
+
+    return topic_name
 
 
 def get_other_pinned_topic_names(stream: Stream, excluded_topic_names: list[str]) -> list[str]:

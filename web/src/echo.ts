@@ -25,6 +25,7 @@ import * as message_live_update from "./message_live_update.ts";
 import * as message_store from "./message_store.ts";
 import type {DisplayRecipientUser, Message, MessageReaction, RawMessage} from "./message_store.ts";
 import * as message_util from "./message_util.ts";
+import * as miatsuco_pinned_topic from "./miatsuco_pinned_topic.ts";
 import * as people from "./people.ts";
 import * as pm_list from "./pm_list.ts";
 import * as recent_view_data from "./recent_view_data.ts";
@@ -322,6 +323,12 @@ export let try_deliver_locally = (
         !people.user_can_initiate_direct_message_thread(message_request.to_user_ids) &&
         !message_util.get_direct_message_permission_hints(message_request.to_user_ids)
             .is_local_echo_safe
+    ) {
+        return undefined;
+    }
+    if (
+        message_request.type === "stream" &&
+        !miatsuco_pinned_topic.is_local_echo_safe(message_request.stream_id, message_request.topic)
     ) {
         return undefined;
     }
