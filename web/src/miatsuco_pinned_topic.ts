@@ -1,9 +1,9 @@
-import _ from "lodash";
-import * as z from "zod/mini";
-
 import * as buttons from "./buttons.ts";
 import * as channel from "./channel.ts";
+import {$t} from "./i18n.ts";
+import {realm} from "./state_data.ts";
 import * as stream_data from "./stream_data.ts";
+import * as stream_topic_history from "./stream_topic_history.ts";
 import * as ui_report from "./ui_report.ts";
 
 // Mirrors PINNED_TOPIC_PREFIX in zerver/lib/miatsuco_pinned_topic_name.py.
@@ -18,6 +18,43 @@ export function display_parts(topic_name: string): [string, string] {
         return [PINNED_TOPIC_PREFIX, topic_name.slice(PINNED_TOPIC_PREFIX.length)];
     }
     return ["", topic_name];
+}
+
+export function pin_name(topic_name: string): string {
+    return PINNED_TOPIC_PREFIX + topic_name;
+}
+
+export function unpin_name(topic_name: string): string {
+    return display_parts(topic_name)[1];
+}
+
+function get_lowercase_topic_names(stream_id: number): Set<string> {
+    return new Set(
+        stream_topic_history.get_recent_topic_names(stream_id).map((name) => name.toLowerCase()),
+    );
+}
+
+export function is_local_echo_safe(stream_id: number, topic_name: string): boolean {
+    if (get_lowercase_topic_names(stream_id).has(topic_name.toLowerCase())) {
+        return true;
+    }
+    return (
+        stream_topic_history.has_history_for(stream_id) &&
+        pin_name(unpin_name(topic_name)).length <= realm.max_topic_length
+    );
+}
+
+export function resolve_topic_name(stream_id: number, topic_name: string): string {
+    const existing_topic_names = get_lowercase_topic_names(stream_id);
+    if (existing_topic_names.has(topic_name.toLowerCase())) {
+        return topic_name;
+    }
+    const bare_name = unpin_name(topic_name);
+    return (
+        [bare_name, pin_name(bare_name)].find((name) =>
+            existing_topic_names.has(name.toLowerCase()),
+        ) ?? topic_name
+    );
 }
 
 export function user_can_post_in_topic(stream_id: number, topic_name: string): boolean {
@@ -56,13 +93,9 @@ export function toggle_pinned_topic(
     old_topic_name: string,
     $row?: JQuery,
 ): void {
-    let new_topic_name;
-    if (is_pinned(old_topic_name)) {
-        new_topic_name = display_parts(old_topic_name)[1];
-    } else {
-        new_topic_name = PINNED_TOPIC_PREFIX + old_topic_name;
-    }
-
+    const new_topic_name = is_pinned(old_topic_name)
+        ? unpin_name(old_topic_name)
+        : pin_name(old_topic_name);
     const $button = $row?.find(".on_hover_topic_pin, .on_hover_topic_unpin");
     if ($button !== undefined) {
         buttons.show_button_loading_indicator($button);
@@ -80,10 +113,13 @@ export function toggle_pinned_topic(
             if ($button !== undefined) {
                 buttons.hide_button_loading_indicator($button);
             }
-            if (xhr.responseJSON) {
-                const {msg} = z.object({msg: z.string()}).parse(xhr.responseJSON);
-                ui_report.generic_embed_error(_.escape(msg), 3500);
-            }
+            ui_report.generic_embed_error(
+                channel.xhr_error_message(
+                    $t({defaultMessage: "Failed to pin or unpin the topic"}),
+                    xhr,
+                ),
+                3500,
+            );
         },
     });
 }

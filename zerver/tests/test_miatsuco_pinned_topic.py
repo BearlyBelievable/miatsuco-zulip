@@ -1,13 +1,17 @@
 from zerver.actions.streams import do_change_stream_group_based_setting
 from zerver.actions.user_groups import check_add_user_group
 from zerver.lib.exceptions import JsonableError
+from zerver.lib.message import truncate_topic
 from zerver.lib.test_miatsuco import MiatsucoPinnedTopicTestMixin
 from zerver.lib.topic import messages_for_topic
 from zerver.models.streams import get_stream
 
 PIN = "📌 "
 RESOLVED = "✔ "
-MOVE_ERROR = "Messages can't be moved into or out of a pinned topic."
+CHANNEL_MOVE_ERROR = "Pinned topics can't be moved to another channel."
+WHOLE_TOPIC_ERROR = "Pinning, unpinning, or renaming a pinned topic must apply to the whole topic."
+TOPIC_EXISTS_ERROR = f"The topic {PIN}plans already exists."
+PLAIN_TOPIC_EXISTS_ERROR = "The topic plans already exists."
 ADMIN_ERROR = "Only channel administrators can pin, unpin, or rename a pinned topic."
 
 
@@ -46,6 +50,8 @@ class MiatsucoPinnedTopicTest(MiatsucoPinnedTopicTestMixin):
         self.assert_json_success(self.edit_topic(first, f"{PIN}new schedule"))
         self.assertIn(f"{PIN}new schedule", self.topic_names())
         self.assertNotIn("has unpinned", self.get_last_message().content)
+        self.assert_json_success(self.edit_topic(first, f"{PIN}New schedule"))
+        self.assertIn(f"{PIN}New schedule", self.topic_names())
         self.assert_json_success(self.edit_topic(first, "agenda"))
         self.assert_notice("agenda", "has unpinned this topic.")
 
@@ -92,16 +98,6 @@ class MiatsucoPinnedTopicTest(MiatsucoPinnedTopicTestMixin):
         )
         self.assertEqual(unpin_notices.count(), 1)
 
-        third = self.send("agenda")
-        self.send("chores")
-        result = self.edit_topic(third, f"{PIN}agenda")
-        self.assert_json_error(
-            result,
-            "The channel's pinned topic can't be unpinned because the topic chores already exists.",
-        )
-        self.assertTrue({f"{PIN}chores", "chores", "agenda"} <= self.topic_names())
-        self.assertNotIn(f"{PIN}agenda", self.topic_names())
-
     def test_messages_cannot_move_into_or_out_of_a_pinned_topic(self) -> None:
         first = self.send("plans")
         self.send("plans")
@@ -109,7 +105,7 @@ class MiatsucoPinnedTopicTest(MiatsucoPinnedTopicTestMixin):
         self.login_user(self.admin)
         for propagate_mode in ["change_one", "change_later"]:
             result = self.edit_topic(first, f"{PIN}plans", propagate_mode)
-            self.assert_json_error(result, MOVE_ERROR)
+            self.assert_json_error(result, WHOLE_TOPIC_ERROR)
         self.assertNotIn(f"{PIN}plans", self.topic_names())
 
         self.assert_json_success(self.edit_topic(first, f"{PIN}plans"))
@@ -123,21 +119,61 @@ class MiatsucoPinnedTopicTest(MiatsucoPinnedTopicTestMixin):
         assert pinned_message is not None
 
         self.assert_json_error(
-            self.edit_topic(pinned_message.id, "chores", "change_one"), MOVE_ERROR
+            self.edit_topic(pinned_message.id, "chores", "change_one"), WHOLE_TOPIC_ERROR
         )
-        self.assert_json_error(self.edit_topic(other, f"{PIN}plans", "change_one"), MOVE_ERROR)
-        self.assert_json_error(self.edit_topic(other, f"{PIN}plans"), MOVE_ERROR)
+        self.assert_json_error(
+            self.edit_topic(other, f"{PIN}plans", "change_one"), WHOLE_TOPIC_ERROR
+        )
+        self.assert_json_error(self.edit_topic(other, f"{PIN}plans"), TOPIC_EXISTS_ERROR)
         verona = get_stream("Verona", self.admin.realm)
         result = self.client_patch(
             f"/json/messages/{pinned_message.id}",
             {"stream_id": verona.id, "propagate_mode": "change_all"},
         )
-        self.assert_json_error(result, MOVE_ERROR)
+        self.assert_json_error(result, CHANNEL_MOVE_ERROR)
 
-        self.send("plans")
-        for topic_name in ["plans", "Plans"]:
-            self.assert_json_error(self.edit_topic(first, topic_name), MOVE_ERROR)
-        self.assertIn(f"{PIN}plans", self.topic_names())
+    def test_a_topic_and_its_pinned_form_cannot_both_exist(self) -> None:
+        first = self.send("plans")
+        other = self.send("chores")
+        self.login_user(self.admin)
+        self.assert_json_success(self.edit_topic(first, f"{PIN}plans"))
+
+        self.send("plans", self.member)
+        self.assertEqual(self.get_last_message().topic_name(), f"{PIN}plans")
+        self.assertNotIn("plans", self.topic_names())
+        self.assert_json_error(self.edit_topic(other, "plans"), TOPIC_EXISTS_ERROR)
+
+        group = check_add_user_group(self.admin.realm, "no posters", [], acting_user=self.admin)
+        stream = get_stream(self.stream_name, self.admin.realm)
+        do_change_stream_group_based_setting(
+            stream, "miatsuco_can_post_in_pinned_topic_group", group, acting_user=self.admin
+        )
+        with self.assertRaisesRegex(
+            JsonableError, "You do not have permission to post in the pinned topic."
+        ):
+            self.send("plans", self.member)
+
+        self.assert_json_success(self.edit_topic(first, "plans"))
+        self.send(f"{PIN}plans")
+        self.assertEqual(self.get_last_message().topic_name(), "plans")
+        self.assertNotIn(f"{PIN}plans", self.topic_names())
+        self.assert_json_error(self.edit_topic(other, f"{PIN}plans"), PLAIN_TOPIC_EXISTS_ERROR)
+
+    def test_a_topic_at_the_length_limit_resolves_to_its_pinned_form(self) -> None:
+        long_name = "a" * 60
+        first = self.send(long_name)
+        other = self.send("chores")
+        self.login_user(self.admin)
+        self.assert_json_success(self.edit_topic(first, PIN + long_name))
+        pinned_name = truncate_topic(PIN + long_name)
+        self.assertIn(pinned_name, self.topic_names())
+
+        self.send(long_name, self.member)
+        self.assertEqual(self.get_last_message().topic_name(), pinned_name)
+        self.assertNotIn(long_name, self.topic_names())
+        self.assert_json_error(
+            self.edit_topic(other, long_name), f"The topic {pinned_name} already exists."
+        )
 
     def test_pinned_and_resolved_are_exclusive(self) -> None:
         for topic_name in [f"{PIN}{RESOLVED}x", f"{RESOLVED}{PIN}x"]:

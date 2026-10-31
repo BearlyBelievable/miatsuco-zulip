@@ -53,7 +53,7 @@ from zerver.lib.message_cache import update_message_cache
 from zerver.lib.miatsuco_pinned_topic import (
     check_can_post_in_pinned_topic,
     check_not_pinned_and_resolved,
-    check_pinned_topic_can_be_unpinned,
+    check_pin_collision,
     check_pinned_topic_edit,
     get_other_pinned_topic_names,
 )
@@ -368,9 +368,6 @@ def unpin_other_topics(
     other_topic_names = get_other_pinned_topic_names(
         stream, [message_edit_request.orig_topic_name, message_edit_request.target_topic_name]
     )
-    for other_topic_name in other_topic_names:
-        check_pinned_topic_can_be_unpinned(stream, other_topic_name)
-
     for other_topic_name in other_topic_names:
         other_message = (
             messages_for_topic(stream.realm_id, stream.recipient_id, other_topic_name)
@@ -1788,6 +1785,9 @@ def check_update_message(
             orig_topic_pinned or target_topic_pinned
         ):
             check_pinned_topic_edit(user_profile, message_edit_request)
+
+        if message_edit_request.is_topic_edited or message_edit_request.is_stream_edited:
+            check_pin_collision(message_edit_request)
 
         if message_edit_request.is_content_edited and orig_topic_pinned:
             check_can_post_in_pinned_topic(user_profile, message_edit_request.orig_stream)

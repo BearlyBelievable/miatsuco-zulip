@@ -20,6 +20,7 @@ import type {PostMessageAPIData} from "./echo.ts";
 import * as message_events from "./message_events.ts";
 import type {LocalMessage} from "./message_helper.ts";
 import * as message_viewport from "./message_viewport.ts";
+import * as miatsuco_pinned_topic from "./miatsuco_pinned_topic.ts";
 import * as onboarding_steps from "./onboarding_steps.ts";
 import * as reload from "./reload.ts";
 import * as scheduled_messages from "./scheduled_messages.ts";
@@ -204,7 +205,7 @@ export let send_message = (): void => {
     } else {
         const stream_id = compose_state.stream_id();
         assert(stream_id !== undefined);
-        const topic = compose_state.topic();
+        const topic = miatsuco_pinned_topic.resolve_topic_name(stream_id, compose_state.topic());
         message_data = {
             type: message_type,
             content: compose_state.message_content(),

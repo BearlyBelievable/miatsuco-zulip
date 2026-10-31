@@ -306,6 +306,12 @@ run_test("update_message_lists", () => {
     assert.equal(view_args.new, 402);
 });
 
+run_test("try_deliver_locally skips a topic the client can't check", () => {
+    stream_topic_history.reset();
+    const message_request = {type: "stream", stream_id: 1, topic: "agenda", content: "hello"};
+    assert.equal(echo.try_deliver_locally(message_request, noop), undefined);
+});
+
 run_test("insert_local_message streams", ({override}) => {
     const fake_now = 555;
     clock.setSystemTime(new Date(fake_now * 1000));

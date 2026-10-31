@@ -203,6 +203,16 @@ export function refresh(sub: StreamSubscription): void {
                 );
             }
         },
+        error(xhr) {
+            const $status = (can_administer ? $container : $personal_content)
+                .closest(".subsection-parent, .settings-subsection-parent")
+                .find(".alert-notification");
+            ui_report.error(
+                $t_html({defaultMessage: "Failed to load email addresses"}),
+                xhr,
+                $status,
+            );
+        },
     });
 }
 

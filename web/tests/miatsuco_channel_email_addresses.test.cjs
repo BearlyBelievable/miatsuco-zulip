@@ -5,7 +5,7 @@ const assert = require("node:assert/strict");
 const {make_realm} = require("./lib/example_realm.cjs");
 const {make_stream} = require("./lib/example_stream.cjs");
 const {make_cross_realm_bot, make_user} = require("./lib/example_user.cjs");
-const {$t} = require("./lib/i18n.cjs");
+const {$t, $t_html} = require("./lib/i18n.cjs");
 const {mock_esm, zrequire} = require("./lib/namespace.cjs");
 const {run_test} = require("./lib/test.cjs");
 const $ = require("./lib/zjquery.cjs");
@@ -209,6 +209,39 @@ run_test(
         assert.equal(requests.length, 0);
     },
 );
+
+run_test("refresh reports a failed request next to the section", ({override}) => {
+    const errors = [];
+    override(ui_report, "error", (...args) => {
+        errors.push(args);
+    });
+    const $admin_status = $.create("admin status");
+    const $personal_status = $.create("personal status");
+
+    override(stream_data, "can_administer_channel", () => true);
+    override(stream_data, "can_post_messages_in_stream", () => true);
+    const {$box, $personal} = setup_settings_panel();
+    const $admin_subsection = $.create("admin subsection");
+    $box.set_closest_results(".subsection-parent, .settings-subsection-parent", $admin_subsection);
+    $admin_subsection.set_find_results(".alert-notification", $admin_status);
+    const $personal_subsection = $.create("personal subsection");
+    $personal.set_closest_results(
+        ".subsection-parent, .settings-subsection-parent",
+        $personal_subsection,
+    );
+    $personal_subsection.set_find_results(".alert-notification", $personal_status);
+
+    const requests = capture_get();
+    email_addresses.refresh(sub);
+    requests[0].error({status: 500});
+    assert.equal(errors[0][0], $t_html({defaultMessage: "Failed to load email addresses"}));
+    assert.equal(errors[0][2][0], $admin_status[0]);
+
+    override(stream_data, "can_administer_channel", () => false);
+    email_addresses.refresh(sub);
+    requests[1].error({status: 500});
+    assert.equal(errors[1][2][0], $personal_status[0]);
+});
 
 run_test("refresh without an address renders the generate button", ({override, mock_template}) => {
     override(stream_data, "can_administer_channel", () => false);

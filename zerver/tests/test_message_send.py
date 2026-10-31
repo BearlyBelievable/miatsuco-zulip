@@ -1785,7 +1785,7 @@ class StreamMessagesTest(ZulipTestCase):
             setting_value=UserProfile.AUTOMATICALLY_CHANGE_VISIBILITY_POLICY_NEVER,
             acting_user=None,
         )
-        with self.assert_database_query_count(14):
+        with self.assert_database_query_count(16):
             check_send_stream_message(
                 sender=sender,
                 client=sending_client,
@@ -1805,7 +1805,7 @@ class StreamMessagesTest(ZulipTestCase):
         # 5 queries: 1 to check if it is the first message in the topic +
         # 1 to check if the topic is already followed + 3 to follow the topic.
         flush_per_request_caches()
-        with self.assert_database_query_count(19):
+        with self.assert_database_query_count(21):
             check_send_stream_message(
                 sender=sender,
                 client=sending_client,
@@ -1825,7 +1825,7 @@ class StreamMessagesTest(ZulipTestCase):
         # a message to a topic with visibility policy other than FOLLOWED.
         # 1 to check if the topic is already followed + 3 queries to follow the topic.
         flush_per_request_caches()
-        with self.assert_database_query_count(18):
+        with self.assert_database_query_count(19):
             check_send_stream_message(
                 sender=sender,
                 client=sending_client,
@@ -1836,7 +1836,7 @@ class StreamMessagesTest(ZulipTestCase):
         # If the topic is already FOLLOWED, there will be an increase in the query
         # count of 1 to check if the topic is already followed.
         flush_per_request_caches()
-        with self.assert_database_query_count(15):
+        with self.assert_database_query_count(16):
             check_send_stream_message(
                 sender=sender,
                 client=sending_client,
@@ -1861,7 +1861,7 @@ class StreamMessagesTest(ZulipTestCase):
         # 1 to get the user_id of the mentioned user + 1 to check if the topic
         # is already followed + 3 queries to follow the topic.
         flush_per_request_caches()
-        with self.assert_database_query_count(23):
+        with self.assert_database_query_count(24):
             check_send_stream_message(
                 sender=sender,
                 client=sending_client,
@@ -1874,7 +1874,7 @@ class StreamMessagesTest(ZulipTestCase):
         # 1 to get the user_id of the mentioned user + 1 to check if the topic is
         # already followed.
         flush_per_request_caches()
-        with self.assert_database_query_count(20):
+        with self.assert_database_query_count(21):
             check_send_stream_message(
                 sender=sender,
                 client=sending_client,
@@ -1884,7 +1884,7 @@ class StreamMessagesTest(ZulipTestCase):
             )
 
         flush_per_request_caches()
-        with self.assert_database_query_count(17):
+        with self.assert_database_query_count(18):
             check_send_stream_message(
                 sender=sender,
                 client=sending_client,
@@ -1907,7 +1907,7 @@ class StreamMessagesTest(ZulipTestCase):
         )
         flush_per_request_caches()
 
-        with self.assert_database_query_count(18):
+        with self.assert_database_query_count(19):
             check_send_stream_message(
                 sender=sender,
                 client=sending_client,
