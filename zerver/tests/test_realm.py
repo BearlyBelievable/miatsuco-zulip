@@ -3002,6 +3002,9 @@ class RealmAPITest(ZulipTestCase):
         do_set_realm_property(get_realm("zulip"), "message_retention_days", 30, acting_user=None)
         self.do_test_changing_settings_by_owners_only("miatsuco_retain_topics")
 
+    def test_miatsuco_bots_can_invite_users_setting_requires_owner(self) -> None:
+        self.do_test_changing_settings_by_owners_only("miatsuco_bots_can_invite_users")
+
     def test_enable_spectator_access_for_limited_plan_realms(self) -> None:
         self.login("iago")
         realm = get_realm("zulip")

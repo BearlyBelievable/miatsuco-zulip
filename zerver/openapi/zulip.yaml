@@ -20968,6 +20968,16 @@ paths:
                           encoded as `null` instead of `-1`. Clients can correctly handle all
                           server versions by treating both `-1` and `null` as indicating
                           unlimited message retention.
+                      realm_miatsuco_bots_can_invite_users:
+                        type: boolean
+                        description: |
+                          Present if `realm` is present in `fetch_event_types`.
+
+                          Whether bots owned by an organization administrator can send email
+                          invitations with [`POST /invites`](/api/send-invites), subject to
+                          the usual invitation permissions. Specific to the MiAtSu.Co fork.
+
+                          **Changes**: New in Miatsuco 1.0 (feature level 6).
                       realm_miatsuco_retain_topics:
                         type: boolean
                         description: |

@@ -6,6 +6,8 @@ import FlattenedSteps from "../../components/FlattenedSteps.astro";
 import NavigationSteps from "../../components/NavigationSteps.astro";
 import ZulipNote from "../../components/ZulipNote.astro";
 import InviteUsers from "../include/_InviteUsers.mdx";
+import OwnerOnly from "../include/_OwnerOnly.mdx";
+import SaveChanges from "../include/_SaveChanges.mdx";
 
 import SendDmIcon from "~icons/zulip-icon/send-dm";
 import TrashIcon from "~icons/zulip-icon/trash";
@@ -91,6 +93,34 @@ users** menu option if you have permission to invite users.
      message](/help/configure-a-custom-welcome-message).
   1. Click **Create link**.
   1. Copy the link, and send it to anyone you'd like to invite.
+</FlattenedSteps>
+
+## Allow bots to send email invitations
+
+<OwnerOnly />
+
+By default, bots can't send invitations. You can allow bots to send email
+invitations through the Zulip API, which lets an invitation go out
+automatically, for example when an application is approved.
+
+When this setting is on:
+
+* Only bots owned by an organization administrator can send invitations.
+* A bot needs the same permission as a user, so it must be in the group that
+  can [send invitations](/help/restrict-account-creation#change-who-can-send-invitations).
+* A bot can invite users only with a role at or below its own.
+* The invitation is sent in the name of the bot, and the bot receives the
+  notification when the invitation is accepted.
+* Bots can't create reusable invitation links, and guest bots can't send
+  invitations.
+
+<FlattenedSteps>
+  <NavigationSteps target="settings/organization-permissions" />
+
+  1. Under **Joining the organization**, toggle **Allow bots owned by
+     administrators to send email invitations**.
+
+  <SaveChanges />
 </FlattenedSteps>
 
 ## Manage pending invitations

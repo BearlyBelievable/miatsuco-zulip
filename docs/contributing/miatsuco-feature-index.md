@@ -30,6 +30,7 @@ offers.
 | rerender embeds              | `miatsuco_rerender_embeds`                                                                                                |
 | channel retention permission | `message_retention_days`                                                                                                  |
 | more permission options      | `miatsuco_can_manage_user_activation_group`, `miatsuco_can_change_user_roles_group`, `miatsuco_can_edit_user_names_group` |
+| bot invitations              | `miatsuco_bots_can_invite_users`                                                                                          |
 
 ## Feature levels
 
@@ -45,3 +46,4 @@ row here when you raise it.
 | 3     | org DM restrictions and personal DM restrictions settings                       |
 | 4     | email visibility policy settings and endpoints                                  |
 | 5     | more permission options, retain topics, pinned topic, and channel email posting |
+| 6     | bot invitations setting                                                         |

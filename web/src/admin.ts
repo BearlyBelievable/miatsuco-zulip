@@ -85,6 +85,9 @@ const admin_settings_label = {
     realm_invite_required: $t({
         defaultMessage: "Invitations are required for joining this organization",
     }),
+    realm_miatsuco_bots_can_invite_users: $t({
+        defaultMessage: "Allow bots owned by administrators to send email invitations",
+    }),
     realm_default_language: $t({
         defaultMessage: "Language for automated messages and invitation emails",
     }),
@@ -260,6 +263,7 @@ export function build_page(): void {
         can_create_multiuse_invite: settings_data.user_can_create_multiuse_invite(),
         can_invite_users_by_email: settings_data.user_can_invite_users_by_email(),
         realm_invite_required: realm.realm_invite_required,
+        realm_miatsuco_bots_can_invite_users: realm.realm_miatsuco_bots_can_invite_users,
         policy_values: settings_config.common_policy_values,
         ...settings_org.get_organization_settings_options(),
         demote_inactive_streams_values: settings_config.demote_inactive_streams_values,
