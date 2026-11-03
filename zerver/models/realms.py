@@ -216,6 +216,7 @@ class Realm(models.Model):
     emails_restricted_to_domains = models.BooleanField(default=False)
 
     invite_required = models.BooleanField(default=True)
+    miatsuco_bots_can_invite_users = models.BooleanField(default=False, db_default=False)
 
     _max_invites = models.IntegerField(null=True, db_column="max_invites")
     disallow_disposable_email_addresses = models.BooleanField(default=True)
@@ -808,6 +809,7 @@ class Realm(models.Model):
         inline_url_embed_preview=bool,
         invite_required=bool,
         jitsi_server_url=str | None,
+        miatsuco_bots_can_invite_users=bool,
         message_content_allowed_in_email_notifications=bool,
         message_content_edit_limit_seconds=int | None,
         message_content_delete_limit_seconds=int | None,

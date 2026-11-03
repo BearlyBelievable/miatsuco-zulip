@@ -22,6 +22,13 @@
                   setting_name="realm_can_invite_users_group"
                   label=group_setting_labels.can_invite_users_group}}
 
+                {{> settings_checkbox
+                  setting_name="realm_miatsuco_bots_can_invite_users"
+                  prefix="id_"
+                  is_checked=realm_miatsuco_bots_can_invite_users
+                  label=admin_settings_label.realm_miatsuco_bots_can_invite_users
+                  help_link="/help/invite-new-users#allow-bots-to-send-email-invitations"}}
+
                 {{> group_setting_value_pill_input
                   setting_name="realm_create_multiuse_invite_group"
                   label=group_setting_labels.create_multiuse_invite_group}}

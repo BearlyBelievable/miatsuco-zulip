@@ -185,6 +185,7 @@ def update_realm(
     message_retention_days_raw: Annotated[
         Json[int | str] | None, ApiParamConfig("message_retention_days")
     ] = None,
+    miatsuco_bots_can_invite_users: Json[bool] | None = None,
     miatsuco_retain_topics: Json[bool] | None = None,
     moderation_request_channel_id: Json[int] | None = None,
     move_messages_between_streams_limit_seconds_raw: Annotated[
@@ -310,6 +311,9 @@ def update_realm(
         raise OrganizationOwnerRequiredError
 
     if miatsuco_retain_topics is not None and not user_profile.is_realm_owner:
+        raise OrganizationOwnerRequiredError
+
+    if miatsuco_bots_can_invite_users is not None and not user_profile.is_realm_owner:
         raise OrganizationOwnerRequiredError
 
     retain_topics = realm.miatsuco_retain_topics

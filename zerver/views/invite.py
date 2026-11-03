@@ -17,7 +17,7 @@ from zerver.actions.invites import (
     do_revoke_user_invite,
     do_send_user_invite_email,
 )
-from zerver.decorator import require_human_non_guest_user
+from zerver.decorator import require_human_non_guest_user, require_non_guest_user
 from zerver.lib.exceptions import InvitationError, JsonableError, OrganizationOwnerRequiredError
 from zerver.lib.response import json_success
 from zerver.lib.streams import access_stream_by_id, get_streams_to_which_user_cannot_add_subscribers
@@ -132,7 +132,7 @@ def access_user_groups_for_invite(
     return user_groups
 
 
-@require_human_non_guest_user
+@require_non_guest_user
 @typed_endpoint
 def invite_users_backend(
     request: HttpRequest,
@@ -155,6 +155,14 @@ def invite_users_backend(
         ),
     ] = None,
 ) -> HttpResponse:
+    if user_profile.bot_type is not None:
+        if not user_profile.realm.miatsuco_bots_can_invite_users:
+            raise JsonableError(_("This endpoint does not accept bot requests."))
+
+        bot_owner = user_profile.bot_owner
+        if bot_owner is None or not bot_owner.is_realm_admin:
+            raise JsonableError(_("Only bots owned by an administrator can send invitations."))
+
     if not user_profile.can_invite_users_by_email():
         # Guest users case will not be handled here as it will
         # be handled by the decorator above.
